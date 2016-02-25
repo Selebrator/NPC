@@ -7,7 +7,6 @@ import net.minecraft.server.v1_8_R3.ChatComponentText;
 import net.minecraft.server.v1_8_R3.Entity;
 import net.minecraft.server.v1_8_R3.Packet;
 import net.minecraft.server.v1_8_R3.PacketPlayOutAnimation;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntity;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntity.PacketPlayOutEntityLook;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityEquipment;
@@ -72,15 +71,15 @@ public class FakePlayer {
 	public void spawn(Location location) {
 		this.location = location;
 		PacketPlayOutNamedEntitySpawn namedEntitySpawn = new PacketPlayOutNamedEntitySpawn();
-		Reflection.getField(PacketPlayOutNamedEntitySpawn.class, "a").set(namedEntitySpawn, this.entityID);
-		Reflection.getField(PacketPlayOutNamedEntitySpawn.class, "b").set(namedEntitySpawn, this.gameProfile.getId());
-		Reflection.getField(PacketPlayOutNamedEntitySpawn.class, "c").set(namedEntitySpawn, toFixedPointNumber(this.location.getX()));
-		Reflection.getField(PacketPlayOutNamedEntitySpawn.class, "d").set(namedEntitySpawn, toFixedPointNumber(this.location.getY()));
-		Reflection.getField(PacketPlayOutNamedEntitySpawn.class, "e").set(namedEntitySpawn, toFixedPointNumber(this.location.getZ()));
-		Reflection.getField(PacketPlayOutNamedEntitySpawn.class, "f").set(namedEntitySpawn, toAngle(this.location.getYaw()));
-		Reflection.getField(PacketPlayOutNamedEntitySpawn.class, "g").set(namedEntitySpawn, toAngle(this.location.getPitch()));
-		Reflection.getField(PacketPlayOutNamedEntitySpawn.class, "h").set(namedEntitySpawn, 0);  //itemInHand
-		Reflection.getField(PacketPlayOutNamedEntitySpawn.class, "i").set(namedEntitySpawn, this.dataWatcher);
+		Reflection.getField(namedEntitySpawn.getClass(), "a").set(namedEntitySpawn, this.entityID);
+		Reflection.getField(namedEntitySpawn.getClass(), "b").set(namedEntitySpawn, this.gameProfile.getId());
+		Reflection.getField(namedEntitySpawn.getClass(), "c").set(namedEntitySpawn, toFixedPointNumber(this.location.getX()));
+		Reflection.getField(namedEntitySpawn.getClass(), "d").set(namedEntitySpawn, toFixedPointNumber(this.location.getY()));
+		Reflection.getField(namedEntitySpawn.getClass(), "e").set(namedEntitySpawn, toFixedPointNumber(this.location.getZ()));
+		Reflection.getField(namedEntitySpawn.getClass(), "f").set(namedEntitySpawn, toAngle(this.location.getYaw()));
+		Reflection.getField(namedEntitySpawn.getClass(), "g").set(namedEntitySpawn, toAngle(this.location.getPitch()));
+		Reflection.getField(namedEntitySpawn.getClass(), "h").set(namedEntitySpawn, 0);  //itemInHand
+		Reflection.getField(namedEntitySpawn.getClass(), "i").set(namedEntitySpawn, this.dataWatcher);
 		sendPackets(namedEntitySpawn);
 	}
 	
@@ -111,15 +110,15 @@ public class FakePlayer {
 		float pitch = (float) -(Math.atan2(differenceY, hypotenuseXZ) * 180D / Math.PI);
 		
 		PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook();
-		Reflection.getField(PacketPlayOutEntity.class, "a").set(entityLook, this.entityID);
-		Reflection.getField(PacketPlayOutEntity.class, "e").set(entityLook, toAngle(yaw));
-		Reflection.getField(PacketPlayOutEntity.class, "f").set(entityLook, toAngle(pitch));
-		Reflection.getField(PacketPlayOutEntity.class, "g").set(entityLook, false);				
-		Reflection.getField(PacketPlayOutEntity.class, "h").set(entityLook, true);
+		Reflection.getField(entityLook.getClass(), "a").set(entityLook, this.entityID);
+		Reflection.getField(entityLook.getClass(), "e").set(entityLook, toAngle(yaw));
+		Reflection.getField(entityLook.getClass(), "f").set(entityLook, toAngle(pitch));
+		Reflection.getField(entityLook.getClass(), "g").set(entityLook, false);				
+		Reflection.getField(entityLook.getClass(), "h").set(entityLook, true);
 		
 		PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
-		Reflection.getField(PacketPlayOutEntityHeadRotation.class, "a").set(entityHeadRotation, this.entityID);
-		Reflection.getField(PacketPlayOutEntityHeadRotation.class, "b").set(entityHeadRotation, toAngle(yaw));
+		Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
+		Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, toAngle(yaw));
 		
 		this.location.setYaw(yaw);
 		this.location.setPitch(pitch);
@@ -128,17 +127,17 @@ public class FakePlayer {
 	
 	public void teleport(Location location) {
 		PacketPlayOutEntityTeleport entityTeleport = new PacketPlayOutEntityTeleport();
-		Reflection.getField(PacketPlayOutEntityTeleport.class, "a").set(entityTeleport, this.entityID);
-		Reflection.getField(PacketPlayOutEntityTeleport.class, "b").set(entityTeleport, toFixedPointNumber(location.getX()));
-		Reflection.getField(PacketPlayOutEntityTeleport.class, "c").set(entityTeleport, toFixedPointNumber(location.getY()));
-		Reflection.getField(PacketPlayOutEntityTeleport.class, "d").set(entityTeleport, toFixedPointNumber(location.getZ()));
-		Reflection.getField(PacketPlayOutEntityTeleport.class, "e").set(entityTeleport, toAngle(location.getYaw()));
-		Reflection.getField(PacketPlayOutEntityTeleport.class, "f").set(entityTeleport, toAngle(location.getPitch()));
-		Reflection.getField(PacketPlayOutEntityTeleport.class, "g").set(entityTeleport, false);		//onGround
+		Reflection.getField(entityTeleport.getClass(), "a").set(entityTeleport, this.entityID);
+		Reflection.getField(entityTeleport.getClass(), "b").set(entityTeleport, toFixedPointNumber(location.getX()));
+		Reflection.getField(entityTeleport.getClass(), "c").set(entityTeleport, toFixedPointNumber(location.getY()));
+		Reflection.getField(entityTeleport.getClass(), "d").set(entityTeleport, toFixedPointNumber(location.getZ()));
+		Reflection.getField(entityTeleport.getClass(), "e").set(entityTeleport, toAngle(location.getYaw()));
+		Reflection.getField(entityTeleport.getClass(), "f").set(entityTeleport, toAngle(location.getPitch()));
+		Reflection.getField(entityTeleport.getClass(), "g").set(entityTeleport, false);		//onGround
 		
 		PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
-		Reflection.getField(PacketPlayOutEntityHeadRotation.class, "a").set(entityHeadRotation, this.entityID);
-		Reflection.getField(PacketPlayOutEntityHeadRotation.class, "b").set(entityHeadRotation, toAngle(location.getYaw()));
+		Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
+		Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, toAngle(location.getYaw()));
 		
 		this.location = location;
 		sendPackets(entityTeleport, entityHeadRotation);
@@ -159,9 +158,9 @@ public class FakePlayer {
 
 	public void equip(EquipmentSlot slot, ItemStack item) {
 		PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment();
-		Reflection.getField(PacketPlayOutEntityEquipment.class, "a").set(entityEquipment, this.entityID);
-		Reflection.getField(PacketPlayOutEntityEquipment.class, "b").set(entityEquipment, slot.getID());
-		Reflection.getField(PacketPlayOutEntityEquipment.class, "c").set(entityEquipment, CraftItemStack.asNMSCopy(item));		//itemStack
+		Reflection.getField(entityEquipment.getClass(), "a").set(entityEquipment, this.entityID);
+		Reflection.getField(entityEquipment.getClass(), "b").set(entityEquipment, slot.getID());
+		Reflection.getField(entityEquipment.getClass(), "c").set(entityEquipment, CraftItemStack.asNMSCopy(item));		//itemStack
 		sendPackets(entityEquipment);
 		
 		if(slot == EquipmentSlot.HAND)
@@ -179,15 +178,15 @@ public class FakePlayer {
 	
 	public void playAnimation(Animation anim) {
 		PacketPlayOutAnimation animation = new PacketPlayOutAnimation();
-		Reflection.getField(PacketPlayOutAnimation.class, "a").set(animation, this.entityID);
-		Reflection.getField(PacketPlayOutAnimation.class, "b").set(animation, anim.getId());
+		Reflection.getField(animation.getClass(), "a").set(animation, this.entityID);
+		Reflection.getField(animation.getClass(), "b").set(animation, anim.getId());
 		sendPackets(animation);
 	}
 
 	public void setStatus(Status status) {
 		PacketPlayOutEntityStatus entityStatus = new PacketPlayOutEntityStatus();
-		Reflection.getField(PacketPlayOutEntityStatus.class, "a").set(entityStatus, this.entityID);
-		Reflection.getField(PacketPlayOutEntityStatus.class, "b").set(entityStatus, (byte) status.getID());
+		Reflection.getField(entityStatus.getClass(), "a").set(entityStatus, this.entityID);
+		Reflection.getField(entityStatus.getClass(), "b").set(entityStatus, (byte) status.getID());
 		sendPackets(entityStatus);
 	}
 	
@@ -277,7 +276,7 @@ public class FakePlayer {
 	
 	
 	
-	// ### BITMASKS ###
+	// ### DATAWATCHER BITMASKS ###
 	
 	// 0
 	public void status(boolean fire, boolean sneak, boolean sprint, boolean use, boolean invisible) {

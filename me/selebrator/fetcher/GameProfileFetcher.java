@@ -1,4 +1,4 @@
-package me.selebrator;
+package me.selebrator.fetcher;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
-public class GameProfileBuilder {
+public class GameProfileFetcher {
 	
 	private String name;
 	private String uuid;
@@ -23,7 +23,7 @@ public class GameProfileBuilder {
 	private String skinValue;
 	private String skinSignature;
 	
-	public GameProfileBuilder(String name) {
+	public GameProfileFetcher(String name) {
 		this.name = name;
 		this.skinOwner = name;
 
@@ -31,7 +31,7 @@ public class GameProfileBuilder {
 		createSkin(this.name);
 	}
 	
-	public GameProfileBuilder(String name, String skinOwner) {
+	public GameProfileFetcher(String name, String skinOwner) {
 		this.name = name;
 		this.skinOwner = skinOwner;
 		

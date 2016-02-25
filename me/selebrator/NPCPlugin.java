@@ -3,6 +3,7 @@ package me.selebrator;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.selebrator.fetcher.GameProfileFetcher;
 import me.selebrator.npc.Animation;
 import me.selebrator.npc.EquipmentSlot;
 import me.selebrator.npc.FakePlayer;
@@ -18,10 +19,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Main extends JavaPlugin implements Listener, CommandExecutor {
+public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
+	
 	private Map<Integer, FakePlayer> fakePlayers = new HashMap<Integer, FakePlayer>();
 	private FakePlayer npc;
 	
@@ -30,13 +31,13 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 		Bukkit.getPluginManager().registerEvents(this, this);
 		getCommand("npc").setExecutor(this);
 		
-		npc = new FakePlayer(new GameProfileBuilder("Selebrator").build(), this);
+		npc = new FakePlayer(new GameProfileFetcher("Selebrator").build(), this);
 		fakePlayers.put(1, npc);
 		
-		npc = new FakePlayer(new GameProfileBuilder("sukram706").build(), this);
+		npc = new FakePlayer(new GameProfileFetcher("sukram706").build(), this);
 		fakePlayers.put(2, npc);
 		
-		npc = new FakePlayer(new GameProfileBuilder("Cooooks").build(), this);
+		npc = new FakePlayer(new GameProfileFetcher("Cooooks").build(), this);
 		fakePlayers.put(3, npc);
 		
 		/*
@@ -70,39 +71,6 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 		//despawn
 		else if(event.getItem() != null && event.getItem().getType() == Material.BLAZE_ROD) {
 			npc.despawn();
-		}  
-		//setTarget
-		else if(event.getItem() != null && event.getItem().getType() == Material.EMERALD) {
-			npc.setTarget(event.getPlayer());
-		}
-		//playAnimation
-		else if(event.getItem() != null && event.getItem().getType() == Material.MAGMA_CREAM) {
-			npc.playAnimation(Animation.SWING_ARM);
-		} 
-		//equip
-		else if(event.getItem() != null && event.getItem().getType() == Material.GOLD_HELMET) {
-			npc.equip(EquipmentSlot.HELMET, new ItemStack(Material.GOLD_HELMET, 1));
-			npc.equip(EquipmentSlot.CHESTPLATE, new ItemStack(Material.DIAMOND_CHESTPLATE, 1));
-			npc.equip(EquipmentSlot.LEGGINGS, new ItemStack(Material.DIAMOND_LEGGINGS, 1));
-			npc.equip(EquipmentSlot.BOOTS, new ItemStack(Material.DIAMOND_BOOTS, 1));
-			npc.equip(EquipmentSlot.HAND, new ItemStack(Material.IRON_SWORD, 1));
-			event.setCancelled(true);
-		} 
-		//kill
-		else if(event.getItem() != null && event.getItem().getType() == Material.LEVER) {
-				npc.setHealth(0);
-				event.setCancelled(true);
-		} 
-		//respawn
-		else if(event.getItem() != null && event.getItem().getType() == Material.REDSTONE_TORCH_ON) {
-			npc.setHealth(20);
-			event.setCancelled(true);
-		} 
-		//update
-		else if(event.getItem() != null && event.getItem().getType() == Material.SIGN) {
-			npc.updateGameProfile(new GameProfileBuilder("Selebrator", "Selebrator").build());
-			event.setCancelled(true);
-			
 		}
 	}
 	
@@ -136,9 +104,9 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 			return true;
 		case "update":
 			if(args.length == 2)
-				npc.updateGameProfile(new GameProfileBuilder(args[1]).build());
+				npc.updateGameProfile(new GameProfileFetcher(args[1]).build());
 			if(args.length == 3)
-				npc.updateGameProfile(new GameProfileBuilder(args[1], args[2]).build());
+				npc.updateGameProfile(new GameProfileFetcher(args[1], args[2]).build());
 			if(args.length > 3)
 				player.sendMessage("§cTo many arguments");
 			return true;
