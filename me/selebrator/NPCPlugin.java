@@ -9,7 +9,6 @@ import me.selebrator.npc.EquipmentSlot;
 import me.selebrator.npc.FakePlayer;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -46,7 +45,6 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 	public void onDisable() {
 		for(FakePlayer npc : fakePlayers.values()) {
 			npc.despawn();
-			npc.removeFromTabList();
 		}
 	}
 	
@@ -55,10 +53,8 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		//spawn
 		if(event.getItem() != null && event.getItem().getType() == Material.STICK) {
 			if(event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				npc.addToTabList();
 				npc.spawn(event.getClickedBlock().getLocation().add(0.5, 1, 0.5));
 			} else if(event.getAction() == Action.RIGHT_CLICK_AIR) {
-				npc.addToTabList();
 				npc.spawn(event.getPlayer().getLocation());
 			}
 		} 
@@ -71,63 +67,133 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		Player player = (Player) sender;
-		if(args.length != 0)
-		switch (args[0]) {
-		case "select":
-			npc = fakePlayers.get(Integer.parseInt(args[1]));
-			return true;
-		case "list":
-			for(int i = 1; i <= fakePlayers.size(); i++) {
-				player.sendMessage(i + ": " + fakePlayers.get(i).getName());
+		if(args.length != 0) {
+			if(args[0] != null) {
+				if(args[0].equals("create")) {
+
+					int id = 1;
+					while(fakePlayers.containsKey(id)) {
+						id++;
+					}
+					String name = args[1];
+					fakePlayers.put(id, new FakePlayer(new GameProfileFetcher(name).build(), this));
+					npc = fakePlayers.get(id);
+					player.sendMessage("§8[§a+§8] §eCreated NPC §a" + npc.getName() + " §ewith ID: §a" + id);
+					return true;
+					
+				} else if(args[0].equals("remove")) {
+					
+					int id = Integer.parseInt(args[1]);
+					if(fakePlayers.containsKey(id)) {
+						FakePlayer npc = fakePlayers.get(id);
+						String name = fakePlayers.get(id).getName();
+						fakePlayers.remove(id);
+						npc.despawn();
+						this.npc = null;
+						player.sendMessage("§8[§c-§8] §eRemoved NPC §c" + name + " §ewith ID: §c" + id);
+						return true;
+					}
+					player.sendMessage("§cNPC #" + id + " does not exists   /npc list");
+					return true;
+					
+				} else if(args[0].equals("select")) {
+					
+					if(args.length == 1) {
+						player.sendMessage("§eSelected §a" + npc.getName());
+						return true;
+					} else if(args.length == 2) {
+						int id = Integer.parseInt(args[1]);
+						npc = fakePlayers.get(id);
+						player.sendMessage("§eSelected §a" + npc.getName()  + " §ewith ID: §a" + id);
+						return true;
+					}
+					
+				} else if(args[0].equals("list")) {
+					
+					fakePlayers.forEach( (id, npc) -> {player.sendMessage("§e" + id + ": " + npc.getName());});
+					return true;
+					
+				} else if(args[0].equals("spawn")) {
+					
+					if(npc != null) {
+						npc.spawn(player.getLocation());
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+					
+				} else if(args[0].equals("despawn")) {
+					
+					if(npc != null) {
+						npc.despawn();
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+					
+				} else if(args[0].equals("equip")) {
+					
+					if(npc != null) {
+						npc.equip(EquipmentSlot.valueOf(args[1].toUpperCase()), player.getItemInHand());
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+					
+				} else if(args[0].equals("animation")) {
+					
+					if(npc != null) {
+						npc.playAnimation(Animation.valueOf(args[1].toUpperCase()));
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+					
+				} else if(args[0].equals("health")) {
+
+					if(npc != null) {
+						if(args.length == 2) {
+							npc.setHealth(Float.parseFloat(args[1]));
+							return true;
+						}
+						player.sendMessage("§c/npc " +  args[0] + " <health>");
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+					
+				} else if(args[0].equals("target")) {
+
+					if(npc != null) {
+						if(args.length == 2) {
+							npc.setTarget(player);
+							return true;
+						}
+						player.sendMessage("§c/npc " +  args[0] + " <targetEntity>");
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+					
+				} else if(args[0].equals("update")) {
+
+					if(npc != null) {
+						if(args.length == 2) {
+							npc.updateGameProfile(new GameProfileFetcher(args[1]).build());
+							return true;
+						} else if(args.length == 3) {
+							npc.updateGameProfile(new GameProfileFetcher(args[1], args[2]).build());
+							return true;
+						}
+						player.sendMessage("§c/npc " + args[0] + " <name> [skinowner]");
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+					
+				}
 			}
-			
-			return true;
-		case "create":
-			int id = fakePlayers.size() + 1;
-			String name = args[1];
-			fakePlayers.put(id, new FakePlayer(new GameProfileFetcher(name).build(), this));
-			npc = fakePlayers.get(id);
-			player.sendMessage("Created NPC #" + id + ": " + npc.getName());
-			return true;
-		case "spawn":
-			npc.addToTabList();
-			npc.spawn(player.getLocation());
-			return true;
-		case "despawn":
-			npc.despawn();
-			npc.removeFromTabList();
-			return true;
-		case "target":
-			npc.setTarget(player);
-			return true;
-		case "animation":
-			npc.playAnimation(Animation.valueOf(args[1].toUpperCase()));
-			return true;
-		case "equip":
-			npc.equip(EquipmentSlot.valueOf(args[1]), player.getItemInHand());
-			return true;
-		case "health":
-			npc.setHealth(Float.parseFloat(args[1]));
-			return true;
-		case "update":
-			if(args.length == 2)
-				npc.updateGameProfile(new GameProfileFetcher(args[1]).build());
-			if(args.length == 3)
-				npc.updateGameProfile(new GameProfileFetcher(args[1], args[2]).build());
-			if(args.length > 3)
-				player.sendMessage("§cTo many arguments");
-			return true;
-		case "strip":
-			npc.skinFlags(true, false, false, false, false, false, false);
-			npc.updateMetadata();
-			return true;
-		case "tp":
-			npc.teleport(new Location(Bukkit.getWorld("world"), -63.5, 65, 262.5, 90, 33));
-			return true;
-		case "test":
-			return true;
-		default:
-			player.sendMessage("§cNo valit argument");
+			player.sendMessage("§cInvalid argument");
 			return true;
 		}
 		player.sendMessage("§cNeed at least 1 argument");

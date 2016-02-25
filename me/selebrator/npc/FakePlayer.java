@@ -62,13 +62,14 @@ public class FakePlayer {
 	
 	public void updateGameProfile(GameProfile gameProfile) {
 		despawn();
-		removeFromTabList();
 		this.gameProfile = gameProfile;
-		addToTabList();
 		spawn(location);
 	}
 
 	public void spawn(Location location) {
+		PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.ADD_PLAYER);
+		Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(playerInfo.new PlayerInfoData(this.gameProfile, 0, EnumGamemode.NOT_SET, new ChatComponentText(this.gameProfile.getName()))));
+		
 		this.location = location;
 		PacketPlayOutNamedEntitySpawn namedEntitySpawn = new PacketPlayOutNamedEntitySpawn();
 		Reflection.getField(namedEntitySpawn.getClass(), "a").set(namedEntitySpawn, this.entityID);
@@ -80,25 +81,17 @@ public class FakePlayer {
 		Reflection.getField(namedEntitySpawn.getClass(), "g").set(namedEntitySpawn, toAngle(this.location.getPitch()));
 		Reflection.getField(namedEntitySpawn.getClass(), "h").set(namedEntitySpawn, 0);  //itemInHand
 		Reflection.getField(namedEntitySpawn.getClass(), "i").set(namedEntitySpawn, this.dataWatcher);
-		sendPackets(namedEntitySpawn);
+		
+		sendPackets(playerInfo, namedEntitySpawn);
 	}
 	
 	public void despawn() {
 		PacketPlayOutEntityDestroy entityDestroy = new PacketPlayOutEntityDestroy(this.entityID);
-		sendPackets(entityDestroy);
-		removeFromTabList();
-	}
-
-	public void addToTabList() {
-		PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.ADD_PLAYER);
-		Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(playerInfo.new PlayerInfoData(this.gameProfile, 0, EnumGamemode.NOT_SET, new ChatComponentText(this.gameProfile.getName()))));
-		sendPackets(playerInfo);
-	}
-
-	public void removeFromTabList() {
+		
 		PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.REMOVE_PLAYER);
 		Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(playerInfo.new PlayerInfoData(this.gameProfile, 0, null, null)));
-		sendPackets(playerInfo);
+		
+		sendPackets(entityDestroy, playerInfo);
 	}
 
 	public void look(Location location) {
