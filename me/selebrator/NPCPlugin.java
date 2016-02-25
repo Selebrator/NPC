@@ -34,12 +34,6 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		npc = new FakePlayer(new GameProfileFetcher("Selebrator").build(), this);
 		fakePlayers.put(1, npc);
 		
-		npc = new FakePlayer(new GameProfileFetcher("sukram706").build(), this);
-		fakePlayers.put(2, npc);
-		
-		npc = new FakePlayer(new GameProfileFetcher("Cooooks").build(), this);
-		fakePlayers.put(3, npc);
-		
 		/*
 		 * Optifine capes will override Mojangs.
 		 * 
@@ -81,6 +75,19 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		switch (args[0]) {
 		case "select":
 			npc = fakePlayers.get(Integer.parseInt(args[1]));
+			return true;
+		case "list":
+			for(int i = 1; i <= fakePlayers.size(); i++) {
+				player.sendMessage(i + ": " + fakePlayers.get(i).getName());
+			}
+			
+			return true;
+		case "create":
+			int id = fakePlayers.size() + 1;
+			String name = args[1];
+			fakePlayers.put(id, new FakePlayer(new GameProfileFetcher(name).build(), this));
+			npc = fakePlayers.get(id);
+			player.sendMessage("Created NPC #" + id + ": " + npc.getName());
 			return true;
 		case "spawn":
 			npc.addToTabList();
