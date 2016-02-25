@@ -110,11 +110,11 @@ public class FakePlayer {
 		float pitch = (float) -(Math.atan2(differenceY, hypotenuseXZ) * 180D / Math.PI);
 		
 		PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook();
-		Reflection.getField(entityLook.getClass(), "a").set(entityLook, this.entityID);
-		Reflection.getField(entityLook.getClass(), "e").set(entityLook, toAngle(yaw));
-		Reflection.getField(entityLook.getClass(), "f").set(entityLook, toAngle(pitch));
-		Reflection.getField(entityLook.getClass(), "g").set(entityLook, false);				
-		Reflection.getField(entityLook.getClass(), "h").set(entityLook, true);
+		Reflection.getField(entityLook.getClass().getSuperclass(), "a").set(entityLook, this.entityID);
+		Reflection.getField(entityLook.getClass().getSuperclass(), "e").set(entityLook, toAngle(yaw));
+		Reflection.getField(entityLook.getClass().getSuperclass(), "f").set(entityLook, toAngle(pitch));
+		Reflection.getField(entityLook.getClass().getSuperclass(), "g").set(entityLook, false);				
+		Reflection.getField(entityLook.getClass().getSuperclass(), "h").set(entityLook, true);
 		
 		PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
 		Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
