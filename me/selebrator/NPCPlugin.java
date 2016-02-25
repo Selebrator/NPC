@@ -50,18 +50,23 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 	
 	@EventHandler
 	public void onClick(PlayerInteractEvent event) {
-		//spawn
-		if(event.getItem() != null && event.getItem().getType() == Material.STICK) {
-			if(event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				npc.spawn(event.getClickedBlock().getLocation().add(0.5, 1, 0.5));
-			} else if(event.getAction() == Action.RIGHT_CLICK_AIR) {
-				npc.spawn(event.getPlayer().getLocation());
+		if(npc != null) {
+			//spawn
+			if(event.getItem() != null && event.getItem().getType() == Material.STICK) {
+				if(event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+					npc.spawn(event.getClickedBlock().getLocation().add(0.5, 1, 0.5));
+				} else if(event.getAction() == Action.RIGHT_CLICK_AIR) {
+					npc.spawn(event.getPlayer().getLocation());
+				}
+				return;
+			} 
+			//despawn
+			else if(event.getItem() != null && event.getItem().getType() == Material.BLAZE_ROD) {
+				npc.despawn();
+				return;
 			}
-		} 
-		//despawn
-		else if(event.getItem() != null && event.getItem().getType() == Material.BLAZE_ROD) {
-			npc.despawn();
 		}
+		event.getPlayer().sendMessage("§cSelect a NPC first");
 	}
 	
 	@Override
@@ -71,108 +76,150 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 			if(args[0] != null) {
 				if(args[0].equals("create")) {
 
-					int id = 1;
-					while(fakePlayers.containsKey(id)) {
-						id++;
+					if(args.length == 2) {
+						int id = 1;
+						while(fakePlayers.containsKey(id)) {
+							id++;
+						}
+						String name = args[1];
+						fakePlayers.put(id, new FakePlayer(new GameProfileFetcher(name).build(), this));
+						npc = fakePlayers.get(id);
+						player.sendMessage("§8[§a+§8] §eCreated NPC §a" + npc.getName() + " §ewith ID: §a" + id);
+						return true;
 					}
-					String name = args[1];
-					fakePlayers.put(id, new FakePlayer(new GameProfileFetcher(name).build(), this));
-					npc = fakePlayers.get(id);
-					player.sendMessage("§8[§a+§8] §eCreated NPC §a" + npc.getName() + " §ewith ID: §a" + id);
+					player.sendMessage("§c/npc create <name>");
 					return true;
 					
 				} else if(args[0].equals("remove")) {
 					
-					int id = Integer.parseInt(args[1]);
-					if(fakePlayers.containsKey(id)) {
-						FakePlayer npc = fakePlayers.get(id);
-						String name = fakePlayers.get(id).getName();
-						fakePlayers.remove(id);
-						npc.despawn();
-						this.npc = null;
-						player.sendMessage("§8[§c-§8] §eRemoved NPC §c" + name + " §ewith ID: §c" + id);
+					if(args.length == 2) {
+						int id = Integer.parseInt(args[1]);
+						if(fakePlayers.containsKey(id)) {
+							FakePlayer npc = fakePlayers.get(id);
+							String name = fakePlayers.get(id).getName();
+							fakePlayers.remove(id);
+							npc.despawn();
+							this.npc = null;
+							player.sendMessage("§8[§c-§8] §eRemoved NPC §c" + name + " §ewith ID: §c" + id);
+							return true;
+						}
+						player.sendMessage("§cNPC #" + id + " does not exists  /npc list");
 						return true;
 					}
-					player.sendMessage("§cNPC #" + id + " does not exists   /npc list");
+					player.sendMessage("§c/npc remove <ID>");
 					return true;
 					
 				} else if(args[0].equals("select")) {
 					
 					if(args.length == 1) {
-						player.sendMessage("§eSelected §a" + npc.getName());
+						if(npc != null) {
+							player.sendMessage("§eSelected §a" + npc.getName());
+							return true;
+						}
+						player.sendMessage("§c/npc select <ID>");
 						return true;
 					} else if(args.length == 2) {
 						int id = Integer.parseInt(args[1]);
-						npc = fakePlayers.get(id);
-						player.sendMessage("§eSelected §a" + npc.getName()  + " §ewith ID: §a" + id);
+						if(fakePlayers.containsKey(id)) {
+							npc = fakePlayers.get(id);
+							player.sendMessage("§eSelected §a" + npc.getName()  + " §ewith ID: §a" + id);
+							return true;
+						}
+						player.sendMessage("§cNPC #" + id + " does not exists  /npc list");
 						return true;
 					}
+					player.sendMessage("§c/npc select [ID]");
+					return true;
 					
 				} else if(args[0].equals("list")) {
 					
-					fakePlayers.forEach( (id, npc) -> {player.sendMessage("§e" + id + ": " + npc.getName());});
+					if(args.length == 1) {
+						if(!fakePlayers.isEmpty()) {
+							fakePlayers.forEach( (id, npc) -> {player.sendMessage("§e" + id + ": " + npc.getName());});
+							return true;
+						}
+						player.sendMessage("§cNo NPC have benn created yet.  /npc create <name>");
+						return true;
+					}
+					player.sendMessage("§c/npc list");
 					return true;
 					
 				} else if(args[0].equals("spawn")) {
 					
-					if(npc != null) {
-						npc.spawn(player.getLocation());
+					if(args.length == 1) {
+						if(npc != null) {
+							npc.spawn(player.getLocation());
+							return true;
+						}
+						player.sendMessage("§cSelect a NPC first");
 						return true;
 					}
-					player.sendMessage("§cSelect a NPC first");
+					player.sendMessage("§c/npc spawn");
 					return true;
 					
 				} else if(args[0].equals("despawn")) {
 					
-					if(npc != null) {
-						npc.despawn();
+					if(args.length == 1) {
+						if(npc != null) {
+							npc.despawn();
+							return true;
+						}
+						player.sendMessage("§cSelect a NPC first");
 						return true;
 					}
-					player.sendMessage("§cSelect a NPC first");
+					player.sendMessage("§c/npc spawn");
 					return true;
 					
 				} else if(args[0].equals("equip")) {
 					
-					if(npc != null) {
-						npc.equip(EquipmentSlot.valueOf(args[1].toUpperCase()), player.getItemInHand());
+					if(args.length == 2) {
+						if(npc != null) {
+							npc.equip(EquipmentSlot.valueOf(args[1].toUpperCase()), player.getItemInHand());
+							return true;
+						}
+						player.sendMessage("§cSelect a NPC first");
 						return true;
 					}
-					player.sendMessage("§cSelect a NPC first");
+					player.sendMessage("§c/npc equip <slot>");
 					return true;
 					
 				} else if(args[0].equals("animation")) {
 					
-					if(npc != null) {
-						npc.playAnimation(Animation.valueOf(args[1].toUpperCase()));
+					if(args.length == 2) {
+						if(npc != null) {
+							npc.playAnimation(Animation.valueOf(args[1].toUpperCase()));
+							return true;
+						}
+						player.sendMessage("§cSelect a NPC first");
 						return true;
 					}
-					player.sendMessage("§cSelect a NPC first");
+					player.sendMessage("§c/npc animation <animation>");
 					return true;
 					
 				} else if(args[0].equals("health")) {
 
-					if(npc != null) {
-						if(args.length == 2) {
+					if(args.length == 2) {
+						if(npc != null) {
 							npc.setHealth(Float.parseFloat(args[1]));
 							return true;
 						}
-						player.sendMessage("§c/npc " +  args[0] + " <health>");
+						player.sendMessage("§cSelect a NPC first");
 						return true;
 					}
-					player.sendMessage("§cSelect a NPC first");
+					player.sendMessage("§c/npc " +  args[0] + " <health>");
 					return true;
 					
 				} else if(args[0].equals("target")) {
 
-					if(npc != null) {
-						if(args.length == 2) {
+					if(args.length == 2) {
+						if(npc != null) {
 							npc.setTarget(player);
 							return true;
 						}
-						player.sendMessage("§c/npc " +  args[0] + " <targetEntity>");
+						player.sendMessage("§cSelect a NPC first");
 						return true;
 					}
-					player.sendMessage("§cSelect a NPC first");
+					player.sendMessage("§c/npc " +  args[0] + " <targetEntity>");
 					return true;
 					
 				} else if(args[0].equals("update")) {
