@@ -145,81 +145,81 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 					return true;
 					
 				} else if(args[0].equals("spawn")) {
-					
-					if(args.length == 1) {
-						if(npc != null) {
+
+					if(npc != null) {
+						if(args.length == 1) {
 							npc.spawn(player.getLocation());
 							return true;
 						}
-						player.sendMessage("§cSelect a NPC first");
+						player.sendMessage("§c/npc spawn");
 						return true;
 					}
-					player.sendMessage("§c/npc spawn");
+					player.sendMessage("§cSelect a NPC first");
 					return true;
 					
 				} else if(args[0].equals("despawn")) {
-					
-					if(args.length == 1) {
-						if(npc != null) {
+
+					if(npc != null) {
+						if(args.length == 1) {
 							npc.despawn();
 							return true;
 						}
-						player.sendMessage("§cSelect a NPC first");
+						player.sendMessage("§c/npc spawn");
 						return true;
 					}
-					player.sendMessage("§c/npc spawn");
+					player.sendMessage("§cSelect a NPC first");
 					return true;
 					
 				} else if(args[0].equals("equip")) {
-					
-					if(args.length == 2) {
-						if(npc != null) {
+
+					if(npc != null) {
+						if(args.length == 2) {
 							npc.equip(EquipmentSlot.valueOf(args[1].toUpperCase()), player.getItemInHand());
 							return true;
 						}
-						player.sendMessage("§cSelect a NPC first");
+						player.sendMessage("§c/npc equip <slot>");
 						return true;
 					}
-					player.sendMessage("§c/npc equip <slot>");
+					player.sendMessage("§cSelect a NPC first");
 					return true;
 					
 				} else if(args[0].equals("animation")) {
-					
-					if(args.length == 2) {
-						if(npc != null) {
+
+					if(npc != null) {
+						if(args.length == 2) {
 							npc.playAnimation(Animation.valueOf(args[1].toUpperCase()));
 							return true;
 						}
-						player.sendMessage("§cSelect a NPC first");
+						player.sendMessage("§c/npc animation <animation>");
 						return true;
 					}
-					player.sendMessage("§c/npc animation <animation>");
+					player.sendMessage("§cSelect a NPC first");
 					return true;
 					
 				} else if(args[0].equals("health")) {
 
-					if(args.length == 2) {
-						if(npc != null) {
+					if(npc != null) {
+						if(args.length == 2) {
 							npc.setHealth(Float.parseFloat(args[1]));
 							return true;
 						}
-						player.sendMessage("§cSelect a NPC first");
+						player.sendMessage("§c/npc " +  args[0] + " <health>");
 						return true;
 					}
-					player.sendMessage("§c/npc " +  args[0] + " <health>");
+					player.sendMessage("§cSelect a NPC first");
 					return true;
 					
 				} else if(args[0].equals("target")) {
 
-					if(args.length == 2) {
-						if(npc != null) {
+					if(npc != null) {
+						if(args.length == 2) {
 							npc.setTarget(player);
 							return true;
 						}
-						player.sendMessage("§cSelect a NPC first");
+						player.sendMessage("§c/npc " +  args[0] + " <targetEntity>");
 						return true;
 					}
-					player.sendMessage("§c/npc " +  args[0] + " <targetEntity>");
+					player.sendMessage("§cSelect a NPC first");
 					return true;
 					
 				} else if(args[0].equals("update")) {
