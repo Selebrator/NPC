@@ -2,7 +2,7 @@ package me.selebrator.reflection;
 
 import java.lang.reflect.Method;
 
-public interface MethodAccessor {
+public interface IMethodAccessor {
 
 	public Method getMethod();
 	

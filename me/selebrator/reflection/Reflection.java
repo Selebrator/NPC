@@ -16,11 +16,11 @@ public class Reflection {
 		}
 	}
 	
-	public static ConstructorAccessor getConstructor(Class<?> clazz, Class<?>... parameterTypes) {
+	public static IConstructorAccessor getConstructor(Class<?> clazz, Class<?>... parameterTypes) {
 		
 		for(Constructor<?> constructor : clazz.getDeclaredConstructors()) {
 			if(parameterTypes == constructor.getParameterTypes()) {
-				return new ConstructorAccessor() {
+				return new IConstructorAccessor() {
 					
 					@Override
 					public Object newInstance(Object... parameters) {
@@ -50,11 +50,11 @@ public class Reflection {
 		return null;
 	}
 	
-	public static MethodAccessor getMethod(Class<?> clazz, String name, Class<?> patameterTypes) {
+	public static IMethodAccessor getMethod(Class<?> clazz, String name, Class<?> patameterTypes) {
 		
 		for(Method method : clazz.getDeclaredMethods()) {
 			if(method.getName() == name) {
-				return new MethodAccessor() {
+				return new IMethodAccessor() {
 					
 					@Override
 					public Object invoke(Object target, Object... args) {
@@ -82,13 +82,13 @@ public class Reflection {
 		return null;
 	}
 	
-	public static FieldAccessor getField(Class<?> clazz, String name) {
+	public static IFieldAccessor getField(Class<?> clazz, String name) {
 		
 		try {
 			Field field;
 			field = clazz.getDeclaredField(name);
 			field.setAccessible(true);
-			return new FieldAccessor() {
+			return new IFieldAccessor() {
 				
 				@Override
 				public void set(Object instance, Object value) {

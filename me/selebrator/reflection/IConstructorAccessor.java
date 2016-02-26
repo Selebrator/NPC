@@ -2,7 +2,7 @@ package me.selebrator.reflection;
 
 import java.lang.reflect.Constructor;
 
-public interface ConstructorAccessor {
+public interface IConstructorAccessor {
 
 	public Constructor<?> getConstructor();
 	

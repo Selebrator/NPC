@@ -2,7 +2,7 @@ package me.selebrator.reflection;
 
 import java.lang.reflect.Field;
 
-public interface FieldAccessor {
+public interface IFieldAccessor {
 	
 	public Field getField();
 	
