@@ -83,6 +83,12 @@ public class FakePlayer {
 		Reflection.getField(namedEntitySpawn.getClass(), "i").set(namedEntitySpawn, this.dataWatcher);
 		
 		sendPackets(playerInfo, namedEntitySpawn);
+		
+		this.equip(EquipmentSlot.HAND, this.hand);
+		this.equip(EquipmentSlot.HELMET, this.armor[0]);
+		this.equip(EquipmentSlot.CHESTPLATE, this.armor[1]);
+		this.equip(EquipmentSlot.LEGGINGS, this.armor[2]);
+		this.equip(EquipmentSlot.BOOTS, this.armor[3]);
 	}
 	
 	public void despawn() {

@@ -15,7 +15,7 @@ import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
-public class GameProfileFetcher {
+public class GameProfileBuilder {
 	
 	private String name;
 	private String uuid;
@@ -23,7 +23,7 @@ public class GameProfileFetcher {
 	private String skinValue;
 	private String skinSignature;
 	
-	public GameProfileFetcher(String name) {
+	public GameProfileBuilder(String name) {
 		this.name = name;
 		this.skinOwner = name;
 
@@ -31,7 +31,7 @@ public class GameProfileFetcher {
 		createSkin(this.name);
 	}
 	
-	public GameProfileFetcher(String name, String skinOwner) {
+	public GameProfileBuilder(String name, String skinOwner) {
 		this.name = name;
 		this.skinOwner = skinOwner;
 		

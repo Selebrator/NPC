@@ -3,10 +3,11 @@ package me.selebrator;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.selebrator.fetcher.GameProfileFetcher;
+import me.selebrator.fetcher.GameProfileBuilder;
 import me.selebrator.npc.Animation;
 import me.selebrator.npc.EquipmentSlot;
 import me.selebrator.npc.FakePlayer;
+import me.selebrator.npc.gui.EquipEditor;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -30,7 +31,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		Bukkit.getPluginManager().registerEvents(this, this);
 		getCommand("npc").setExecutor(this);
 		
-		npc = new FakePlayer(new GameProfileFetcher("Selebrator").build(), this);
+		npc = new FakePlayer(new GameProfileBuilder("Selebrator").build(), this);
 		fakePlayers.put(1, npc);
 		
 		/*
@@ -50,23 +51,34 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 	
 	@EventHandler
 	public void onClick(PlayerInteractEvent event) {
-		if(npc != null) {
 			//spawn
 			if(event.getItem() != null && event.getItem().getType() == Material.STICK) {
 				if(event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-					npc.spawn(event.getClickedBlock().getLocation().add(0.5, 1, 0.5));
+					if(npc != null) {
+						npc.spawn(event.getClickedBlock().getLocation().add(0.5, 1, 0.5));
+						return;
+					}
+					event.getPlayer().sendMessage("§cSelect a NPC first");
+					return;
+					
 				} else if(event.getAction() == Action.RIGHT_CLICK_AIR) {
-					npc.spawn(event.getPlayer().getLocation());
+					if(npc != null) {
+						npc.spawn(event.getPlayer().getLocation());
+						return;
+					}
+					event.getPlayer().sendMessage("§cSelect a NPC first");
+					return;
 				}
-				return;
 			} 
 			//despawn
 			else if(event.getItem() != null && event.getItem().getType() == Material.BLAZE_ROD) {
-				npc.despawn();
+				if(npc != null) {
+					npc.despawn();
+					return;
+				}
+				event.getPlayer().sendMessage("§cSelect a NPC first");
 				return;
 			}
-		}
-		event.getPlayer().sendMessage("§cSelect a NPC first");
 	}
 	
 	@Override
@@ -82,7 +94,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 						id++;
 					}
 					String name = args[1];
-					fakePlayers.put(id, new FakePlayer(new GameProfileFetcher(name).build(), this));
+					fakePlayers.put(id, new FakePlayer(new GameProfileBuilder(name).build(), this));
 					npc = fakePlayers.get(id);
 					player.sendMessage("§8[§a+§8] §eCreated NPC §a" + npc.getName() + " §ewith ID: §a" + id);
 					return true;
@@ -226,13 +238,25 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				if(npc != null) {
 					if(args.length == 2) {
-						npc.updateGameProfile(new GameProfileFetcher(args[1]).build());
+						npc.updateGameProfile(new GameProfileBuilder(args[1]).build());
 						return true;
 					} else if(args.length == 3) {
-						npc.updateGameProfile(new GameProfileFetcher(args[1], args[2]).build());
+						npc.updateGameProfile(new GameProfileBuilder(args[1], args[2]).build());
 						return true;
 					}
 					player.sendMessage("§c/npc " + args[0] + " <name> [skinowner]");
+					return true;
+				}
+				player.sendMessage("§cSelect a NPC first");
+				return true;
+				
+			} else if(args[0].equals("test")) {
+
+				if(npc != null) {
+					if(args.length == 1) {
+						new EquipEditor(npc, this).open(player);
+					}
+					player.sendMessage("§c/npc " + args[0]);
 					return true;
 				}
 				player.sendMessage("§cSelect a NPC first");
