@@ -3,36 +3,37 @@ package me.selebrator.npc;
 import java.util.Arrays;
 
 import me.selebrator.reflection.Reflection;
-import net.minecraft.server.v1_8_R3.ChatComponentText;
-import net.minecraft.server.v1_8_R3.Entity;
-import net.minecraft.server.v1_8_R3.Packet;
-import net.minecraft.server.v1_8_R3.PacketPlayOutAnimation;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntity.PacketPlayOutEntityLook;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityEquipment;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityHeadRotation;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityMetadata;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityStatus;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityTeleport;
-import net.minecraft.server.v1_8_R3.PacketPlayOutNamedEntitySpawn;
-import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
-import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
-import net.minecraft.server.v1_8_R3.WorldSettings.EnumGamemode;
+import net.minecraft.server.v1_9_R1.ChatComponentText;
+import net.minecraft.server.v1_9_R1.DataWatcher;
+import net.minecraft.server.v1_9_R1.Entity;
+import net.minecraft.server.v1_9_R1.Packet;
+import net.minecraft.server.v1_9_R1.PacketPlayOutAnimation;
+import net.minecraft.server.v1_9_R1.PacketPlayOutEntity.PacketPlayOutEntityLook;
+import net.minecraft.server.v1_9_R1.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_9_R1.PacketPlayOutEntityEquipment;
+import net.minecraft.server.v1_9_R1.PacketPlayOutEntityHeadRotation;
+import net.minecraft.server.v1_9_R1.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_9_R1.PacketPlayOutEntityStatus;
+import net.minecraft.server.v1_9_R1.PacketPlayOutEntityTeleport;
+import net.minecraft.server.v1_9_R1.PacketPlayOutNamedEntitySpawn;
+import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
+import net.minecraft.server.v1_9_R1.WorldSettings.EnumGamemode;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import com.mojang.authlib.GameProfile;
 
 public class FakePlayer {
 	
 	private int entityID;
+	@SuppressWarnings("unused")
 	private Plugin plugin;
 	private GameProfile gameProfile;
 	private NullDataWatcher dataWatcher;
@@ -41,10 +42,7 @@ public class FakePlayer {
 	private float health = 20;
 	private LivingEntity target;
 
-	private ItemStack hand;
-	private ItemStack[] armor = new ItemStack[4];
-
-
+	private ItemStack[] equip = new ItemStack[6];
 
 
 	public FakePlayer(GameProfile gameProfile, Plugin plugin) {
@@ -55,15 +53,15 @@ public class FakePlayer {
 		this.plugin = plugin;
 		
 		this.dataWatcher = new NullDataWatcher();
-		this.dataWatcher.a(0, (byte) 0);
-		this.dataWatcher.a(6, 20F);
-		this.dataWatcher.a(10, (byte) 127);
+		status(false, false, false, false, false, false, false);
+		this.dataWatcher.set(EnumDataWatcherObject.LIVING_HELATH_06, 20F);
+		skinFlags(true, true, true, true, true, true, true);
 	}
 	
 	public void updateGameProfile(GameProfile gameProfile) {
 		despawn();
 		this.gameProfile = gameProfile;
-		spawn(location);
+		spawn(this.location);
 	}
 
 	public void spawn(Location location) {
@@ -74,35 +72,32 @@ public class FakePlayer {
 		PacketPlayOutNamedEntitySpawn namedEntitySpawn = new PacketPlayOutNamedEntitySpawn();
 		Reflection.getField(namedEntitySpawn.getClass(), "a").set(namedEntitySpawn, this.entityID);
 		Reflection.getField(namedEntitySpawn.getClass(), "b").set(namedEntitySpawn, this.gameProfile.getId());
-		Reflection.getField(namedEntitySpawn.getClass(), "c").set(namedEntitySpawn, toFixedPointNumber(this.location.getX()));
-		Reflection.getField(namedEntitySpawn.getClass(), "d").set(namedEntitySpawn, toFixedPointNumber(this.location.getY()));
-		Reflection.getField(namedEntitySpawn.getClass(), "e").set(namedEntitySpawn, toFixedPointNumber(this.location.getZ()));
+		Reflection.getField(namedEntitySpawn.getClass(), "c").set(namedEntitySpawn, this.location.getX());
+		Reflection.getField(namedEntitySpawn.getClass(), "d").set(namedEntitySpawn, this.location.getY());
+		Reflection.getField(namedEntitySpawn.getClass(), "e").set(namedEntitySpawn, this.location.getZ());
 		Reflection.getField(namedEntitySpawn.getClass(), "f").set(namedEntitySpawn, toAngle(this.location.getYaw()));
 		Reflection.getField(namedEntitySpawn.getClass(), "g").set(namedEntitySpawn, toAngle(this.location.getPitch()));
-		Reflection.getField(namedEntitySpawn.getClass(), "h").set(namedEntitySpawn, 0);  //itemInHand
-		Reflection.getField(namedEntitySpawn.getClass(), "i").set(namedEntitySpawn, this.dataWatcher);
+		Reflection.getField(namedEntitySpawn.getClass(), "h").set(namedEntitySpawn, this.dataWatcher.toNMS());
 		
 		sendPackets(playerInfo, namedEntitySpawn);
 		
-		this.equip(EquipmentSlot.HAND, this.hand);
-		this.equip(EquipmentSlot.HELMET, this.armor[0]);
-		this.equip(EquipmentSlot.CHESTPLATE, this.armor[1]);
-		this.equip(EquipmentSlot.LEGGINGS, this.armor[2]);
-		this.equip(EquipmentSlot.BOOTS, this.armor[3]);
+		for(EquipmentSlot slot : EquipmentSlot.values()) {
+			this.equip(slot, this.equip[slot.getID()]);
+		}
 	}
 	
 	public void despawn() {
-		PacketPlayOutEntityDestroy entityDestroy = new PacketPlayOutEntityDestroy(this.entityID);
-		
 		PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.REMOVE_PLAYER);
 		Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(playerInfo.new PlayerInfoData(this.gameProfile, 0, null, null)));
+
+		PacketPlayOutEntityDestroy entityDestroy = new PacketPlayOutEntityDestroy(this.entityID);
 		
-		sendPackets(entityDestroy, playerInfo);
+		sendPackets(playerInfo, entityDestroy);
 	}
 
 	public void look(Location location) {
 		double differenceX = location.getX() - this.location.getX();
-		double differenceY = location.getY() - (this.location.getY() + 1.6F);
+		double differenceY = location.getY() - (this.location.getY() + 1.6);
 		double differenceZ = location.getZ() - this.location.getZ();
 		double hypotenuseXZ = Math.sqrt(differenceX * differenceX + differenceZ * differenceZ);
 		float yaw = (float) (Math.atan2(differenceZ, differenceX) * 180D / Math.PI) - 90F;
@@ -119,17 +114,18 @@ public class FakePlayer {
 		Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
 		Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, toAngle(yaw));
 		
+		sendPackets(entityLook, entityHeadRotation);
+		
 		this.location.setYaw(yaw);
 		this.location.setPitch(pitch);
-		sendPackets(entityLook, entityHeadRotation);
 	}
 	
 	public void teleport(Location location) {
 		PacketPlayOutEntityTeleport entityTeleport = new PacketPlayOutEntityTeleport();
 		Reflection.getField(entityTeleport.getClass(), "a").set(entityTeleport, this.entityID);
-		Reflection.getField(entityTeleport.getClass(), "b").set(entityTeleport, toFixedPointNumber(location.getX()));
-		Reflection.getField(entityTeleport.getClass(), "c").set(entityTeleport, toFixedPointNumber(location.getY()));
-		Reflection.getField(entityTeleport.getClass(), "d").set(entityTeleport, toFixedPointNumber(location.getZ()));
+		Reflection.getField(entityTeleport.getClass(), "b").set(entityTeleport, location.getX());
+		Reflection.getField(entityTeleport.getClass(), "c").set(entityTeleport, location.getY());
+		Reflection.getField(entityTeleport.getClass(), "d").set(entityTeleport, location.getZ());
 		Reflection.getField(entityTeleport.getClass(), "e").set(entityTeleport, toAngle(location.getYaw()));
 		Reflection.getField(entityTeleport.getClass(), "f").set(entityTeleport, toAngle(location.getPitch()));
 		Reflection.getField(entityTeleport.getClass(), "g").set(entityTeleport, false);		//onGround
@@ -138,41 +134,23 @@ public class FakePlayer {
 		Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
 		Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, toAngle(location.getYaw()));
 		
-		this.location = location;
 		sendPackets(entityTeleport, entityHeadRotation);
+
+		this.location = location;
 	}
 
 	public void walk(Location location) {
-		// TODO
+		// TODO	
 	}
-	
-	private BukkitRunnable tickTask = new BukkitRunnable() {
-		
-		@Override
-		public void run() {
-			look(target.getEyeLocation());
-			walk(target.getLocation());
-		}
-	};
 
 	public void equip(EquipmentSlot slot, ItemStack item) {
 		PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment();
 		Reflection.getField(entityEquipment.getClass(), "a").set(entityEquipment, this.entityID);
-		Reflection.getField(entityEquipment.getClass(), "b").set(entityEquipment, slot.getID());
+		Reflection.getField(entityEquipment.getClass(), "b").set(entityEquipment, slot.getSlot());
 		Reflection.getField(entityEquipment.getClass(), "c").set(entityEquipment, CraftItemStack.asNMSCopy(item));		//itemStack
 		sendPackets(entityEquipment);
 		
-		if(slot == EquipmentSlot.HAND)
-			this.hand = item;
-		else if(slot == EquipmentSlot.HELMET )
-			this.armor[0] = item;
-		else if(slot == EquipmentSlot.CHESTPLATE )
-			this.armor[1] = item;
-		else if(slot == EquipmentSlot.LEGGINGS )
-			this.armor[2] = item;
-		else if(slot == EquipmentSlot.BOOTS )
-			this.armor[3] = item;
-		
+		this.equip[slot.getID()] = item;
 	}
 	
 	public void playAnimation(Animation anim) {
@@ -190,7 +168,7 @@ public class FakePlayer {
 	}
 	
 	public void updateMetadata() {
-		sendPackets(new PacketPlayOutEntityMetadata(this.entityID, this.dataWatcher, true));
+		sendPackets(new PacketPlayOutEntityMetadata(this.entityID, (DataWatcher) this.dataWatcher.toNMS(), true));
 	}
 	
 	
@@ -227,31 +205,11 @@ public class FakePlayer {
 	
 	
 	public boolean hasEquipment(EquipmentSlot slot) {
-		if(slot == EquipmentSlot.HAND && this.hand != null)
-			return true;
-		if(slot == EquipmentSlot.HELMET && this.armor[0] != null)
-			return true;
-		if(slot == EquipmentSlot.CHESTPLATE && this.armor[1] != null)
-			return true;
-		if(slot == EquipmentSlot.LEGGINGS && this.armor[2] != null)
-			return true;
-		if(slot == EquipmentSlot.BOOTS && this.armor[3] != null)
-			return true;
-		return false;
+		return this.equip[slot.getID()] != null;
 	}
 	
 	public ItemStack getEquipment(EquipmentSlot slot) {
-		if(slot == EquipmentSlot.HAND && this.hasEquipment(slot))
-			return this.hand;
-		else if(slot == EquipmentSlot.HELMET && this.hasEquipment(slot))
-			return this.armor[0];
-		else if(slot == EquipmentSlot.CHESTPLATE && this.hasEquipment(slot))
-			return this.armor[1];
-		else if(slot == EquipmentSlot.LEGGINGS && this.hasEquipment(slot))
-			return this.armor[2];
-		else if(slot == EquipmentSlot.BOOTS && this.hasEquipment(slot))
-			return this.armor[3];
-		return null;
+		return equip[slot.getID()];
 	}
 
 	// ### SETTER ###
@@ -270,7 +228,7 @@ public class FakePlayer {
 	public void setTarget(LivingEntity target) {
 		this.target = target;
 		
-		tickTask.runTaskTimer(plugin, 0, 1);
+		look(this.target.getEyeLocation());
 	}
 	
 	
@@ -278,7 +236,7 @@ public class FakePlayer {
 	// ### DATAWATCHER BITMASKS ###
 	
 	// 0
-	public void status(boolean fire, boolean sneak, boolean sprint, boolean use, boolean invisible) {
+	public void status(boolean fire, boolean sneak, boolean sprint, boolean use, boolean invisible, boolean glowing, boolean elytra) {
 		byte status = 0;
 		status = changeMask(status, 0, fire);
 		status = changeMask(status, 1, sneak);
@@ -286,8 +244,12 @@ public class FakePlayer {
 		status = changeMask(status, 3, sprint);
 		status = changeMask(status, 4, use);
 		status = changeMask(status, 5, invisible);
-		this.dataWatcher.update(0, status);
+		status = changeMask(status, 6, glowing);
+		status = changeMask(status, 7, elytra);
+		this.dataWatcher.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, status);
 	}
+	
+	//
 	
 	//10
 	public void skinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
@@ -300,7 +262,7 @@ public class FakePlayer {
 		skinFlags = changeMask(skinFlags, 5, rightLeg);
 		skinFlags = changeMask(skinFlags, 6, hat);
 		//skinFlags = changeMask(skinFlags, 7, true);			//unused
-		this.dataWatcher.update(10, skinFlags);
+		this.dataWatcher.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, skinFlags);
 	}
 	
 
@@ -315,6 +277,7 @@ public class FakePlayer {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private int toFixedPointNumber(double value) {
 		return (int) (Math.floor(value * 32.0D));
 	}

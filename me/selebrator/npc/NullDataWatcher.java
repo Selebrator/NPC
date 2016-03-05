@@ -1,27 +1,29 @@
 package me.selebrator.npc;
 
-import org.apache.commons.lang3.ObjectUtils;
-
-import gnu.trove.map.TIntObjectMap;
+import net.minecraft.server.v1_9_R1.DataWatcher;
+import me.selebrator.reflection.IMethodAccessor;
 import me.selebrator.reflection.Reflection;
-import net.minecraft.server.v1_8_R3.DataWatcher;
+import me.selebrator.reflection.ServerPackage;
 
-public class NullDataWatcher extends DataWatcher {
+public class NullDataWatcher {
 	
-	private TIntObjectMap<WatchableObject> data;
-
-	@SuppressWarnings("unchecked")
+	private final Object dataWatcher;
+	
+	private static final Class<?> CLASS_DataWatcher = Reflection.getClass(ServerPackage.NMS, "DataWatcher");
+	private static final Class<?> CLASS_DataWatcherObject = Reflection.getClass(ServerPackage.NMS, "DataWatcherObject");
+	
+	private static final IMethodAccessor METHOD_DataWatcher_register = Reflection.getMethod(CLASS_DataWatcher, "registerObject", CLASS_DataWatcherObject, Object.class);
+	
 	public NullDataWatcher() {
-		super(null);
-		this.data = (TIntObjectMap<WatchableObject>) Reflection.getField(DataWatcher.class, "dataValues").get(this);
+		this.dataWatcher = new DataWatcher(null);
 	}
 	
-	public <T> void update(int index, T object) {
-		WatchableObject datawatcher_watchableobject = this.data.get(index);
-		if (ObjectUtils.notEqual(object, datawatcher_watchableobject.b())) {
-			datawatcher_watchableobject.a(object);
-			datawatcher_watchableobject.a(true);
-		}
+	public NullDataWatcher set(EnumDataWatcherObject dataWatcherObject, Object value) {
+		METHOD_DataWatcher_register.invoke(this.dataWatcher, dataWatcherObject.getClazz(), value);
+		return this;
 	}
-
+	
+	public Object toNMS() {
+		return this.dataWatcher;
+	}	
 }

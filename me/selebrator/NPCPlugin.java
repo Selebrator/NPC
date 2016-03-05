@@ -7,7 +7,6 @@ import me.selebrator.fetcher.GameProfileBuilder;
 import me.selebrator.npc.Animation;
 import me.selebrator.npc.EquipmentSlot;
 import me.selebrator.npc.FakePlayer;
-import me.selebrator.npc.gui.EquipEditor;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -186,7 +185,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				if(npc != null) {
 					if(args.length == 2) {
-						npc.equip(EquipmentSlot.valueOf(args[1].toUpperCase()), player.getItemInHand());
+						npc.equip(EquipmentSlot.valueOf(args[1].toUpperCase()), player.getInventory().getItemInMainHand());
 						return true;
 					}
 					player.sendMessage("§c/npc equip <slot>");
@@ -254,7 +253,8 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				if(npc != null) {
 					if(args.length == 1) {
-						new EquipEditor(npc, this).open(player);
+						System.out.println(npc.hasEquipment(EquipmentSlot.LEGGINGS));
+						return true;
 					}
 					player.sendMessage("§c/npc " + args[0]);
 					return true;

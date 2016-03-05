@@ -3,10 +3,12 @@ package me.selebrator.npc.gui;
 import java.util.HashMap;
 
 import me.selebrator.fetcher.ItemBuilder;
+import me.selebrator.fetcher.LeatherArmorBuilder;
 import me.selebrator.npc.EquipmentSlot;
 import me.selebrator.npc.FakePlayer;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,90 +39,110 @@ public class EquipEditor implements Listener {
 	}
 	
 	public void open(Player player) {
-		
 
 		ItemStack filler = new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 8, " ").build();
-		ItemStack selector = new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 5, " ").build();
+		ItemStack marker = new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 5, " ").build();
 		
 		
 		
 		inventory = Bukkit.getServer().createInventory(null, 6 * 9, npc.getName() + " - Equip");
 		
-		ItemStack tool = new ItemBuilder(Material.IRON_SWORD, 1, (short) 0, "Tool").build();
-		ItemStack bow = new ItemBuilder(Material.BOW, 1, (short) 0, "Bow").build();
+		ItemStack tool = new ItemBuilder(Material.STICK, 1, (short) 0, "§8Empty MainHand").build();
 		
-		ItemStack helmet = new ItemBuilder(Material.IRON_HELMET, 1, (short) 0, "Helmet").build();
-		ItemStack chestplate = new ItemBuilder(Material.IRON_CHESTPLATE, 1, (short) 0, "Chestplate").build();
-		ItemStack leggings = new ItemBuilder(Material.IRON_LEGGINGS, 1, (short) 0, "Leggings").build();
-		ItemStack boots = new ItemBuilder(Material.IRON_BOOTS, 1, (short) 0, "Boots").build();
+		ItemStack helmet = new LeatherArmorBuilder(Material.LEATHER_HELMET, 1, (short) 0, "§8No Helmet", Color.fromBGR(76, 76, 76)).build();
+		ItemStack chestplate =new LeatherArmorBuilder(Material.LEATHER_CHESTPLATE, 1, (short) 0, "§8No Chestplate", Color.fromBGR(76, 76, 76)).build();
+		ItemStack leggings = new LeatherArmorBuilder(Material.LEATHER_LEGGINGS, 1, (short) 0, "§8No Leggings", Color.fromBGR(76, 76, 76)).build();
+		ItemStack boots = new LeatherArmorBuilder(Material.LEATHER_BOOTS, 1, (short) 0, "§8No Boots", Color.fromBGR(76, 76, 76)).build();
+
 		
-		ItemStack enchant = new ItemStack(Material.ENCHANTED_BOOK, 1);
+		if(npc.hasEquipment(EquipmentSlot.MAIN_HAND))
+			tool = npc.getEquipment(EquipmentSlot.MAIN_HAND);
+		if(npc.hasEquipment(EquipmentSlot.HELMET))
+			helmet = npc.getEquipment(EquipmentSlot.HELMET);
+		if(npc.hasEquipment(EquipmentSlot.CHESTPLATE))
+			chestplate = npc.getEquipment(EquipmentSlot.CHESTPLATE);
+		if(npc.hasEquipment(EquipmentSlot.LEGGINGS))
+			leggings = npc.getEquipment(EquipmentSlot.LEGGINGS);
+		if(npc.hasEquipment(EquipmentSlot.BOOTS))
+			boots = npc.getEquipment(EquipmentSlot.BOOTS);
 		
-		inventory.setItem(10, tool);
-		inventory.setItem(11, bow);
+		
+		inventory.setItem(11, tool);
 		inventory.setItem(13, helmet);
 		inventory.setItem(14, chestplate);
 		inventory.setItem(15, leggings);
 		inventory.setItem(16, boots);
-		inventory.setItem(22, enchant);
 		
-		
-		if(selected == "Tools") {
-			inventory.setItem(1, selector);
+		if(selected != null) {
+			ItemStack enchant = new ItemStack(Material.ENCHANTED_BOOK, 1);
+			ItemStack clear = new ItemBuilder(Material.BARRIER, 1, (short) 0, "§cClear").build();
+
+			inventory.setItem(21, enchant);
+			inventory.setItem(23, clear);
 			
-			ItemStack typeSword = new ItemBuilder(Material.IRON_SWORD, 1, (short) 0, "Sword").build();
-			ItemStack typePickaxe = new ItemBuilder(Material.IRON_PICKAXE, 1, (short) 0, "Pickaxe").build();
-			ItemStack typeAxe = new ItemBuilder(Material.IRON_AXE, 1, (short) 0, "Axe").build();
-			ItemStack typeShovel = new ItemBuilder(Material.IRON_SPADE, 1, (short) 0, "Shovel").build();
-			ItemStack typeHoe = new ItemBuilder(Material.IRON_HOE, 1, (short) 0, "Hoe").build();
-			
-			inventory.setItem(29, typeSword);
-			inventory.setItem(30, typePickaxe);
-			inventory.setItem(31, typeAxe);
-			inventory.setItem(32, typeShovel);
-			inventory.setItem(33, typeHoe);
-			
-			
-			if(subSelected != null) {
-				ItemStack specificToolWood = new ItemStack(Material.valueOf("WOOD_" + subSelected.toUpperCase()), 1);
-				ItemStack specificToolGold = new ItemStack(Material.valueOf("GOLD_" + subSelected.toUpperCase()), 1);
-				ItemStack specificToolStone = new ItemStack(Material.valueOf("STONE_" + subSelected.toUpperCase()), 1);
-				ItemStack specificToolIron = new ItemStack(Material.valueOf("IRON_" + subSelected.toUpperCase()), 1);
-				ItemStack specificToolDiamond = new ItemStack(Material.valueOf("DIAMOND_" + subSelected.toUpperCase()), 1);
+			if(selected == "MAIN_HAND") {
+				inventory.setItem(2, marker);
 				
-				inventory.setItem(38, specificToolWood);
-				inventory.setItem(39, specificToolGold);
-				inventory.setItem(40, specificToolStone);
-				inventory.setItem(41, specificToolIron);
-				inventory.setItem(42, specificToolDiamond);
+				ItemStack typeSword = new ItemBuilder(Material.IRON_SWORD, 1, (short) 0, "Sword").build();
+				ItemStack typePickaxe = new ItemBuilder(Material.IRON_PICKAXE, 1, (short) 0, "Pickaxe").build();
+				ItemStack typeAxe = new ItemBuilder(Material.IRON_AXE, 1, (short) 0, "Axe").build();
+				ItemStack typeShovel = new ItemBuilder(Material.IRON_SPADE, 1, (short) 0, "Shovel").build();
+				ItemStack typeHoe = new ItemBuilder(Material.IRON_HOE, 1, (short) 0, "Hoe").build();
+				ItemStack specificBow = new ItemStack(Material.BOW, 1);
+				
+				inventory.setItem(29, typeSword);
+				inventory.setItem(30, typePickaxe);
+				inventory.setItem(31, typeAxe);
+				inventory.setItem(32, typeShovel);
+				inventory.setItem(33, typeHoe);
+				inventory.setItem(40, specificBow);
+				
+				
+				if(subSelected != null) {
+					ItemStack specificToolWood = new ItemStack(Material.valueOf("WOOD_" + subSelected), 1);
+					ItemStack specificToolGold = new ItemStack(Material.valueOf("GOLD_" + subSelected), 1);
+					ItemStack specificToolStone = new ItemStack(Material.valueOf("STONE_" + subSelected), 1);
+					ItemStack specificToolIron = new ItemStack(Material.valueOf("IRON_" + subSelected), 1);
+					ItemStack specificToolDiamond = new ItemStack(Material.valueOf("DIAMOND_" + subSelected), 1);
+					
+					inventory.setItem(38, specificToolWood);
+					inventory.setItem(39, specificToolGold);
+					inventory.setItem(40, specificToolStone);
+					inventory.setItem(41, specificToolIron);
+					inventory.setItem(42, specificToolDiamond);
+				}
+				
+			} else if(selected == "HELMET" || selected == "CHESTPLATE" || selected == "LEGGINGS" || selected == "BOOTS") {
+				
+				switch (selected) {
+				case "HELMET":
+					inventory.setItem(4, marker);
+					break;
+				case "CHESTPLATE":
+					inventory.setItem(5, marker);
+					break;
+				case "LEGGINGS":
+					inventory.setItem(6, marker);
+					break;
+				case "BOOTS":
+					inventory.setItem(7, marker);
+					break;
+				default:
+					break;
+				}
+				
+				ItemStack specificArmorLeather = new ItemStack(Material.valueOf("LEATHER_" + selected), 1);
+				ItemStack specificArmorGold = new ItemStack(Material.valueOf("GOLD_" + selected), 1);
+				ItemStack specificArmorChain = new ItemStack(Material.valueOf("CHAINMAIL_" + selected), 1);
+				ItemStack specificArmorIron = new ItemStack(Material.valueOf("IRON_" + selected), 1);
+				ItemStack specificArmorDiamond = new ItemStack(Material.valueOf("DIAMOND_" + selected), 1);
+				
+				inventory.setItem(38, specificArmorLeather);
+				inventory.setItem(39, specificArmorGold);
+				inventory.setItem(40, specificArmorChain);
+				inventory.setItem(41, specificArmorIron);
+				inventory.setItem(42, specificArmorDiamond);
 			}
-		} else if(selected == "Bow") {
-			inventory.setItem(2, selector);
-			
-			ItemStack specificBow = new ItemStack(Material.BOW, 1);
-			
-			inventory.setItem(40, specificBow);
-		} else if(selected == "Helmet" || selected == "Chestplate" || selected == "Leggings" || selected == "Boots") {
-			if(selected == "Helmet")
-				inventory.setItem(4, selector);
-			else if(selected == "Chestplate")
-				inventory.setItem(5, selector);
-			else if(selected == "Leggings")
-				inventory.setItem(6, selector);
-			else if(selected == "Boots")
-				inventory.setItem(6, selector);
-			
-			ItemStack specificArmorLeather = new ItemStack(Material.valueOf("LEATHER_" + selected.toUpperCase()), 1);
-			ItemStack specificArmorGold = new ItemStack(Material.valueOf("GOLD_" + selected.toUpperCase()), 1);
-			ItemStack specificArmorChain = new ItemStack(Material.valueOf("CHAINMAIL_" + selected.toUpperCase()), 1);
-			ItemStack specificArmorIron = new ItemStack(Material.valueOf("IRON_" + selected.toUpperCase()), 1);
-			ItemStack specificArmorDiamond = new ItemStack(Material.valueOf("DIAMOND_" + selected.toUpperCase()), 1);
-			
-			inventory.setItem(38, specificArmorLeather);
-			inventory.setItem(39, specificArmorGold);
-			inventory.setItem(40, specificArmorChain);
-			inventory.setItem(41, specificArmorIron);
-			inventory.setItem(42, specificArmorDiamond);
 		}
 		
 		for(int i = 0; i < inventory.getSize(); i++) {
@@ -140,34 +162,31 @@ public class EquipEditor implements Listener {
 			if(inventory.getName().contains(" - Equip")) {
 				int slot = event.getSlot();
 				ItemStack item = event.getCurrentItem();
-				if(slot == 10) {
-					selected = "Tools";
-				} else if(slot == 11) {
-					selected = "Bow";
+				if(slot == 11) {
+					selected = "MAIN_HAND";
+					subSelected = null;
 				} else if(slot == 13) {
-					selected = "Helmet";
+					selected = "HELMET";
 				} else if(slot == 14) {
-					selected = "Chestplate";
+					selected = "CHESTPLATE";
 				} else if(slot == 15) {
-					selected = "Leggings";
+					selected = "LEGGINGS";
 				} else if(slot == 16) {
-					selected = "Boots";
-				} else if(slot == 29 && selected == "Tools") {
-					subSelected = "Sword";
-				} else if(slot == 30 && selected == "Tools") {
-					subSelected = "Pickaxe";
-				} else if(slot == 31 && selected == "Tools") {
-					subSelected = "Axe";
-				} else if(slot == 32 && selected == "Tools") {
-					subSelected = "Spade";
-				} else if(slot == 33 && selected == "Tools") {
-					subSelected = "Hoe";
+					selected = "BOOTS";
+				} else if(slot == 29 && selected == "MAIN_HAND") {
+					subSelected = "SWORD";
+				} else if(slot == 30 && selected == "MAIN_HAND") {
+					subSelected = "PICKAXE";
+				} else if(slot == 31 && selected == "MAIN_HAND") {
+					subSelected = "AXE";
+				} else if(slot == 32 && selected == "MAIN_HAND") {
+					subSelected = "SPADE";
+				} else if(slot == 33 && selected == "MAIN_HAND") {
+					subSelected = "HOE";
 				} else if(slot >= 38 && slot <=42  && item.getType() != Material.STAINED_GLASS_PANE) {
-					if(selected == "Tools" || selected == "Bow") {
-						equipment.put(EquipmentSlot.HAND, item);
-					} else if(selected == "Helmet" || selected == "Chestplate" || selected == "Leggings" || selected == "Boots") {
-						equipment.put(EquipmentSlot.valueOf(selected.toUpperCase()), item);
-					}
+					equipment.put(EquipmentSlot.valueOf(selected), item);
+				} else if(slot == 23 && item.getType() != Material.STAINED_GLASS_PANE) {
+					equipment.put(EquipmentSlot.valueOf(selected), null);
 				}
 				event.setCancelled(true);
 				this.open((Player) event.getWhoClicked());
@@ -180,9 +199,7 @@ public class EquipEditor implements Listener {
 		Inventory inventory = event.getInventory();
 		if(inventory != null)
 			if(inventory.getName().contains(" - Equip")) {
-				for(EquipmentSlot slot : equipment.keySet()) {
-					npc.equip(slot, equipment.get(slot));
-				}
+				equipment.forEach( (slot, item) -> {npc.equip(slot, item);});
 			}
 	}
 	

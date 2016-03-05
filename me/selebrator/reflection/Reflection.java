@@ -20,6 +20,7 @@ public class Reflection {
 		
 		for(Constructor<?> constructor : clazz.getDeclaredConstructors()) {
 			if(parameterTypes == constructor.getParameterTypes()) {
+				constructor.setAccessible(true);
 				return new IConstructorAccessor() {
 					
 					@Override
@@ -50,10 +51,11 @@ public class Reflection {
 		return null;
 	}
 	
-	public static IMethodAccessor getMethod(Class<?> clazz, String name, Class<?> patameterTypes) {
+	public static IMethodAccessor getMethod(Class<?> clazz, String name, Class<?>... patameterTypes) {
 		
 		for(Method method : clazz.getDeclaredMethods()) {
 			if(method.getName() == name) {
+				method.setAccessible(true);
 				return new IMethodAccessor() {
 					
 					@Override
