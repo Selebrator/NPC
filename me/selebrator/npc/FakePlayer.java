@@ -9,6 +9,7 @@ import net.minecraft.server.v1_9_R1.Entity;
 import net.minecraft.server.v1_9_R1.Packet;
 import net.minecraft.server.v1_9_R1.PacketPlayOutAnimation;
 import net.minecraft.server.v1_9_R1.PacketPlayOutEntity.PacketPlayOutEntityLook;
+import net.minecraft.server.v1_9_R1.PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook;
 import net.minecraft.server.v1_9_R1.PacketPlayOutEntityDestroy;
 import net.minecraft.server.v1_9_R1.PacketPlayOutEntityEquipment;
 import net.minecraft.server.v1_9_R1.PacketPlayOutEntityHeadRotation;
@@ -26,15 +27,11 @@ import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
-
 import com.mojang.authlib.GameProfile;
 
 public class FakePlayer {
 	
 	private int entityID;
-	@SuppressWarnings("unused")
-	private Plugin plugin;
 	private GameProfile gameProfile;
 	private NullDataWatcher dataWatcher;
 
@@ -45,12 +42,11 @@ public class FakePlayer {
 	private ItemStack[] equip = new ItemStack[6];
 
 
-	public FakePlayer(GameProfile gameProfile, Plugin plugin) {
+	public FakePlayer(GameProfile gameProfile) {
 		this.entityID = (int) Reflection.getField(Entity.class, "entityCount").get(null);
 		Reflection.getField(Entity.class, "entityCount").set(null, this.entityID + 1);
 		
 		this.gameProfile = gameProfile;
-		this.plugin = plugin;
 		
 		this.dataWatcher = new NullDataWatcher();
 		status(false, false, false, false, false, false, false);
@@ -96,6 +92,7 @@ public class FakePlayer {
 	}
 
 	public void look(Location location) {
+		// calculate yaw and pitch
 		double differenceX = location.getX() - this.location.getX();
 		double differenceY = location.getY() - (this.location.getY() + 1.6);
 		double differenceZ = location.getZ() - this.location.getZ();
@@ -119,6 +116,47 @@ public class FakePlayer {
 		this.location.setYaw(yaw);
 		this.location.setPitch(pitch);
 	}
+
+	public void walk(Location location) {
+		double differenceX = location.getX() - this.location.getX();
+		double differenceY = location.getY() - this.location.getY();
+		double differenceZ = location.getZ() - this.location.getZ();
+		
+		if(Math.abs(differenceX) < 8 && Math.abs(differenceY) < 8 && Math.abs(differenceZ) < 8) {
+			double preX = this.location.getX();
+			double preY = this.location.getY();
+			double preZ = this.location.getZ();
+			
+			long x = changeInPos(preX, preX + differenceX);
+			long y = changeInPos(preY, preY + differenceY);
+			long z = changeInPos(preZ, preZ + differenceZ);
+			byte yaw = angle(this.location.getYaw());
+			byte pitch = angle(this.location.getPitch());
+			
+			PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook(this.entityID, x, y, z, yaw, pitch, true);
+			
+			sendPackets(relEntityMoveLook);
+			
+			this.location.add(differenceX, differenceY, differenceZ);
+		} else
+			System.err.println("[NPC] Error in walk input: difference cant be > 8");
+		
+	}
+	
+	public void walk(double x, double y, double z) {
+		long changeX = changeInPos(this.location.getX(), this.location.getX() + x);	
+		long changeY = changeInPos(this.location.getY(), this.location.getY() + y);
+		long changeZ = changeInPos(this.location.getZ(), this.location.getZ() + z);	
+		byte yaw = angle(this.getLocation().getYaw());
+		byte pitch = angle(this.location.getPitch());
+
+		
+		PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook(this.entityID, changeX, changeY, changeZ, yaw, pitch, true);
+		
+		sendPackets(relEntityMoveLook);
+		
+		this.location.add(x, y, z);
+	}
 	
 	public void teleport(Location location) {
 		PacketPlayOutEntityTeleport entityTeleport = new PacketPlayOutEntityTeleport();
@@ -137,10 +175,6 @@ public class FakePlayer {
 		sendPackets(entityTeleport, entityHeadRotation);
 
 		this.location = location;
-	}
-
-	public void walk(Location location) {
-		// TODO	
 	}
 
 	public void equip(EnumEquipmentSlot slot, ItemStack item) {
@@ -188,13 +222,13 @@ public class FakePlayer {
 	}
 	
 	public Location getLocation() {
-		return this.location;
+		if(this.location != null)
+			return this.location;
+		return null;
 	}
 	
 	public boolean hasTarget() {
-		if(this.target != null)
-			return true;
-		return false;
+		return this.target != null;
 	}
 	
 	public LivingEntity getTarget() {
@@ -227,8 +261,6 @@ public class FakePlayer {
 	
 	public void setTarget(LivingEntity target) {
 		this.target = target;
-		
-		look(this.target.getEyeLocation());
 	}
 	
 	
@@ -277,9 +309,8 @@ public class FakePlayer {
 		}
 	}
 	
-	@SuppressWarnings("unused")
-	private int fixedPointNumber(double value) {
-		return (int) (Math.floor(value * 32.0D));
+	private long changeInPos(double pre, double post) {
+		return (long) (((post * 32) - (pre * 32)) * 128);
 	}
 	
 	private byte angle(float value) {
