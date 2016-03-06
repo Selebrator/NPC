@@ -75,13 +75,13 @@ public class FakePlayer {
 		Reflection.getField(namedEntitySpawn.getClass(), "c").set(namedEntitySpawn, this.location.getX());
 		Reflection.getField(namedEntitySpawn.getClass(), "d").set(namedEntitySpawn, this.location.getY());
 		Reflection.getField(namedEntitySpawn.getClass(), "e").set(namedEntitySpawn, this.location.getZ());
-		Reflection.getField(namedEntitySpawn.getClass(), "f").set(namedEntitySpawn, toAngle(this.location.getYaw()));
-		Reflection.getField(namedEntitySpawn.getClass(), "g").set(namedEntitySpawn, toAngle(this.location.getPitch()));
+		Reflection.getField(namedEntitySpawn.getClass(), "f").set(namedEntitySpawn, angle(this.location.getYaw()));
+		Reflection.getField(namedEntitySpawn.getClass(), "g").set(namedEntitySpawn, angle(this.location.getPitch()));
 		Reflection.getField(namedEntitySpawn.getClass(), "h").set(namedEntitySpawn, this.dataWatcher.toNMS());
 		
 		sendPackets(playerInfo, namedEntitySpawn);
 		
-		for(EquipmentSlot slot : EquipmentSlot.values()) {
+		for(EnumEquipmentSlot slot : EnumEquipmentSlot.values()) {
 			this.equip(slot, this.equip[slot.getID()]);
 		}
 	}
@@ -105,14 +105,14 @@ public class FakePlayer {
 		
 		PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook();
 		Reflection.getField(entityLook.getClass().getSuperclass(), "a").set(entityLook, this.entityID);
-		Reflection.getField(entityLook.getClass().getSuperclass(), "e").set(entityLook, toAngle(yaw));
-		Reflection.getField(entityLook.getClass().getSuperclass(), "f").set(entityLook, toAngle(pitch));
+		Reflection.getField(entityLook.getClass().getSuperclass(), "e").set(entityLook, angle(yaw));
+		Reflection.getField(entityLook.getClass().getSuperclass(), "f").set(entityLook, angle(pitch));
 		Reflection.getField(entityLook.getClass().getSuperclass(), "g").set(entityLook, false);				
 		Reflection.getField(entityLook.getClass().getSuperclass(), "h").set(entityLook, true);
 		
 		PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
 		Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
-		Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, toAngle(yaw));
+		Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, angle(yaw));
 		
 		sendPackets(entityLook, entityHeadRotation);
 		
@@ -126,13 +126,13 @@ public class FakePlayer {
 		Reflection.getField(entityTeleport.getClass(), "b").set(entityTeleport, location.getX());
 		Reflection.getField(entityTeleport.getClass(), "c").set(entityTeleport, location.getY());
 		Reflection.getField(entityTeleport.getClass(), "d").set(entityTeleport, location.getZ());
-		Reflection.getField(entityTeleport.getClass(), "e").set(entityTeleport, toAngle(location.getYaw()));
-		Reflection.getField(entityTeleport.getClass(), "f").set(entityTeleport, toAngle(location.getPitch()));
+		Reflection.getField(entityTeleport.getClass(), "e").set(entityTeleport, angle(location.getYaw()));
+		Reflection.getField(entityTeleport.getClass(), "f").set(entityTeleport, angle(location.getPitch()));
 		Reflection.getField(entityTeleport.getClass(), "g").set(entityTeleport, false);		//onGround
 		
 		PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
 		Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
-		Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, toAngle(location.getYaw()));
+		Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, angle(location.getYaw()));
 		
 		sendPackets(entityTeleport, entityHeadRotation);
 
@@ -143,24 +143,24 @@ public class FakePlayer {
 		// TODO	
 	}
 
-	public void equip(EquipmentSlot slot, ItemStack item) {
+	public void equip(EnumEquipmentSlot slot, ItemStack item) {
 		PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment();
 		Reflection.getField(entityEquipment.getClass(), "a").set(entityEquipment, this.entityID);
-		Reflection.getField(entityEquipment.getClass(), "b").set(entityEquipment, slot.getSlot());
+		Reflection.getField(entityEquipment.getClass(), "b").set(entityEquipment, slot.getNMS());
 		Reflection.getField(entityEquipment.getClass(), "c").set(entityEquipment, CraftItemStack.asNMSCopy(item));		//itemStack
 		sendPackets(entityEquipment);
 		
 		this.equip[slot.getID()] = item;
 	}
 	
-	public void playAnimation(Animation anim) {
+	public void playAnimation(EnumAnimation anim) {
 		PacketPlayOutAnimation animation = new PacketPlayOutAnimation();
 		Reflection.getField(animation.getClass(), "a").set(animation, this.entityID);
 		Reflection.getField(animation.getClass(), "b").set(animation, anim.getId());
 		sendPackets(animation);
 	}
 
-	public void setStatus(Status status) {
+	public void setStatus(EnumStatus status) {
 		PacketPlayOutEntityStatus entityStatus = new PacketPlayOutEntityStatus();
 		Reflection.getField(entityStatus.getClass(), "a").set(entityStatus, this.entityID);
 		Reflection.getField(entityStatus.getClass(), "b").set(entityStatus, (byte) status.getID());
@@ -204,11 +204,11 @@ public class FakePlayer {
 	}
 	
 	
-	public boolean hasEquipment(EquipmentSlot slot) {
+	public boolean hasEquipment(EnumEquipmentSlot slot) {
 		return this.equip[slot.getID()] != null;
 	}
 	
-	public ItemStack getEquipment(EquipmentSlot slot) {
+	public ItemStack getEquipment(EnumEquipmentSlot slot) {
 		return equip[slot.getID()];
 	}
 
@@ -216,9 +216,9 @@ public class FakePlayer {
 	
 	public void setHealth(float health) {
 		if(health == 0) {
-			this.setStatus(Status.DEAD);
+			this.setStatus(EnumStatus.DEAD);
 		} else if(this.health > health) {
-			this.setStatus(Status.HURT);
+			this.setStatus(EnumStatus.HURT);
 		} else if(this.health == 0 && health > 0) {
 			this.spawn(this.location);
 		}
@@ -278,11 +278,11 @@ public class FakePlayer {
 	}
 	
 	@SuppressWarnings("unused")
-	private int toFixedPointNumber(double value) {
+	private int fixedPointNumber(double value) {
 		return (int) (Math.floor(value * 32.0D));
 	}
 	
-	private byte toAngle(float value) {
+	private byte angle(float value) {
 		return (byte) ((int) (value * 256F / 360F));
 	}
 	

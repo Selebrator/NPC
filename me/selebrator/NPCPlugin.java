@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.selebrator.fetcher.GameProfileBuilder;
-import me.selebrator.npc.Animation;
-import me.selebrator.npc.EquipmentSlot;
+import me.selebrator.npc.EnumAnimation;
+import me.selebrator.npc.EnumEquipmentSlot;
 import me.selebrator.npc.FakePlayer;
 
 import org.bukkit.Bukkit;
@@ -185,7 +185,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				if(npc != null) {
 					if(args.length == 2) {
-						npc.equip(EquipmentSlot.valueOf(args[1].toUpperCase()), player.getInventory().getItemInMainHand());
+						npc.equip(EnumEquipmentSlot.valueOf(args[1].toUpperCase()), player.getInventory().getItemInMainHand());
 						return true;
 					}
 					player.sendMessage("§c/npc equip <slot>");
@@ -198,7 +198,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				if(npc != null) {
 					if(args.length == 2) {
-						npc.playAnimation(Animation.valueOf(args[1].toUpperCase()));
+						npc.playAnimation(EnumAnimation.valueOf(args[1].toUpperCase()));
 						return true;
 					}
 					player.sendMessage("§c/npc animation <animation>");
@@ -253,7 +253,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				if(npc != null) {
 					if(args.length == 1) {
-						System.out.println(npc.hasEquipment(EquipmentSlot.LEGGINGS));
+						System.out.println(npc.hasEquipment(EnumEquipmentSlot.LEGGINGS));
 						return true;
 					}
 					player.sendMessage("§c/npc " + args[0]);

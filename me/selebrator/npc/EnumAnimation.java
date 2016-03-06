@@ -1,6 +1,6 @@
 package me.selebrator.npc;
 
-public enum Animation {
+public enum EnumAnimation {
     SWING_ARM(0),
     TAKE_DAMAGE(1),
     LEAVE_BED(2),
@@ -12,7 +12,7 @@ public enum Animation {
     
     private int id;
 
-    private Animation(int id) {
+    private EnumAnimation(int id) {
         this.id = id;
     }
 

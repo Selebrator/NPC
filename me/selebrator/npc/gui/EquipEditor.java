@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import me.selebrator.fetcher.ItemBuilder;
 import me.selebrator.fetcher.LeatherArmorBuilder;
-import me.selebrator.npc.EquipmentSlot;
+import me.selebrator.npc.EnumEquipmentSlot;
 import me.selebrator.npc.FakePlayer;
 
 import org.bukkit.Bukkit;
@@ -28,7 +28,7 @@ public class EquipEditor implements Listener {
 	private String selected;
 	private String subSelected;
 	
-	private HashMap<EquipmentSlot, ItemStack> equipment = new HashMap<>();
+	private HashMap<EnumEquipmentSlot, ItemStack> equipment = new HashMap<>();
 
 	public EquipEditor(FakePlayer npc, Plugin plugin) {
 		this.plugin = plugin;
@@ -55,16 +55,16 @@ public class EquipEditor implements Listener {
 		ItemStack boots = new LeatherArmorBuilder(Material.LEATHER_BOOTS, 1, (short) 0, "§8No Boots", Color.fromBGR(76, 76, 76)).build();
 
 		
-		if(npc.hasEquipment(EquipmentSlot.MAIN_HAND))
-			tool = npc.getEquipment(EquipmentSlot.MAIN_HAND);
-		if(npc.hasEquipment(EquipmentSlot.HELMET))
-			helmet = npc.getEquipment(EquipmentSlot.HELMET);
-		if(npc.hasEquipment(EquipmentSlot.CHESTPLATE))
-			chestplate = npc.getEquipment(EquipmentSlot.CHESTPLATE);
-		if(npc.hasEquipment(EquipmentSlot.LEGGINGS))
-			leggings = npc.getEquipment(EquipmentSlot.LEGGINGS);
-		if(npc.hasEquipment(EquipmentSlot.BOOTS))
-			boots = npc.getEquipment(EquipmentSlot.BOOTS);
+		if(npc.hasEquipment(EnumEquipmentSlot.MAIN_HAND))
+			tool = npc.getEquipment(EnumEquipmentSlot.MAIN_HAND);
+		if(npc.hasEquipment(EnumEquipmentSlot.HELMET))
+			helmet = npc.getEquipment(EnumEquipmentSlot.HELMET);
+		if(npc.hasEquipment(EnumEquipmentSlot.CHESTPLATE))
+			chestplate = npc.getEquipment(EnumEquipmentSlot.CHESTPLATE);
+		if(npc.hasEquipment(EnumEquipmentSlot.LEGGINGS))
+			leggings = npc.getEquipment(EnumEquipmentSlot.LEGGINGS);
+		if(npc.hasEquipment(EnumEquipmentSlot.BOOTS))
+			boots = npc.getEquipment(EnumEquipmentSlot.BOOTS);
 		
 		
 		inventory.setItem(11, tool);
@@ -184,9 +184,9 @@ public class EquipEditor implements Listener {
 				} else if(slot == 33 && selected == "MAIN_HAND") {
 					subSelected = "HOE";
 				} else if(slot >= 38 && slot <=42  && item.getType() != Material.STAINED_GLASS_PANE) {
-					equipment.put(EquipmentSlot.valueOf(selected), item);
+					equipment.put(EnumEquipmentSlot.valueOf(selected), item);
 				} else if(slot == 23 && item.getType() != Material.STAINED_GLASS_PANE) {
-					equipment.put(EquipmentSlot.valueOf(selected), null);
+					equipment.put(EnumEquipmentSlot.valueOf(selected), null);
 				}
 				event.setCancelled(true);
 				this.open((Player) event.getWhoClicked());

@@ -1,12 +1,12 @@
 package me.selebrator.npc;
 
-public enum Status {
+public enum EnumStatus {
     HURT(2),
     DEAD(3);
     
     private int id;
 
-    private Status(int id) {
+    private EnumStatus(int id) {
         this.id = id;
     }
 

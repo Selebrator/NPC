@@ -2,7 +2,7 @@ package me.selebrator.npc;
 
 import net.minecraft.server.v1_9_R1.EnumItemSlot;
 
-public enum EquipmentSlot {
+public enum EnumEquipmentSlot {
     MAIN_HAND(0, EnumItemSlot.MAINHAND),
     OFF_HAND(1, EnumItemSlot.OFFHAND),
     BOOTS(2, EnumItemSlot.FEET),
@@ -13,7 +13,7 @@ public enum EquipmentSlot {
     private int id;
     private EnumItemSlot NMSSlot;
 
-    private EquipmentSlot(int id, EnumItemSlot NMSSlot) {
+    private EnumEquipmentSlot(int id, EnumItemSlot NMSSlot) {
         this.id = id;
         this.NMSSlot = NMSSlot;
     }
@@ -22,7 +22,7 @@ public enum EquipmentSlot {
         return this.id;
     }
     
-    public EnumItemSlot getSlot() {
+    public EnumItemSlot getNMS() {
     	return this.NMSSlot;
     }
 }
