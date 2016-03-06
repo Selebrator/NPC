@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import me.selebrator.reflection.Reflection;
 import net.minecraft.server.v1_9_R1.ChatComponentText;
-import net.minecraft.server.v1_9_R1.DataWatcher;
 import net.minecraft.server.v1_9_R1.Entity;
 import net.minecraft.server.v1_9_R1.Packet;
 import net.minecraft.server.v1_9_R1.PacketPlayOutAnimation;
@@ -26,6 +25,7 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.mojang.authlib.GameProfile;
@@ -37,9 +37,10 @@ public class FakePlayer {
 	private NullDataWatcher dataWatcher;
 
 	private Location location;
-	private float health = 20;
-	private double moveSpeed = 4.3D / 20;
 	private LivingEntity target;
+	
+	private float health = 20F;
+	private double moveSpeed = 4.3D / 20;
 
 	private ItemStack[] equip = new ItemStack[6];
 
@@ -52,32 +53,27 @@ public class FakePlayer {
 		
 		this.dataWatcher = new NullDataWatcher();
 		status(false, false, false, false, false, false, false);
-		this.dataWatcher.set(EnumDataWatcherObject.LIVING_HELATH_06, 20F);
 		skinFlags(true, true, true, true, true, true, true);
-	}
-	
-	public void updateGameProfile(GameProfile gameProfile) {
-		despawn();
-		this.gameProfile = gameProfile;
-		spawn(this.location);
+		this.dataWatcher.set(EnumDataWatcherObject.LIVING_HELATH_06, this.health);
 	}
 
 	public void spawn(Location location) {
 		PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.ADD_PLAYER);
 		Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(playerInfo.new PlayerInfoData(this.gameProfile, 0, EnumGamemode.NOT_SET, new ChatComponentText(this.gameProfile.getName()))));
 		
-		this.location = location;
 		PacketPlayOutNamedEntitySpawn namedEntitySpawn = new PacketPlayOutNamedEntitySpawn();
 		Reflection.getField(namedEntitySpawn.getClass(), "a").set(namedEntitySpawn, this.entityID);
 		Reflection.getField(namedEntitySpawn.getClass(), "b").set(namedEntitySpawn, this.gameProfile.getId());
-		Reflection.getField(namedEntitySpawn.getClass(), "c").set(namedEntitySpawn, this.location.getX());
-		Reflection.getField(namedEntitySpawn.getClass(), "d").set(namedEntitySpawn, this.location.getY());
-		Reflection.getField(namedEntitySpawn.getClass(), "e").set(namedEntitySpawn, this.location.getZ());
-		Reflection.getField(namedEntitySpawn.getClass(), "f").set(namedEntitySpawn, angle(this.location.getYaw()));
-		Reflection.getField(namedEntitySpawn.getClass(), "g").set(namedEntitySpawn, angle(this.location.getPitch()));
+		Reflection.getField(namedEntitySpawn.getClass(), "c").set(namedEntitySpawn, location.getX());
+		Reflection.getField(namedEntitySpawn.getClass(), "d").set(namedEntitySpawn, location.getY());
+		Reflection.getField(namedEntitySpawn.getClass(), "e").set(namedEntitySpawn, location.getZ());
+		Reflection.getField(namedEntitySpawn.getClass(), "f").set(namedEntitySpawn, angle(location.getYaw()));
+		Reflection.getField(namedEntitySpawn.getClass(), "g").set(namedEntitySpawn, angle(location.getPitch()));
 		Reflection.getField(namedEntitySpawn.getClass(), "h").set(namedEntitySpawn, this.dataWatcher.toNMS());
 		
 		sendPackets(playerInfo, namedEntitySpawn);
+
+		this.location = location;
 		
 		for(EnumEquipmentSlot slot : EnumEquipmentSlot.values()) {
 			this.equip(slot, this.equip[slot.getID()]);
@@ -131,12 +127,11 @@ public class FakePlayer {
 	//Coordinates as delta
 	public void walk(double x, double y, double z) {
 		if(Math.abs(x) < 8 && Math.abs(y) < 8 && Math.abs(z) < 8) {
-			long changeX = changeInPos(this.location.getX(), this.location.getX() + x);	
-			long changeY = changeInPos(this.location.getY(), this.location.getY() + y);
-			long changeZ = changeInPos(this.location.getZ(), this.location.getZ() + z);	
+			long changeX = (long) ((((this.location.getX() + x) * 32) - ((this.location.getX()) * 32)) * 128);
+			long changeY = (long) ((((this.location.getY() + y) * 32) - ((this.location.getY()) * 32)) * 128);
+			long changeZ = (long) ((((this.location.getZ() + z) * 32) - ((this.location.getZ()) * 32)) * 128);
 			byte yaw = angle(this.getLocation().getYaw());
 			byte pitch = angle(this.location.getPitch());
-
 			
 			PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook(this.entityID, changeX, changeY, changeZ, yaw, pitch, true);
 			
@@ -209,8 +204,14 @@ public class FakePlayer {
 		sendPackets(entityStatus);
 	}
 	
+	public void updateGameProfile(GameProfile gameProfile) {
+		despawn();
+		this.gameProfile = gameProfile;
+		spawn(this.location);
+	}
+	
 	public void updateMetadata() {
-		sendPackets(new PacketPlayOutEntityMetadata(this.entityID, (DataWatcher) this.dataWatcher.toNMS(), true));
+		sendPackets(new PacketPlayOutEntityMetadata(this.entityID, this.dataWatcher.toNMS(), true));
 	}
 	
 	
@@ -325,19 +326,17 @@ public class FakePlayer {
 		}
 	}
 	
-	private long changeInPos(double pre, double post) {
-		return (long) (((post * 32) - (pre * 32)) * 128);
-	}
-	
 	private byte angle(float value) {
 		return (byte) ((int) (value * 256F / 360F));
 	}
 	
+	private void sendPrivatePackets(Player player, Packet<?>... packets) {
+		for(Packet<?> packet : packets) {
+			((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+		}
+	}
+	
 	private void sendPackets(Packet<?>... packets) {
-		Bukkit.getOnlinePlayers().forEach(player -> {
-			for(Packet<?> packet : packets) {
-				((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-			}
-		});
+		Bukkit.getOnlinePlayers().forEach(player -> { sendPrivatePackets(player, packets); });
 	}
 }

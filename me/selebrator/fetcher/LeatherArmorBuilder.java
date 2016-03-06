@@ -28,5 +28,4 @@ public class LeatherArmorBuilder extends ItemBuilder {
 		}
 		return null;
 	}
-
 }

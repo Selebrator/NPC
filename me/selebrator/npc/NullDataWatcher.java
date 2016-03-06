@@ -7,7 +7,7 @@ import me.selebrator.reflection.ServerPackage;
 
 public class NullDataWatcher {
 	
-	private final Object dataWatcher;
+	private final DataWatcher dataWatcher;
 	
 	private static final Class<?> CLASS_DataWatcher = Reflection.getClass(ServerPackage.NMS, "DataWatcher");
 	private static final Class<?> CLASS_DataWatcherObject = Reflection.getClass(ServerPackage.NMS, "DataWatcherObject");
@@ -23,7 +23,7 @@ public class NullDataWatcher {
 		return this;
 	}
 	
-	public Object toNMS() {
+	public DataWatcher toNMS() {
 		return this.dataWatcher;
 	}	
 }

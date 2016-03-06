@@ -37,10 +37,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		
 		/*
 		 * Optifine capes will override Mojangs.
-		 * 
-		 * 
 		 */
-		
 	}
 	
 	@Override
@@ -255,7 +252,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				if(npc != null) {
 					if(args.length == 1) {
-						npc.setMoveSpeed(20D);
+//						npc.setMoveSpeed(20D);
 						task.runTaskTimer(this, 0, 1);
 						return true;
 					}
