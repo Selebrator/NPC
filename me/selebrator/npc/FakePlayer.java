@@ -27,6 +27,7 @@ import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
+
 import com.mojang.authlib.GameProfile;
 
 public class FakePlayer {
@@ -37,6 +38,7 @@ public class FakePlayer {
 
 	private Location location;
 	private float health = 20;
+	private double moveSpeed = 4.3D / 20;
 	private LivingEntity target;
 
 	private ItemStack[] equip = new ItemStack[6];
@@ -122,40 +124,46 @@ public class FakePlayer {
 		double differenceY = location.getY() - this.location.getY();
 		double differenceZ = location.getZ() - this.location.getZ();
 		
-		if(Math.abs(differenceX) < 8 && Math.abs(differenceY) < 8 && Math.abs(differenceZ) < 8) {
-			double preX = this.location.getX();
-			double preY = this.location.getY();
-			double preZ = this.location.getZ();
-			
-			long x = changeInPos(preX, preX + differenceX);
-			long y = changeInPos(preY, preY + differenceY);
-			long z = changeInPos(preZ, preZ + differenceZ);
-			byte yaw = angle(this.location.getYaw());
-			byte pitch = angle(this.location.getPitch());
-			
-			PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook(this.entityID, x, y, z, yaw, pitch, true);
-			
-			sendPackets(relEntityMoveLook);
-			
-			this.location.add(differenceX, differenceY, differenceZ);
-		} else
-			System.err.println("[NPC] Error in walk input: difference cant be > 8");
+		walk(differenceX, differenceY, differenceZ);
 		
 	}
 	
+	//Coordinates as delta
 	public void walk(double x, double y, double z) {
-		long changeX = changeInPos(this.location.getX(), this.location.getX() + x);	
-		long changeY = changeInPos(this.location.getY(), this.location.getY() + y);
-		long changeZ = changeInPos(this.location.getZ(), this.location.getZ() + z);	
-		byte yaw = angle(this.getLocation().getYaw());
-		byte pitch = angle(this.location.getPitch());
+		if(Math.abs(x) < 8 && Math.abs(y) < 8 && Math.abs(z) < 8) {
+			long changeX = changeInPos(this.location.getX(), this.location.getX() + x);	
+			long changeY = changeInPos(this.location.getY(), this.location.getY() + y);
+			long changeZ = changeInPos(this.location.getZ(), this.location.getZ() + z);	
+			byte yaw = angle(this.getLocation().getYaw());
+			byte pitch = angle(this.location.getPitch());
 
+			
+			PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook(this.entityID, changeX, changeY, changeZ, yaw, pitch, true);
+			
+			sendPackets(relEntityMoveLook);
+			
+			this.location.add(x, y, z);
+		} else
+			System.err.println("[NPC] Error in walk input: difference cant be > 8");
+	}
+	
+	public void step(Location location) {
+		double differenceX = location.getX() - this.location.getX();
+		double differenceY = location.getY() - this.location.getY();
+		double differenceZ = location.getZ() - this.location.getZ();
 		
-		PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook(this.entityID, changeX, changeY, changeZ, yaw, pitch, true);
+		step(differenceX, differenceY, differenceZ);
+	}
+
+	//Coordinates as delta
+	public void step(double x, double y, double z) {
+		float yaw = (float) Math.toRadians((Math.atan2(z, x) * 180D / Math.PI) - 90F);
+		float pitch = (float) Math.toRadians(-(Math.atan2(y, Math.sqrt(x * x + z * z)) * 180D / Math.PI));
+		double changeX = -Math.sin(yaw);
+		double changeY = -Math.sin(pitch);
+		double changeZ = Math.cos(yaw);
 		
-		sendPackets(relEntityMoveLook);
-		
-		this.location.add(x, y, z);
+		walk(changeX * this.moveSpeed, changeY * this.moveSpeed, changeZ * this.moveSpeed);
 	}
 	
 	public void teleport(Location location) {
@@ -221,6 +229,10 @@ public class FakePlayer {
 		return this.health;
 	}
 	
+	public double getMoveSpeed() {
+		return this.moveSpeed;
+	}
+	
 	public Location getLocation() {
 		if(this.location != null)
 			return this.location;
@@ -257,6 +269,10 @@ public class FakePlayer {
 			this.spawn(this.location);
 		}
 		this.health = health;
+	}
+	
+	public void setMoveSpeed(double speed) {
+		this.moveSpeed = speed / 20;
 	}
 	
 	public void setTarget(LivingEntity target) {

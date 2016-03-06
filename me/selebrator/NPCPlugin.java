@@ -7,6 +7,7 @@ import me.selebrator.fetcher.GameProfileBuilder;
 import me.selebrator.npc.EnumAnimation;
 import me.selebrator.npc.EnumEquipmentSlot;
 import me.selebrator.npc.FakePlayer;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -19,6 +20,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 	
@@ -253,6 +255,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				if(npc != null) {
 					if(args.length == 1) {
+						npc.setMoveSpeed(20D);
 						task.runTaskTimer(this, 0, 1);
 						return true;
 					}
@@ -290,19 +293,10 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		@Override
 		public void run() {
 			if(npc != null && npc.hasTarget()) {
-				double differenceX = npc.getTarget().getLocation().getX() - npc.getLocation().getX();
-				double differenceY = npc.getTarget().getLocation().getY() - (npc.getLocation().getY());
-				double differenceZ = npc.getTarget().getLocation().getZ() - npc.getLocation().getZ();
-				
-				if(Math.abs(differenceX) > 3 || Math.abs(differenceY) > 3 || Math.abs(differenceZ) > 3) {
-					double hypotenuseXZ = Math.sqrt(differenceX * differenceX + differenceZ * differenceZ);
-					float yaw = (float) Math.toRadians((Math.atan2(differenceZ, differenceX) * 180D / Math.PI) - 90F);
-					float pitch = (float) Math.toRadians(-(Math.atan2(differenceY, hypotenuseXZ) * 180D / Math.PI));
-					double x = -Math.sin(yaw);
-					double y = -Math.sin(pitch);
-					double z = Math.cos(yaw);
-					npc.walk(x * (4.3D / 20), y * (4.3D / 20) ,z * (4.3D / 20));
-				}
+				Vector vNPC = new Vector(npc.getLocation().getX(), npc.getLocation().getY(), npc.getLocation().getZ());
+				Vector vTarget = new Vector(npc.getTarget().getLocation().getX(), npc.getTarget().getLocation().getY(), npc.getTarget().getLocation().getZ());
+				if(vNPC.distance(vTarget) > 3)
+					npc.step(npc.getTarget().getLocation());
 				npc.look(npc.getTarget().getEyeLocation());
 			}
 		}
