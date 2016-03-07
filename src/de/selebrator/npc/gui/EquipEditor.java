@@ -1,11 +1,11 @@
-package me.selebrator.npc.gui;
+package de.selebrator.npc.gui;
 
 import java.util.HashMap;
 
-import me.selebrator.fetcher.ItemBuilder;
-import me.selebrator.fetcher.LeatherArmorBuilder;
-import me.selebrator.npc.EnumEquipmentSlot;
-import me.selebrator.npc.FakePlayer;
+import de.selebrator.fetcher.ItemBuilder;
+import de.selebrator.fetcher.LeatherArmorBuilder;
+import de.selebrator.npc.EnumEquipmentSlot;
+import de.selebrator.npc.FakePlayer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -47,12 +47,12 @@ public class EquipEditor implements Listener {
 		
 		inventory = Bukkit.getServer().createInventory(null, 6 * 9, npc.getName() + " - Equip");
 		
-		ItemStack tool = new ItemBuilder(Material.STICK, 1, (short) 0, "§8Empty MainHand").build();
+		ItemStack tool = new ItemBuilder(Material.STICK, 1, (short) 0, "ï¿½8Empty MainHand").build();
 		
-		ItemStack helmet = new LeatherArmorBuilder(Material.LEATHER_HELMET, 1, (short) 0, "§8No Helmet", Color.fromBGR(76, 76, 76)).build();
-		ItemStack chestplate =new LeatherArmorBuilder(Material.LEATHER_CHESTPLATE, 1, (short) 0, "§8No Chestplate", Color.fromBGR(76, 76, 76)).build();
-		ItemStack leggings = new LeatherArmorBuilder(Material.LEATHER_LEGGINGS, 1, (short) 0, "§8No Leggings", Color.fromBGR(76, 76, 76)).build();
-		ItemStack boots = new LeatherArmorBuilder(Material.LEATHER_BOOTS, 1, (short) 0, "§8No Boots", Color.fromBGR(76, 76, 76)).build();
+		ItemStack helmet = new LeatherArmorBuilder(Material.LEATHER_HELMET, 1, (short) 0, "ï¿½8No Helmet", Color.fromBGR(76, 76, 76)).build();
+		ItemStack chestplate =new LeatherArmorBuilder(Material.LEATHER_CHESTPLATE, 1, (short) 0, "ï¿½8No Chestplate", Color.fromBGR(76, 76, 76)).build();
+		ItemStack leggings = new LeatherArmorBuilder(Material.LEATHER_LEGGINGS, 1, (short) 0, "ï¿½8No Leggings", Color.fromBGR(76, 76, 76)).build();
+		ItemStack boots = new LeatherArmorBuilder(Material.LEATHER_BOOTS, 1, (short) 0, "ï¿½8No Boots", Color.fromBGR(76, 76, 76)).build();
 
 		
 		if(npc.hasEquipment(EnumEquipmentSlot.MAIN_HAND))
@@ -75,12 +75,12 @@ public class EquipEditor implements Listener {
 		
 		if(selected != null) {
 			ItemStack enchant = new ItemStack(Material.ENCHANTED_BOOK, 1);
-			ItemStack clear = new ItemBuilder(Material.BARRIER, 1, (short) 0, "§cClear").build();
+			ItemStack clear = new ItemBuilder(Material.BARRIER, 1, (short) 0, "ï¿½cClear").build();
 
 			inventory.setItem(21, enchant);
 			inventory.setItem(23, clear);
 			
-			if(selected == "MAIN_HAND") {
+			if(selected.equals("MAIN_HAND")) {
 				inventory.setItem(2, marker);
 				
 				ItemStack typeSword = new ItemBuilder(Material.IRON_SWORD, 1, (short) 0, "Sword").build();
@@ -112,7 +112,7 @@ public class EquipEditor implements Listener {
 					inventory.setItem(42, specificToolDiamond);
 				}
 				
-			} else if(selected == "HELMET" || selected == "CHESTPLATE" || selected == "LEGGINGS" || selected == "BOOTS") {
+			} else if(selected.equals("HELMET") || selected.equals("CHESTPLATE") || selected.equals("LEGGINGS") || selected.equals("BOOTS")) {
 				
 				switch (selected) {
 				case "HELMET":
@@ -173,15 +173,15 @@ public class EquipEditor implements Listener {
 					selected = "LEGGINGS";
 				} else if(slot == 16) {
 					selected = "BOOTS";
-				} else if(slot == 29 && selected == "MAIN_HAND") {
+				} else if(slot == 29 && selected.equals("MAIN_HAND")) {
 					subSelected = "SWORD";
-				} else if(slot == 30 && selected == "MAIN_HAND") {
+				} else if(slot == 30 && selected.equals("MAIN_HAND")) {
 					subSelected = "PICKAXE";
-				} else if(slot == 31 && selected == "MAIN_HAND") {
+				} else if(slot == 31 && selected.equals("MAIN_HAND")) {
 					subSelected = "AXE";
-				} else if(slot == 32 && selected == "MAIN_HAND") {
+				} else if(slot == 32 && selected.equals("MAIN_HAND")) {
 					subSelected = "SPADE";
-				} else if(slot == 33 && selected == "MAIN_HAND") {
+				} else if(slot == 33 && selected.equals("MAIN_HAND")) {
 					subSelected = "HOE";
 				} else if(slot >= 38 && slot <=42  && item.getType() != Material.STAINED_GLASS_PANE) {
 					equipment.put(EnumEquipmentSlot.valueOf(selected), item);
@@ -199,7 +199,7 @@ public class EquipEditor implements Listener {
 		Inventory inventory = event.getInventory();
 		if(inventory != null)
 			if(inventory.getName().contains(" - Equip")) {
-				equipment.forEach( (slot, item) -> {npc.equip(slot, item);});
+				equipment.forEach( (slot, item) -> { npc.equip(slot, item); });
 			}
 	}
 }

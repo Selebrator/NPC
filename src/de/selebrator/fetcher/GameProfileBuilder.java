@@ -1,4 +1,4 @@
-package me.selebrator.fetcher;
+package de.selebrator.fetcher;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,9 +16,9 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
 public class GameProfileBuilder {
-	
+
+	private UUID uuid;
 	private String name;
-	private String uuid;
 	private String skinOwner;
 	private String skinValue;
 	private String skinSignature;
@@ -27,55 +27,60 @@ public class GameProfileBuilder {
 		this.name = name;
 		this.skinOwner = name;
 
-		createUUID(this.name);
-		createSkin(this.name);
+		this.uuid = createUUID(name);
+		createSkin(this.uuid);
 	}
 	
 	public GameProfileBuilder(String name, String skinOwner) {
 		this.name = name;
 		this.skinOwner = skinOwner;
 		
-		createUUID(this.skinOwner);
-		createSkin(this.skinOwner);
+		this.uuid = createUUID(name);
+		createSkin(createUUID(skinOwner));
 	}
 	
 	public GameProfile build() {
-		GameProfile profile = new GameProfile(UUID.fromString(getUUID()), getName());
+		GameProfile profile = new GameProfile(getUUID(), getName());
 		if(getValue() != null && getSignature() != null)
 			profile.getProperties().put("textures", new Property("textures", getValue(), getSignature()));
 		return profile;
 	}
 	
-	private void createUUID(String name) {
+	private UUID createUUID(String name) {
 		String mojangAPI = read("https://api.mojang.com/users/profiles/minecraft/" + name);
 		try {
 			JsonElement uuidElement = new JsonParser().parse(mojangAPI);
-			JsonObject uuiOobject = uuidElement.getAsJsonObject();
+			JsonObject uuidObject = uuidElement.getAsJsonObject();
 			
-			String uuid = uuiOobject.get("id").toString();
-			this.uuid = uuid.substring(1, uuid.length() - 1);
+			String uuid = uuidObject.get("id").toString();
+			uuid = uuid.substring(1, uuid.length() - 1).replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5");
+			return UUID.fromString(uuid);
 		} catch (Exception e) {
-			this.uuid = "00000000000020000000000000000000";
+			System.out.println("no uuid");
+			return UUID.fromString("00000000000020000000000000000000".replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
 		}
 	}
 	
-	private void createSkin(String skinOwner) {
+	private void createSkin(UUID uuid) {
 		try {
-			String sessionserver = read("https://sessionserver.mojang.com/session/minecraft/profile/" + this.uuid + "?unsigned=false");
-			JsonElement propertiesElement = new JsonParser().parse(sessionserver);
-			JsonObject propertiesObject = propertiesElement.getAsJsonObject();
+			String uuidString = uuid.toString().replace("-", "");;
+			String sessionserver = read("https://sessionserver.mojang.com/session/minecraft/profile/" + uuidString + "?unsigned=false");
+			JsonElement mainElement = new JsonParser().parse(sessionserver);
+			JsonObject mainObject = mainElement.getAsJsonObject();
+
+			this.skinOwner = mainObject.get("name").getAsString();
 			
-			JsonArray properties = propertiesObject.getAsJsonArray("properties");
+			JsonArray properties = mainObject.getAsJsonArray("properties");
 			
-			JsonObject object = properties.get(0).getAsJsonObject();
-			this.skinValue = object.get("value").getAsString();
-			String signature = object.get("signature").toString();
+			JsonObject propertiesObject = properties.get(0).getAsJsonObject();
+			this.skinValue = propertiesObject.get("value").getAsString();
+			String signature = propertiesObject.get("signature").toString();
 			this.skinSignature = signature.substring(1, signature.length() - 1);
 			System.out.println("[NPC] Successfully downloaded " + this.skinOwner + "'s Skin");
 		} catch (IllegalStateException e) {
 			System.err.println("[NPC] There is no Skin for '" +  this.skinOwner + "' available. Using default Skin instead");
 		} catch (NullPointerException e) {
-			
+
 		}
 	}
 	
@@ -83,8 +88,8 @@ public class GameProfileBuilder {
 		return this.name;
 	}
 
-	public String getUUID() {
-		return this.uuid.replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5");
+	public UUID getUUID() {
+		return this.uuid;
 	}
 	
 	public String getValue() {
@@ -102,7 +107,7 @@ public class GameProfileBuilder {
 			InputStream stream = url.openStream();
 			InputStreamReader inputStreamReader = new InputStreamReader(stream);
 			BufferedReader reader = new BufferedReader(inputStreamReader);
-			String content = null;
+			String content;
 			StringBuilder contentBuilder = new StringBuilder();
 			while((content = reader.readLine()) != null) {
 				contentBuilder.append(content);

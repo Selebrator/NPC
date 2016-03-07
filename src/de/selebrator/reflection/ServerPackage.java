@@ -1,4 +1,4 @@
-package me.selebrator.reflection;
+package de.selebrator.reflection;
 
 import org.bukkit.Bukkit;
 

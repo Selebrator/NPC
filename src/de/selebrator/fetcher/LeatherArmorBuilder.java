@@ -1,4 +1,4 @@
-package me.selebrator.fetcher;
+package de.selebrator.fetcher;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -7,7 +7,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 public class LeatherArmorBuilder extends ItemBuilder {
 
-	private LeatherArmorMeta meta;
+	protected LeatherArmorMeta meta;
 	
 	private Color color;
 

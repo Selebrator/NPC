@@ -1,4 +1,4 @@
-package me.selebrator.reflection;
+package de.selebrator.reflection;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -54,7 +54,7 @@ public class Reflection {
 	public static IMethodAccessor getMethod(Class<?> clazz, String name, Class<?>... patameterTypes) {
 		
 		for(Method method : clazz.getDeclaredMethods()) {
-			if(method.getName() == name) {
+			if(method.getName().equals(name)) {
 				method.setAccessible(true);
 				return new IMethodAccessor() {
 					

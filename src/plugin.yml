@@ -1,0 +1,6 @@
+name: NPC
+main: de.selebrator.NPCPlugin
+version: 0.3
+authors: [Selebrator]
+commands:
+  npc:

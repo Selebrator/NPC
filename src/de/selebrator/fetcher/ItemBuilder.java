@@ -1,4 +1,4 @@
-package me.selebrator.fetcher;
+package de.selebrator.fetcher;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -7,7 +7,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class ItemBuilder {
 	
 	protected ItemStack item;
-	private ItemMeta meta;
+	protected ItemMeta meta;
 	
 	protected Material type;
 	protected int amount;

@@ -1,4 +1,4 @@
-package me.selebrator.npc;
+package de.selebrator.npc;
 
 public enum EnumStatus {
     HURT(2),
@@ -6,7 +6,7 @@ public enum EnumStatus {
     
     private int id;
 
-    private EnumStatus(int id) {
+    EnumStatus(int id) {
         this.id = id;
     }
 

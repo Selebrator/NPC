@@ -1,7 +1,7 @@
-package me.selebrator.npc;
+package de.selebrator.npc;
 
-import me.selebrator.reflection.Reflection;
-import me.selebrator.reflection.ServerPackage;
+import de.selebrator.reflection.Reflection;
+import de.selebrator.reflection.ServerPackage;
 
 public enum EnumDataWatcherObject {
 
@@ -24,7 +24,7 @@ public enum EnumDataWatcherObject {
 	
 	private Object clazz;
 	
-	private EnumDataWatcherObject(String owner, String field) {
+	EnumDataWatcherObject(String owner, String field) {
 		Class<?> ownerClazz = Reflection.getClass(ServerPackage.NMS, owner);
 		this.clazz = Reflection.getField(ownerClazz, field).get(null);
 	}

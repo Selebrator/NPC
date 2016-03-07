@@ -1,4 +1,4 @@
-package me.selebrator.npc;
+package de.selebrator.npc;
 
 import net.minecraft.server.v1_9_R1.EnumItemSlot;
 
@@ -13,7 +13,7 @@ public enum EnumEquipmentSlot {
     private int id;
     private EnumItemSlot NMSSlot;
 
-    private EnumEquipmentSlot(int id, EnumItemSlot NMSSlot) {
+    EnumEquipmentSlot(int id, EnumItemSlot NMSSlot) {
         this.id = id;
         this.NMSSlot = NMSSlot;
     }

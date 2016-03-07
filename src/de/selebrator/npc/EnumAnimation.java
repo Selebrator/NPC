@@ -1,4 +1,4 @@
-package me.selebrator.npc;
+package de.selebrator.npc;
 
 public enum EnumAnimation {
     SWING_ARM(0),
@@ -12,7 +12,7 @@ public enum EnumAnimation {
     
     private int id;
 
-    private EnumAnimation(int id) {
+    EnumAnimation(int id) {
         this.id = id;
     }
 

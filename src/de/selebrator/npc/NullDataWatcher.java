@@ -1,9 +1,9 @@
-package me.selebrator.npc;
+package de.selebrator.npc;
 
 import net.minecraft.server.v1_9_R1.DataWatcher;
-import me.selebrator.reflection.IMethodAccessor;
-import me.selebrator.reflection.Reflection;
-import me.selebrator.reflection.ServerPackage;
+import de.selebrator.reflection.IMethodAccessor;
+import de.selebrator.reflection.Reflection;
+import de.selebrator.reflection.ServerPackage;
 
 public class NullDataWatcher {
 	
