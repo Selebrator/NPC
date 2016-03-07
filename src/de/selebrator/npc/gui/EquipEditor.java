@@ -21,8 +21,6 @@ import org.bukkit.plugin.Plugin;
 
 public class EquipEditor implements Listener {
 
-	@SuppressWarnings("unused")
-	private Plugin plugin;
 	private FakePlayer npc;
 	private Inventory inventory;
 	private String selected;
@@ -31,7 +29,6 @@ public class EquipEditor implements Listener {
 	private HashMap<EnumEquipmentSlot, ItemStack> equipment = new HashMap<>();
 
 	public EquipEditor(FakePlayer npc, Plugin plugin) {
-		this.plugin = plugin;
 		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 		
 		this.npc = npc;
@@ -199,7 +196,7 @@ public class EquipEditor implements Listener {
 		Inventory inventory = event.getInventory();
 		if(inventory != null)
 			if(inventory.getName().contains(" - Equip")) {
-				equipment.forEach( (slot, item) -> { npc.equip(slot, item); });
+				equipment.forEach( (slot, item) -> npc.equip(slot, item));
 			}
 	}
 }

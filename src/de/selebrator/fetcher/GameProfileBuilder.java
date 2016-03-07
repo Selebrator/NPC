@@ -63,7 +63,7 @@ public class GameProfileBuilder {
 	
 	private void createSkin(UUID uuid) {
 		try {
-			String uuidString = uuid.toString().replace("-", "");;
+			String uuidString = uuid.toString().replace("-", "");
 			String sessionserver = read("https://sessionserver.mojang.com/session/minecraft/profile/" + uuidString + "?unsigned=false");
 			JsonElement mainElement = new JsonParser().parse(sessionserver);
 			JsonObject mainObject = mainElement.getAsJsonObject();

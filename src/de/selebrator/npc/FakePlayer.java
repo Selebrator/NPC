@@ -337,6 +337,6 @@ public class FakePlayer {
     }
 
     private void sendPackets(Packet<?>... packets) {
-        Bukkit.getOnlinePlayers().forEach(player -> { sendPrivatePackets(player, packets); });
+        Bukkit.getOnlinePlayers().forEach(player -> sendPrivatePackets(player, packets));
     }
 }
