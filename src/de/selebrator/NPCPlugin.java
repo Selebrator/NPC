@@ -34,17 +34,23 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		
 		npc = new FakePlayer(new GameProfileBuilder("Selebrator").build());
 		fakePlayers.put(1, npc);
-		
+
+		try {
+			task.runTaskTimer(this, 0, 1);
+		} catch (Exception e) {
+			System.out.println("Scheduler already running");
+		}
+
 		/*
 		 * Optifine capes will override Mojangs.
 		 */
 	}
-	
+
 	@Override
 	public void onDisable() {
-		fakePlayers.forEach( (id, npc) -> { npc.despawn(); });
+		fakePlayers.forEach( (id, npc) -> npc.despawn());
 	}
-	
+
 	@EventHandler
 	public void onClick(PlayerInteractEvent event) {
 			//spawn
@@ -55,7 +61,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 						return;
 					}
 					event.getPlayer().sendMessage("§cSelect a NPC first");
-					
+
 				} else if(event.getAction() == Action.RIGHT_CLICK_AIR) {
 					if(npc != null) {
 						npc.spawn(event.getPlayer().getLocation());
@@ -63,7 +69,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 					}
 					event.getPlayer().sendMessage("§cSelect a NPC first");
 				}
-			} 
+			}
 			//despawn
 			else if(event.getItem() != null && event.getItem().getType() == Material.BLAZE_ROD) {
 				if(npc != null) {
@@ -73,7 +79,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 				event.getPlayer().sendMessage("§cSelect a NPC first");
 			}
 	}
-	
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		Player player = (Player) sender;
@@ -142,9 +148,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if (args.length == 1) {
 						if (!fakePlayers.isEmpty()) {
-							fakePlayers.forEach((id, npc) -> {
-								player.sendMessage("§e" + id + ": " + npc.getName());
-							});
+							fakePlayers.forEach((id, npc) -> player.sendMessage("§e" + id + ": " + npc.getName()));
 							return true;
 						}
 						player.sendMessage("§cNo NPC have benn created yet.  /npc create <name>");
@@ -231,6 +235,19 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 					player.sendMessage("§cSelect a NPC first");
 					return true;
 
+				case "speed":
+
+					if (npc != null) {
+						if (args.length == 2) {
+							npc.setMoveSpeed(Double.parseDouble(args[1]));
+							return true;
+						}
+						player.sendMessage("§c/npc " + args[0]);
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+
 				case "update":
 
 					if (npc != null) {
@@ -251,7 +268,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if (npc != null) {
 						if (args.length == 1) {
-							task.runTaskTimer(this, 0, 1);
+
 							return true;
 						}
 						player.sendMessage("§c/npc " + args[0]);
