@@ -44,12 +44,12 @@ public class EquipEditor implements Listener {
 		
 		inventory = Bukkit.getServer().createInventory(null, 6 * 9, npc.getName() + " - Equip");
 		
-		ItemStack tool = new ItemBuilder(Material.STICK, 1, (short) 0, "�8Empty MainHand").build();
+		ItemStack tool = new ItemBuilder(Material.STICK, 1, (short) 0, "§8Empty MainHand").build();
 		
-		ItemStack helmet = new LeatherArmorBuilder(Material.LEATHER_HELMET, 1, (short) 0, "�8No Helmet", Color.fromBGR(76, 76, 76)).build();
-		ItemStack chestplate =new LeatherArmorBuilder(Material.LEATHER_CHESTPLATE, 1, (short) 0, "�8No Chestplate", Color.fromBGR(76, 76, 76)).build();
-		ItemStack leggings = new LeatherArmorBuilder(Material.LEATHER_LEGGINGS, 1, (short) 0, "�8No Leggings", Color.fromBGR(76, 76, 76)).build();
-		ItemStack boots = new LeatherArmorBuilder(Material.LEATHER_BOOTS, 1, (short) 0, "�8No Boots", Color.fromBGR(76, 76, 76)).build();
+		ItemStack helmet = new LeatherArmorBuilder(Material.LEATHER_HELMET, 1, (short) 0, "§8No Helmet", Color.fromBGR(76, 76, 76)).build();
+		ItemStack chestplate =new LeatherArmorBuilder(Material.LEATHER_CHESTPLATE, 1, (short) 0, "§8No Chestplate", Color.fromBGR(76, 76, 76)).build();
+		ItemStack leggings = new LeatherArmorBuilder(Material.LEATHER_LEGGINGS, 1, (short) 0, "§8No Leggings", Color.fromBGR(76, 76, 76)).build();
+		ItemStack boots = new LeatherArmorBuilder(Material.LEATHER_BOOTS, 1, (short) 0, "§8No Boots", Color.fromBGR(76, 76, 76)).build();
 
 		
 		if(npc.hasEquipment(EnumEquipmentSlot.MAIN_HAND))
@@ -72,7 +72,7 @@ public class EquipEditor implements Listener {
 		
 		if(selected != null) {
 			ItemStack enchant = new ItemStack(Material.ENCHANTED_BOOK, 1);
-			ItemStack clear = new ItemBuilder(Material.BARRIER, 1, (short) 0, "�cClear").build();
+			ItemStack clear = new ItemBuilder(Material.BARRIER, 1, (short) 0, "§cClear").build();
 
 			inventory.setItem(21, enchant);
 			inventory.setItem(23, clear);

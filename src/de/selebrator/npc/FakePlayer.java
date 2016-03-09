@@ -84,7 +84,8 @@ public class FakePlayer {
         PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.REMOVE_PLAYER);
         Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(playerInfo.new PlayerInfoData(this.gameProfile, 0, null, null)));
 
-        PacketPlayOutEntityDestroy entityDestroy = new PacketPlayOutEntityDestroy(this.entityID);
+        PacketPlayOutEntityDestroy entityDestroy = new PacketPlayOutEntityDestroy();
+        Reflection.getField(entityDestroy.getClass(), "a").set(entityDestroy, this.entityID);
 
         sendPackets(playerInfo, entityDestroy);
     }
@@ -121,7 +122,6 @@ public class FakePlayer {
         double differenceZ = location.getZ() - this.location.getZ();
 
         walk(differenceX, differenceY, differenceZ);
-
     }
 
     //Coordinates as delta
@@ -133,7 +133,15 @@ public class FakePlayer {
             byte yaw = angle(this.getLocation().getYaw());
             byte pitch = angle(this.location.getPitch());
 
-            PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook(this.entityID, changeX, changeY, changeZ, yaw, pitch, true);
+            PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook();
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "a").set(relEntityMoveLook, this.entityID);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "b").set(relEntityMoveLook, (int) changeX);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "c").set(relEntityMoveLook, (int) changeY);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "d").set(relEntityMoveLook, (int) changeZ);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "e").set(relEntityMoveLook, (byte) yaw);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "f").set(relEntityMoveLook, (byte) pitch);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "g").set(relEntityMoveLook, true); // onGround
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "h").set(relEntityMoveLook, true);
 
             sendPackets(relEntityMoveLook);
 
@@ -297,8 +305,6 @@ public class FakePlayer {
         status = changeMask(status, 7, elytra);
         this.dataWatcher.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, status);
     }
-
-    //
 
     //10
     public void skinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
