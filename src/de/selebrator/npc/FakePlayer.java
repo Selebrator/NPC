@@ -1,7 +1,6 @@
 package de.selebrator.npc;
 
-import java.util.Arrays;
-
+import com.mojang.authlib.GameProfile;
 import de.selebrator.reflection.Reflection;
 import net.minecraft.server.v1_9_R1.ChatComponentText;
 import net.minecraft.server.v1_9_R1.Entity;
@@ -19,7 +18,6 @@ import net.minecraft.server.v1_9_R1.PacketPlayOutNamedEntitySpawn;
 import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
 import net.minecraft.server.v1_9_R1.WorldSettings.EnumGamemode;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
@@ -28,7 +26,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.mojang.authlib.GameProfile;
+import java.util.Arrays;
 
 public class FakePlayer {
 
@@ -41,6 +39,7 @@ public class FakePlayer {
 
     private float health = 20F;
     private double moveSpeed = 4.3D / 20;
+    private final double EYE_HEIGHT = 1.6D;
 
     private ItemStack[] equip = new ItemStack[6];
 
@@ -58,8 +57,10 @@ public class FakePlayer {
     }
 
     public void spawn(Location location) {
-        PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.ADD_PLAYER);
-        Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(playerInfo.new PlayerInfoData(this.gameProfile, 0, EnumGamemode.NOT_SET, new ChatComponentText(this.gameProfile.getName()))));
+        PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo();
+        Reflection.getField(playerInfo.getClass(), "a").set(playerInfo, EnumPlayerInfoAction.ADD_PLAYER);
+        Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(
+                playerInfo.new PlayerInfoData(this.gameProfile, 0, EnumGamemode.NOT_SET, new ChatComponentText(this.gameProfile.getName()))));
 
         PacketPlayOutNamedEntitySpawn namedEntitySpawn = new PacketPlayOutNamedEntitySpawn();
         Reflection.getField(namedEntitySpawn.getClass(), "a").set(namedEntitySpawn, this.entityID);
@@ -85,20 +86,12 @@ public class FakePlayer {
         Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(playerInfo.new PlayerInfoData(this.gameProfile, 0, null, null)));
 
         PacketPlayOutEntityDestroy entityDestroy = new PacketPlayOutEntityDestroy();
-        Reflection.getField(entityDestroy.getClass(), "a").set(entityDestroy, this.entityID);
+        Reflection.getField(entityDestroy.getClass(), "a").set(entityDestroy, new int[] { this.entityID });
 
         sendPackets(playerInfo, entityDestroy);
     }
 
-    public void look(Location location) {
-        // calculate yaw and pitch
-        double differenceX = location.getX() - this.location.getX();
-        double differenceY = location.getY() - (this.location.getY() + 1.6);
-        double differenceZ = location.getZ() - this.location.getZ();
-        double hypotenuseXZ = Math.sqrt(differenceX * differenceX + differenceZ * differenceZ);
-        float yaw = (float) (Math.atan2(differenceZ, differenceX) * 180D / Math.PI) - 90F;
-        float pitch = (float) -(Math.atan2(differenceY, hypotenuseXZ) * 180D / Math.PI);
-
+    public void look(float yaw, float pitch) {
         //rotate body
         PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook();
         Reflection.getField(entityLook.getClass().getSuperclass(), "a").set(entityLook, this.entityID);
@@ -118,30 +111,39 @@ public class FakePlayer {
         this.location.setPitch(pitch);
     }
 
-    public void walk(Location location) {
+    //Coordinates as delta
+    public void look(double x, double y, double z) {
+        float yaw = calcYaw(x, z);
+        float pitch = calcPitch(x, y, z);
+
+        look(yaw, pitch);
+    }
+
+    public void look(Location location) {
+        // calculate yaw and pitch
         double differenceX = location.getX() - this.location.getX();
-        double differenceY = location.getY() - this.location.getY();
+        double differenceY = location.getY() - (this.location.getY() + this.EYE_HEIGHT);
         double differenceZ = location.getZ() - this.location.getZ();
 
-        walk(differenceX, differenceY, differenceZ);
+        look(differenceX, differenceY, differenceZ);
     }
 
     //Coordinates as delta
     public void walk(double x, double y, double z) {
         if(Math.abs(x) < 8 && Math.abs(y) < 8 && Math.abs(z) < 8) {
-            long changeX = (long) ((((this.location.getX() + x) * 32) - ((this.location.getX()) * 32)) * 128);
-            long changeY = (long) ((((this.location.getY() + y) * 32) - ((this.location.getY()) * 32)) * 128);
-            long changeZ = (long) ((((this.location.getZ() + z) * 32) - ((this.location.getZ()) * 32)) * 128);
-            byte yaw = angle(this.getLocation().getYaw());
-            byte pitch = angle(this.location.getPitch());
+            int changeX = (int) ((((this.location.getX() + x) * 32) - ((this.location.getX()) * 32)) * 128);
+            int changeY = (int) ((((this.location.getY() + y) * 32) - ((this.location.getY()) * 32)) * 128);
+            int changeZ = (int) ((((this.location.getZ() + z) * 32) - ((this.location.getZ()) * 32)) * 128);
+            float yaw = this.location.getYaw();
+            float pitch = this.location.getPitch();
 
             PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook();
             Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "a").set(relEntityMoveLook, this.entityID);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "b").set(relEntityMoveLook, (int) changeX);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "c").set(relEntityMoveLook, (int) changeY);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "d").set(relEntityMoveLook, (int) changeZ);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "e").set(relEntityMoveLook, (byte) yaw);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "f").set(relEntityMoveLook, (byte) pitch);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "b").set(relEntityMoveLook, changeX);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "c").set(relEntityMoveLook, changeY);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "d").set(relEntityMoveLook, changeZ);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "e").set(relEntityMoveLook, angle(yaw));
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "f").set(relEntityMoveLook, angle(pitch));
             Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "g").set(relEntityMoveLook, true); // onGround
             Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "h").set(relEntityMoveLook, true);
 
@@ -152,23 +154,38 @@ public class FakePlayer {
             System.err.println("[NPC] Error in walk input: difference cant be > 8");
     }
 
+    public void walk(Location location) {
+        double differenceX = location.getX() - this.location.getX();
+        double differenceY = location.getY() - this.location.getY();
+        double differenceZ = location.getZ() - this.location.getZ();
+
+        walk(differenceX, differenceY, differenceZ);
+    }
+
+    public void step(float yaw, float pitch) {
+        yaw = (float) Math.toRadians(yaw);
+        pitch = (float) Math.toRadians(pitch);
+        double changeX = -Math.sin(yaw);
+        double changeY = -Math.sin(pitch);
+        double changeZ = Math.cos(yaw);
+
+        walk(changeX * this.moveSpeed, changeY * this.moveSpeed, changeZ * this.moveSpeed);
+    }
+
+    //Coordinates as delta
+    public void step(double x, double y, double z) {
+        float yaw = calcYaw(x, z);
+        float pitch = calcPitch(x, y, z);
+
+        step(yaw, pitch);
+    }
+
     public void step(Location location) {
         double differenceX = location.getX() - this.location.getX();
         double differenceY = location.getY() - this.location.getY();
         double differenceZ = location.getZ() - this.location.getZ();
 
         step(differenceX, differenceY, differenceZ);
-    }
-
-    //Coordinates as delta
-    public void step(double x, double y, double z) {
-        float yaw = (float) Math.toRadians((Math.atan2(z, x) * 180D / Math.PI) - 90F);
-        float pitch = (float) Math.toRadians(-(Math.atan2(y, Math.sqrt(x * x + z * z)) * 180D / Math.PI));
-        double changeX = -Math.sin(yaw);
-        double changeY = -Math.sin(pitch);
-        double changeZ = Math.cos(yaw);
-
-        walk(changeX * this.moveSpeed, changeY * this.moveSpeed, changeZ * this.moveSpeed);
     }
 
     public void teleport(Location location) {
@@ -244,9 +261,19 @@ public class FakePlayer {
         return this.moveSpeed;
     }
 
+    public double getEyeHeight() {
+        return EYE_HEIGHT;
+    }
+
     public Location getLocation() {
         if(this.location != null)
             return this.location;
+        return null;
+    }
+
+    public Location getEyeLocation() {
+        if(this.location != null)
+            return this.location.add(0, this.EYE_HEIGHT, 0);
         return null;
     }
 
@@ -332,6 +359,16 @@ public class FakePlayer {
         } else {
             return bitMask &= ~(1 << bit);
         }
+    }
+
+    //Coordinates as delta
+    private float calcYaw(double x, double z) {
+        return (float) ((Math.atan2(z, x) * 180D / Math.PI) - 90F);
+    }
+
+    //Coordinates as delta
+    private float calcPitch(double x, double y, double z) {
+        return (float) -(Math.atan2(y, Math.sqrt(x * x + z * z)) * 180D / Math.PI);
     }
 
     private byte angle(float value) {

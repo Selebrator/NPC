@@ -1,13 +1,9 @@
 package de.selebrator;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import de.selebrator.fetcher.GameProfileBuilder;
 import de.selebrator.npc.EnumAnimation;
 import de.selebrator.npc.EnumEquipmentSlot;
 import de.selebrator.npc.FakePlayer;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -21,6 +17,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 	
