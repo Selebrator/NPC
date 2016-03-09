@@ -99,6 +99,7 @@ public class FakePlayer {
         float yaw = (float) (Math.atan2(differenceZ, differenceX) * 180D / Math.PI) - 90F;
         float pitch = (float) -(Math.atan2(differenceY, hypotenuseXZ) * 180D / Math.PI);
 
+        //rotate body
         PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook();
         Reflection.getField(entityLook.getClass().getSuperclass(), "a").set(entityLook, this.entityID);
         Reflection.getField(entityLook.getClass().getSuperclass(), "e").set(entityLook, angle(yaw));
@@ -106,6 +107,7 @@ public class FakePlayer {
         Reflection.getField(entityLook.getClass().getSuperclass(), "g").set(entityLook, false);
         Reflection.getField(entityLook.getClass().getSuperclass(), "h").set(entityLook, true);
 
+        //rotate head
         PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
         Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
         Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, angle(yaw));

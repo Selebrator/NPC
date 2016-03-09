@@ -6,14 +6,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class Reflection {
-	
-	public static Class<?> getClass(ServerPackage path, String name) {
+
+	public static Class<?> getClass(String path, String name) {
 		try {
-			return Class.forName(path.toString() + "." + name);
+			return Class.forName(path + "." + name);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public static Class<?> getClass(ServerPackage path, String name) {
+		return getClass(path.toString(), name);
 	}
 	
 	public static IConstructorAccessor getConstructor(Class<?> clazz, Class<?>... parameterTypes) {
@@ -34,7 +38,8 @@ public class Reflection {
 						} catch (InvocationTargetException e) {
 							throw new RuntimeException("An internal error occured.", e.getCause());
 						} catch (IllegalArgumentException e) {
-							throw e;
+							e.printStackTrace();
+							return null;
 						}
 					}
 					
@@ -45,6 +50,7 @@ public class Reflection {
 				};
 			}
 		}
+
 		if(clazz.getSuperclass() != null) {
 			return getConstructor(clazz.getSuperclass(), parameterTypes);
 		}
@@ -67,7 +73,8 @@ public class Reflection {
 						} catch (InvocationTargetException e) {
 							return null; // TODO how to handle ?
 						} catch (IllegalArgumentException e) {
-							throw e;
+							e.printStackTrace();
+							return null;
 						}
 					}
 					
@@ -78,6 +85,7 @@ public class Reflection {
 				};
 			}
 		}
+
 		if(clazz.getSuperclass() != null) {
 			return getMethod(clazz, name, patameterTypes);
 		}
@@ -99,9 +107,8 @@ public class Reflection {
 					} catch (IllegalAccessException e) {
 						throw new IllegalStateException("Cannot use reflection.", e);
 					} catch (IllegalArgumentException e) {
-						throw e;
+						e.printStackTrace();
 					}
-					
 				}
 				
 				@Override
@@ -111,7 +118,8 @@ public class Reflection {
 					} catch (IllegalAccessException e) {
 						throw new IllegalStateException("Cannot use reflection.", e);
 					} catch (IllegalArgumentException e) {
-						throw e;
+						e.printStackTrace();
+						return null;
 					}
 				}
 				
@@ -121,10 +129,13 @@ public class Reflection {
 				}
 			};
 		} catch (NoSuchFieldException e) {
-			new RuntimeException("Cannot find field", e);
+			System.out.println("Cannot find field");
+			e.printStackTrace();
 		} catch (SecurityException e) {
-			new SecurityException("Couldnot access field");
+			System.out.println("Couldnot access field");
+			e.printStackTrace();
 		}
+
 		if(clazz.getSuperclass() != null) {
 			return getField(clazz, name);
 		}
