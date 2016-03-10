@@ -18,7 +18,7 @@ public enum EnumEquipmentSlot {
         this.NMSSlot = NMSSlot;
     }
 
-    public int getID() {
+    public int getId() {
         return this.id;
     }
     

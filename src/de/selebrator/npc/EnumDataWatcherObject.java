@@ -22,14 +22,14 @@ public enum EnumDataWatcherObject {
 	HUMAN_SKIN_BITBASK_12("EntityHuman", "bp"),
 	HUMAN_HAND_13("EntityHuman", "bq");
 	
-	private Object clazz;
+	private Object object;
 	
 	EnumDataWatcherObject(String owner, String field) {
 		Class<?> ownerClazz = Reflection.getClass(ServerPackage.NMS, owner);
-		this.clazz = Reflection.getField(ownerClazz, field).get(null);
+		this.object = Reflection.getField(ownerClazz, field).get(null);
 	}
 	
-	public Object getClazz() {
-		return clazz;
+	public Object getObject() {
+		return object;
 	}
 }

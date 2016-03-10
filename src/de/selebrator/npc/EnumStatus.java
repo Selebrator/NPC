@@ -1,16 +1,21 @@
 package de.selebrator.npc;
 
 public enum EnumStatus {
-    HURT(2),
-    DEAD(3);
-    
-    private int id;
+	FIRE(0),
+	SNEAK(1),
+	SPRINT(3),
+	USE(4),
+	INVISIBLE(5),
+	GLOW(6),
+	ELYTRA(7);
 
-    EnumStatus(int id) {
-        this.id = id;
-    }
+	int id;
 
-    public int getID() {
-        return this.id;
-    }
+	EnumStatus(int id) {
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
+	}
 }

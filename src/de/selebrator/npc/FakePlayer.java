@@ -34,14 +34,21 @@ public class FakePlayer {
     private GameProfile gameProfile;
     private NullDataWatcher dataWatcher;
 
+    private boolean living;
     private Location location;
     private LivingEntity target;
-    private boolean collision = true;
+
+    private boolean noClip = true;
     private boolean gravity = true;
+
+    private boolean[] status = new boolean[8];
 
     private float health = 20F;
     private double moveSpeed = 4.3D / 20;
-    private final double EYE_HEIGHT = 1.6D;
+    private static final double DEFAULT_SPEED = 4.3D / 20;
+    private static final double SNEAK_SPEED = 1.3D / 20;
+    private static final double SPRINT_SPEED = 5.6D / 20;
+    private static final double EYE_HEIGHT = 1.6D;
 
     private ItemStack[] equip = new ItemStack[6];
 
@@ -53,8 +60,8 @@ public class FakePlayer {
         this.gameProfile = gameProfile;
 
         this.dataWatcher = new NullDataWatcher();
-        status(false, false, false, false, false, false, false);
-        skinFlags(true, true, true, true, true, true, true);
+        updateStatus(false, false, false, false, false, false, false);
+        updateSkinFlags(true, true, true, true, true, true, true);
         this.dataWatcher.set(EnumDataWatcherObject.LIVING_HELATH_06, this.health);
     }
 
@@ -77,9 +84,10 @@ public class FakePlayer {
         sendPackets(playerInfo, namedEntitySpawn);
 
         this.location = location;
+        this.living = true;
 
         for(EnumEquipmentSlot slot : EnumEquipmentSlot.values()) {
-            this.equip(slot, this.equip[slot.getID()]);
+            this.equip(slot, this.equip[slot.getId()]);
         }
     }
 
@@ -91,6 +99,8 @@ public class FakePlayer {
         Reflection.getField(entityDestroy.getClass(), "a").set(entityDestroy, new int[] { this.entityID });
 
         sendPackets(playerInfo, entityDestroy);
+
+        this.living = false;
     }
 
     public void look(float yaw, float pitch) {
@@ -124,7 +134,7 @@ public class FakePlayer {
     public void look(Location location) {
         // calculate yaw and pitch
         double differenceX = location.getX() - this.location.getX();
-        double differenceY = location.getY() - (this.location.getY() + this.EYE_HEIGHT);
+        double differenceY = location.getY() - (this.location.getY() + EYE_HEIGHT);
         double differenceZ = location.getZ() - this.location.getZ();
 
         look(differenceX, differenceY, differenceZ);
@@ -133,9 +143,19 @@ public class FakePlayer {
     //Coordinates as delta
     public void move(double x, double y, double z) {
         if(Math.abs(x) < 8 && Math.abs(y) < 8 && Math.abs(z) < 8) {
-            int changeX = (int) ((((this.location.getX() + x) * 32) - ((this.location.getX()) * 32)) * 128);
-            int changeY = (int) ((((this.location.getY() + y) * 32) - ((this.location.getY()) * 32)) * 128);
-            int changeZ = (int) ((((this.location.getZ() + z) * 32) - ((this.location.getZ()) * 32)) * 128);
+            int changeX;
+            int changeY;
+            int changeZ;
+
+            if(this.noClip) {
+                changeX = (int) ((((this.location.getX() + x) * 32) - (this.location.getX() * 32)) * 128);
+                changeY = (int) ((((this.location.getY() + y) * 32) - (this.location.getY() * 32)) * 128);
+                changeZ = (int) ((((this.location.getZ() + z) * 32) - (this.location.getZ() * 32)) * 128);
+            } else {
+                //TODO add moving with collision.
+                return;
+            }
+
             float yaw = this.location.getYaw();
             float pitch = this.location.getPitch();
 
@@ -153,7 +173,7 @@ public class FakePlayer {
 
             this.location.add(x, y, z);
         } else
-            System.err.println("[NPC] Error in move input: difference cant be > 8");
+            System.err.println("[NPC] Error in move input: difference cant be >= 8");
     }
 
     public void move(Location location) {
@@ -190,6 +210,10 @@ public class FakePlayer {
         step(differenceX, differenceY, differenceZ);
     }
 
+    public void fall() {
+        //TODO
+    }
+
     public void teleport(Location location) {
         PacketPlayOutEntityTeleport entityTeleport = new PacketPlayOutEntityTeleport();
         Reflection.getField(entityTeleport.getClass(), "a").set(entityTeleport, this.entityID);
@@ -216,27 +240,31 @@ public class FakePlayer {
         Reflection.getField(entityEquipment.getClass(), "c").set(entityEquipment, CraftItemStack.asNMSCopy(item));		//itemStack
         sendPackets(entityEquipment);
 
-        this.equip[slot.getID()] = item;
+        this.equip[slot.getId()] = item;
     }
 
     public void playAnimation(EnumAnimation anim) {
-        PacketPlayOutAnimation animation = new PacketPlayOutAnimation();
-        Reflection.getField(animation.getClass(), "a").set(animation, this.entityID);
-        Reflection.getField(animation.getClass(), "b").set(animation, anim.getId());
-        sendPackets(animation);
+        if(this.living) {
+            PacketPlayOutAnimation animation = new PacketPlayOutAnimation();
+            Reflection.getField(animation.getClass(), "a").set(animation, this.entityID);
+            Reflection.getField(animation.getClass(), "b").set(animation, anim.getId());
+            sendPackets(animation);
+        }
     }
 
-    public void setStatus(EnumStatus status) {
+    public void setStatus(EnumEntityStatus status) {
         PacketPlayOutEntityStatus entityStatus = new PacketPlayOutEntityStatus();
         Reflection.getField(entityStatus.getClass(), "a").set(entityStatus, this.entityID);
-        Reflection.getField(entityStatus.getClass(), "b").set(entityStatus, (byte) status.getID());
+        Reflection.getField(entityStatus.getClass(), "b").set(entityStatus, (byte) status.getId());
         sendPackets(entityStatus);
     }
 
     public void updateGameProfile(GameProfile gameProfile) {
-        despawn();
-        this.gameProfile = gameProfile;
-        spawn(this.location);
+        if(this.living) {
+            despawn();
+            this.gameProfile = gameProfile;
+            spawn(this.location);
+        }
     }
 
     public void updateMetadata() {
@@ -255,8 +283,15 @@ public class FakePlayer {
         return this.gameProfile.getName();
     }
 
+    public boolean isLiving() {
+        return this.living;
+    }
+
     public float getHealth() {
-        return this.health;
+        if(this.isLiving()) {
+            return this.health;
+        }
+        return 0;
     }
 
     public double getMoveSpeed() {
@@ -275,8 +310,16 @@ public class FakePlayer {
 
     public Location getEyeLocation() {
         if(this.location != null)
-            return this.location.add(0, this.EYE_HEIGHT, 0);
+            return this.location.add(0, EYE_HEIGHT, 0);
         return null;
+    }
+
+    public boolean hasCollision() {
+        return !this.noClip;
+    }
+
+    public boolean hasGravity() {
+        return this.gravity;
     }
 
     public boolean hasTarget() {
@@ -289,22 +332,22 @@ public class FakePlayer {
         return null;
     }
 
-
     public boolean hasEquipment(EnumEquipmentSlot slot) {
-        return this.equip[slot.getID()] != null;
+        return this.equip[slot.getId()] != null;
     }
 
     public ItemStack getEquipment(EnumEquipmentSlot slot) {
-        return equip[slot.getID()];
+        return equip[slot.getId()];
     }
 
     // ### SETTER ###
 
     public void setHealth(float health) {
         if(health == 0) {
-            this.setStatus(EnumStatus.DEAD);
+            this.setStatus(EnumEntityStatus.DEAD);
+            this.living = false;
         } else if(this.health > health) {
-            this.setStatus(EnumStatus.HURT);
+            this.setStatus(EnumEntityStatus.HURT);
         } else if(this.health == 0 && health > 0) {
             this.spawn(this.location);
         }
@@ -315,8 +358,36 @@ public class FakePlayer {
         this.moveSpeed = speed / 20;
     }
 
+    public void enableNoClip(boolean state) {
+        this.noClip = state;
+    }
+
+    public void enableGravity(boolean state) {
+        this.gravity = state;
+    }
+
     public void setTarget(LivingEntity target) {
         this.target = target;
+    }
+
+    public void setSneaking(boolean state) {
+        updateStatus(this.status[0], state, this.status[3], this.status[4], this.status[5], this.status[6], this.status[7]);
+        this.status[1] = state;
+        if(state) {
+            this.moveSpeed = SNEAK_SPEED;
+        } else {
+            this.moveSpeed = DEFAULT_SPEED;
+        }
+    }
+
+    public void setSprinting(boolean state) {
+        updateStatus(this.status[0], this.status[1], state, this.status[4], this.status[5], this.status[6], this.status[7]);
+        this.status[3] = state;
+        if(state) {
+            this.moveSpeed = SPRINT_SPEED;
+        } else {
+            this.moveSpeed = DEFAULT_SPEED;
+        }
     }
 
 
@@ -324,30 +395,41 @@ public class FakePlayer {
     // ### DATAWATCHER BITMASKS ###
 
     // 0
-    public void status(boolean fire, boolean sneak, boolean sprint, boolean use, boolean invisible, boolean glowing, boolean elytra) {
+    public void updateStatus(boolean fire, boolean sneak, boolean sprint, boolean use, boolean invisible, boolean glow, boolean elytra) {
         byte status = 0;
-        status = changeMask(status, 0, fire);
-        status = changeMask(status, 1, sneak);
-        //status = changeMask(status, 2, true);		//unused
-        status = changeMask(status, 3, sprint);
-        status = changeMask(status, 4, use);
-        status = changeMask(status, 5, invisible);
-        status = changeMask(status, 6, glowing);
-        status = changeMask(status, 7, elytra);
+        status = changeMask(status, EnumStatus.FIRE.getId(), fire);
+        status = changeMask(status, EnumStatus.SNEAK.getId(), sneak);
+        status = changeMask(status, EnumStatus.SPRINT.getId(), sprint);
+        status = changeMask(status, EnumStatus.USE.getId(), use);
+        status = changeMask(status, EnumStatus.INVISIBLE.getId(), invisible);
+        status = changeMask(status, EnumStatus.GLOW.getId(), glow);
+        status = changeMask(status, EnumStatus.ELYTRA.getId(), elytra);
+
+        //TODO better use NullDataWatcher.update(EnumDataWatcherObject, Object)
         this.dataWatcher.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, status);
+
+        this.status[EnumStatus.FIRE.getId()] = fire;
+        this.status[EnumStatus.SNEAK.getId()] = sneak;
+        this.status[2] = false;
+        this.status[EnumStatus.SPRINT.getId()] = sprint;
+        this.status[EnumStatus.USE.getId()] = use;
+        this.status[EnumStatus.INVISIBLE.getId()] = invisible;
+        this.status[EnumStatus.GLOW.getId()] = glow;
+        this.status[EnumStatus.ELYTRA.getId()] = elytra;
     }
 
     //10
-    public void skinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
+    public void updateSkinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
         byte skinFlags = 0;
-        skinFlags = changeMask(skinFlags, 0, cape);
-        skinFlags = changeMask(skinFlags, 1, jacket);
-        skinFlags = changeMask(skinFlags, 2, leftArm);
-        skinFlags = changeMask(skinFlags, 3, rightArm);
-        skinFlags = changeMask(skinFlags, 4, leftLeg);
-        skinFlags = changeMask(skinFlags, 5, rightLeg);
-        skinFlags = changeMask(skinFlags, 6, hat);
-        //skinFlags = changeMask(skinFlags, 7, true);			//unused
+        skinFlags = changeMask(skinFlags, EnumSkinFlag.CAPE.getId(), cape);
+        skinFlags = changeMask(skinFlags, EnumSkinFlag.JACKET.getId(), jacket);
+        skinFlags = changeMask(skinFlags, EnumSkinFlag.LEFT_SLEEVE.getId(), leftArm);
+        skinFlags = changeMask(skinFlags, EnumSkinFlag.RIGHT_SLEEVE.getId(), rightArm);
+        skinFlags = changeMask(skinFlags, EnumSkinFlag.LEFT_PANTS.getId(), leftLeg);
+        skinFlags = changeMask(skinFlags, EnumSkinFlag.RIGHT_PANTS.getId(), rightLeg);
+        skinFlags = changeMask(skinFlags, EnumSkinFlag.HAT.getId(), hat);
+
+        //TODO better use NullDataWatcher.update(EnumDataWatcherObject, Object)
         this.dataWatcher.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, skinFlags);
     }
 
