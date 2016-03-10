@@ -36,6 +36,8 @@ public class FakePlayer {
 
     private Location location;
     private LivingEntity target;
+    private boolean collision = true;
+    private boolean gravity = true;
 
     private float health = 20F;
     private double moveSpeed = 4.3D / 20;
@@ -129,7 +131,7 @@ public class FakePlayer {
     }
 
     //Coordinates as delta
-    public void walk(double x, double y, double z) {
+    public void move(double x, double y, double z) {
         if(Math.abs(x) < 8 && Math.abs(y) < 8 && Math.abs(z) < 8) {
             int changeX = (int) ((((this.location.getX() + x) * 32) - ((this.location.getX()) * 32)) * 128);
             int changeY = (int) ((((this.location.getY() + y) * 32) - ((this.location.getY()) * 32)) * 128);
@@ -151,15 +153,15 @@ public class FakePlayer {
 
             this.location.add(x, y, z);
         } else
-            System.err.println("[NPC] Error in walk input: difference cant be > 8");
+            System.err.println("[NPC] Error in move input: difference cant be > 8");
     }
 
-    public void walk(Location location) {
+    public void move(Location location) {
         double differenceX = location.getX() - this.location.getX();
         double differenceY = location.getY() - this.location.getY();
         double differenceZ = location.getZ() - this.location.getZ();
 
-        walk(differenceX, differenceY, differenceZ);
+        move(differenceX, differenceY, differenceZ);
     }
 
     public void step(float yaw, float pitch) {
@@ -169,7 +171,7 @@ public class FakePlayer {
         double changeY = -Math.sin(pitch);
         double changeZ = Math.cos(yaw);
 
-        walk(changeX * this.moveSpeed, changeY * this.moveSpeed, changeZ * this.moveSpeed);
+        move(changeX * this.moveSpeed, changeY * this.moveSpeed, changeZ * this.moveSpeed);
     }
 
     //Coordinates as delta
