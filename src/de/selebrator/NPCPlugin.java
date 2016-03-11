@@ -267,7 +267,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if (npc != null) {
 						if (args.length == 1) {
-							npc.updateSkinFlags(true, false, false, false, false, false, false);
+
 							return true;
 						}
 						player.sendMessage("§c/npc " + args[0]);

@@ -248,12 +248,10 @@ public class FakePlayer {
     }
 
     public void playAnimation(EnumAnimation anim) {
-        if(this.living) {
-            PacketPlayOutAnimation animation = new PacketPlayOutAnimation();
-            Reflection.getField(animation.getClass(), "a").set(animation, this.entityID);
-            Reflection.getField(animation.getClass(), "b").set(animation, anim.getId());
-            broadcastPackets(animation);
-        }
+        PacketPlayOutAnimation animation = new PacketPlayOutAnimation();
+        Reflection.getField(animation.getClass(), "a").set(animation, this.entityID);
+        Reflection.getField(animation.getClass(), "b").set(animation, anim.getId());
+        broadcastPackets(animation);
     }
 
     public void setStatus(EnumEntityStatus status) {
@@ -261,14 +259,6 @@ public class FakePlayer {
         Reflection.getField(entityStatus.getClass(), "a").set(entityStatus, this.entityID);
         Reflection.getField(entityStatus.getClass(), "b").set(entityStatus, (byte) status.getId());
         broadcastPackets(entityStatus);
-    }
-
-    public void updateGameProfile(GameProfile gameProfile) {
-        if(this.living) {
-            despawn();
-            this.gameProfile = gameProfile;
-            spawn(this.location);
-        }
     }
 
     public void updateMetadata() {
@@ -336,6 +326,30 @@ public class FakePlayer {
         return null;
     }
 
+    public boolean isOnFire() {
+        return this.status[EnumStatus.FIRE.getId()];
+    }
+
+    public boolean isSneaking() {
+        return this.status[EnumStatus.SNEAK.getId()];
+    }
+
+    public boolean isSprinting() {
+        return this.status[EnumStatus.SPRINT.getId()];
+    }
+
+    public boolean isInvisible() {
+        return this.status[EnumStatus.INVISIBLE.getId()];
+    }
+
+    public boolean isGlowing() {
+        return this.status[EnumStatus.GLOW.getId()];
+    }
+
+    public boolean isElytraUsed() {
+        return this.status[EnumStatus.ELYTRA.getId()];
+    }
+
     public boolean hasEquipment(EnumEquipmentSlot slot) {
         return this.equip[slot.getId()] != null;
     }
@@ -345,6 +359,13 @@ public class FakePlayer {
     }
 
     // ### SETTER ###
+
+    public void updateGameProfile(GameProfile gameProfile) {
+        this.gameProfile = gameProfile;
+        if(this.living) {
+            this.spawn(this.location);
+        }
+    }
 
     public void setHealth(float health) {
         if(health == 0) {
@@ -374,9 +395,12 @@ public class FakePlayer {
         this.target = target;
     }
 
+    public void setOnFire(boolean state) {
+        updateStatus(EnumStatus.FIRE, state);
+    }
+
     public void setSneaking(boolean state) {
-        updateStatus(this.status[0], state, this.status[3], this.status[4], this.status[5], this.status[6], this.status[7]);
-        this.status[EnumStatus.SNEAK.getId()] = state;
+        updateStatus(EnumStatus.SNEAK, state);
         if(state) {
             this.moveSpeed = SNEAK_SPEED;
         } else {
@@ -385,13 +409,24 @@ public class FakePlayer {
     }
 
     public void setSprinting(boolean state) {
-        updateStatus(this.status[0], this.status[1], state, this.status[4], this.status[5], this.status[6], this.status[7]);
-        this.status[EnumStatus.SPRINT.getId()] = state;
+        updateStatus(EnumStatus.SPRINT, state);
         if(state) {
             this.moveSpeed = SPRINT_SPEED;
         } else {
             this.moveSpeed = WALK_SPEED;
         }
+    }
+
+    public void setInvisible(boolean state) {
+        updateStatus(EnumStatus.INVISIBLE, state);
+    }
+
+    public void setGlowing(boolean state) {
+        updateStatus(EnumStatus.GLOW, state);
+    }
+
+    public void useElytra(boolean state) {
+        updateStatus(EnumStatus.ELYTRA, state);
     }
 
 
@@ -400,50 +435,61 @@ public class FakePlayer {
 
     // 0
     public void updateStatus(boolean fire, boolean sneak, boolean sprint, boolean use, boolean invisible, boolean glow, boolean elytra) {
-        byte status = 0;
-        status = changeMask(status, EnumStatus.FIRE.getId(), fire);
-        status = changeMask(status, EnumStatus.SNEAK.getId(), sneak);
-        status = changeMask(status, EnumStatus.SPRINT.getId(), sprint);
-        status = changeMask(status, EnumStatus.USE.getId(), use);
-        status = changeMask(status, EnumStatus.INVISIBLE.getId(), invisible);
-        status = changeMask(status, EnumStatus.GLOW.getId(), glow);
-        status = changeMask(status, EnumStatus.ELYTRA.getId(), elytra);
+        byte bitMask = 0;
+        bitMask = changeBit(bitMask, EnumStatus.FIRE.getId(), fire);
+        bitMask = changeBit(bitMask, EnumStatus.SNEAK.getId(), sneak);
+        bitMask = changeBit(bitMask, EnumStatus.SPRINT.getId(), sprint);
+        bitMask = changeBit(bitMask, EnumStatus.USE.getId(), use);
+        bitMask = changeBit(bitMask, EnumStatus.INVISIBLE.getId(), invisible);
+        bitMask = changeBit(bitMask, EnumStatus.GLOW.getId(), glow);
+        bitMask = changeBit(bitMask, EnumStatus.ELYTRA.getId(), elytra);
 
-        this.dataWatcher.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, status);
+        this.dataWatcher.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, bitMask);
 
-        this.status[EnumStatus.FIRE.getId()] = fire;
-        this.status[EnumStatus.SNEAK.getId()] = sneak;
-        this.status[2] = false;
-        this.status[EnumStatus.SPRINT.getId()] = sprint;
-        this.status[EnumStatus.USE.getId()] = use;
-        this.status[EnumStatus.INVISIBLE.getId()] = invisible;
-        this.status[EnumStatus.GLOW.getId()] = glow;
-        this.status[EnumStatus.ELYTRA.getId()] = elytra;
+        for(EnumStatus current : EnumStatus.values()) {
+            this.status[current.getId()] = readBit(bitMask, current.getId());
+        }
+    }
+
+    public void updateStatus(EnumStatus status, boolean state) {
+        byte bitMask = 0;
+        for(EnumStatus current : EnumStatus.values()) {
+            bitMask = changeBit(bitMask, current.getId(), this.status[current.getId()]);
+        }
+        bitMask = changeBit(bitMask, status.getId(), state);
+
+        this.dataWatcher.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, bitMask);
+
+        this.status[status.getId()] = readBit(bitMask, status.getId());
     }
 
     //10
     public void updateSkinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
-        byte skinFlags = 0;
-        skinFlags = changeMask(skinFlags, EnumSkinFlag.CAPE.getId(), cape);
-        skinFlags = changeMask(skinFlags, EnumSkinFlag.JACKET.getId(), jacket);
-        skinFlags = changeMask(skinFlags, EnumSkinFlag.LEFT_SLEEVE.getId(), leftArm);
-        skinFlags = changeMask(skinFlags, EnumSkinFlag.RIGHT_SLEEVE.getId(), rightArm);
-        skinFlags = changeMask(skinFlags, EnumSkinFlag.LEFT_PANTS.getId(), leftLeg);
-        skinFlags = changeMask(skinFlags, EnumSkinFlag.RIGHT_PANTS.getId(), rightLeg);
-        skinFlags = changeMask(skinFlags, EnumSkinFlag.HAT.getId(), hat);
+        byte bitMask = 0;
+        bitMask = changeBit(bitMask, EnumSkinFlag.CAPE.getId(), cape);
+        bitMask = changeBit(bitMask, EnumSkinFlag.JACKET.getId(), jacket);
+        bitMask = changeBit(bitMask, EnumSkinFlag.LEFT_SLEEVE.getId(), leftArm);
+        bitMask = changeBit(bitMask, EnumSkinFlag.RIGHT_SLEEVE.getId(), rightArm);
+        bitMask = changeBit(bitMask, EnumSkinFlag.LEFT_PANTS.getId(), leftLeg);
+        bitMask = changeBit(bitMask, EnumSkinFlag.RIGHT_PANTS.getId(), rightLeg);
+        bitMask = changeBit(bitMask, EnumSkinFlag.HAT.getId(), hat);
 
-        this.dataWatcher.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, skinFlags);
+        this.dataWatcher.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, bitMask);
     }
 
 
 
     // ### UTIL ###
 
-    private byte changeMask(byte bitMask, int bit, boolean state) {
+    private boolean readBit(byte bitMask, int bit) {
+        return (bitMask & (1 << bit)) != 0;
+    }
+
+    private byte changeBit(byte bitMask, int bit, boolean state) {
         if(state) {
             return (byte) (bitMask | (1 << bit));
         } else {
-            return (byte) (bitMask & (1 << bit));
+            return (byte) (bitMask & ~(1 << bit));
         }
     }
 
