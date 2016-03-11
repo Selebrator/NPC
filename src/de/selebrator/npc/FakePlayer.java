@@ -39,13 +39,13 @@ public class FakePlayer {
     private LivingEntity target;
 
     private boolean noClip = true;
-    private boolean gravity = true;
+    private boolean gravity = false;
 
     private boolean[] status = new boolean[8];
 
     private float health = 20F;
     private double moveSpeed = 4.3D / 20;
-    private static final double DEFAULT_SPEED = 4.3D / 20;
+    private static final double WALK_SPEED = 4.3D / 20;
     private static final double SNEAK_SPEED = 1.3D / 20;
     private static final double SPRINT_SPEED = 5.6D / 20;
     private static final double EYE_HEIGHT = 1.6D;
@@ -60,8 +60,8 @@ public class FakePlayer {
         this.gameProfile = gameProfile;
 
         this.dataWatcher = new NullDataWatcher();
-        updateStatus(false, false, false, false, false, false, false);
-        updateSkinFlags(true, true, true, true, true, true, true);
+        this.updateStatus(false, false, false, false, false, false, false);
+        this.updateSkinFlags(true, true, true, true, true, true, true);
         this.dataWatcher.set(EnumDataWatcherObject.LIVING_HELATH_06, this.health);
     }
 
@@ -81,7 +81,7 @@ public class FakePlayer {
         Reflection.getField(namedEntitySpawn.getClass(), "g").set(namedEntitySpawn, angle(location.getPitch()));
         Reflection.getField(namedEntitySpawn.getClass(), "h").set(namedEntitySpawn, this.dataWatcher.toNMS());
 
-        sendPackets(playerInfo, namedEntitySpawn);
+        broadcastPackets(playerInfo, namedEntitySpawn);
 
         this.location = location;
         this.living = true;
@@ -98,29 +98,31 @@ public class FakePlayer {
         PacketPlayOutEntityDestroy entityDestroy = new PacketPlayOutEntityDestroy();
         Reflection.getField(entityDestroy.getClass(), "a").set(entityDestroy, new int[] { this.entityID });
 
-        sendPackets(playerInfo, entityDestroy);
+        broadcastPackets(playerInfo, entityDestroy);
 
         this.living = false;
     }
 
     public void look(float yaw, float pitch) {
-        //rotate body
-        PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook();
-        Reflection.getField(entityLook.getClass().getSuperclass(), "a").set(entityLook, this.entityID);
-        Reflection.getField(entityLook.getClass().getSuperclass(), "e").set(entityLook, angle(yaw));
-        Reflection.getField(entityLook.getClass().getSuperclass(), "f").set(entityLook, angle(pitch));
-        Reflection.getField(entityLook.getClass().getSuperclass(), "g").set(entityLook, false);
-        Reflection.getField(entityLook.getClass().getSuperclass(), "h").set(entityLook, true);
+        if(this.living) {
+            //rotate body
+            PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook();
+            Reflection.getField(entityLook.getClass().getSuperclass(), "a").set(entityLook, this.entityID);
+            Reflection.getField(entityLook.getClass().getSuperclass(), "e").set(entityLook, angle(yaw));
+            Reflection.getField(entityLook.getClass().getSuperclass(), "f").set(entityLook, angle(pitch));
+            Reflection.getField(entityLook.getClass().getSuperclass(), "g").set(entityLook, false);
+            Reflection.getField(entityLook.getClass().getSuperclass(), "h").set(entityLook, true);
 
-        //rotate head
-        PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
-        Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
-        Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, angle(yaw));
+            //rotate head
+            PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
+            Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
+            Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, angle(yaw));
 
-        sendPackets(entityLook, entityHeadRotation);
+            broadcastPackets(entityLook, entityHeadRotation);
 
-        this.location.setYaw(yaw);
-        this.location.setPitch(pitch);
+            this.location.setYaw(yaw);
+            this.location.setPitch(pitch);
+        }
     }
 
     //Coordinates as delta
@@ -142,38 +144,40 @@ public class FakePlayer {
 
     //Coordinates as delta
     public void move(double x, double y, double z) {
-        if(Math.abs(x) < 8 && Math.abs(y) < 8 && Math.abs(z) < 8) {
-            int changeX;
-            int changeY;
-            int changeZ;
+        if(this.living) {
+            if(Math.abs(x) < 8 && Math.abs(y) < 8 && Math.abs(z) < 8) {
+				int changeX;
+				int changeY;
+				int changeZ;
 
-            if(this.noClip) {
-                changeX = (int) ((((this.location.getX() + x) * 32) - (this.location.getX() * 32)) * 128);
-                changeY = (int) ((((this.location.getY() + y) * 32) - (this.location.getY() * 32)) * 128);
-                changeZ = (int) ((((this.location.getZ() + z) * 32) - (this.location.getZ() * 32)) * 128);
-            } else {
-                //TODO add moving with collision.
-                return;
-            }
+				if(this.noClip) {
+					changeX = (int) ((((this.location.getX() + x) * 32) - (this.location.getX() * 32)) * 128);
+					changeY = (int) ((((this.location.getY() + y) * 32) - (this.location.getY() * 32)) * 128);
+					changeZ = (int) ((((this.location.getZ() + z) * 32) - (this.location.getZ() * 32)) * 128);
+				} else {
+					//TODO add moving with collision.
+					return;
+				}
 
-            float yaw = this.location.getYaw();
-            float pitch = this.location.getPitch();
+				float yaw = this.location.getYaw();
+				float pitch = this.location.getPitch();
 
-            PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook();
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "a").set(relEntityMoveLook, this.entityID);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "b").set(relEntityMoveLook, changeX);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "c").set(relEntityMoveLook, changeY);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "d").set(relEntityMoveLook, changeZ);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "e").set(relEntityMoveLook, angle(yaw));
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "f").set(relEntityMoveLook, angle(pitch));
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "g").set(relEntityMoveLook, true); // onGround
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "h").set(relEntityMoveLook, true);
+				PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook();
+				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "a").set(relEntityMoveLook, this.entityID);
+				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "b").set(relEntityMoveLook, changeX);
+				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "c").set(relEntityMoveLook, changeY);
+				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "d").set(relEntityMoveLook, changeZ);
+				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "e").set(relEntityMoveLook, angle(yaw));
+				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "f").set(relEntityMoveLook, angle(pitch));
+				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "g").set(relEntityMoveLook, true); // onGround
+				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "h").set(relEntityMoveLook, true);
 
-            sendPackets(relEntityMoveLook);
+				broadcastPackets(relEntityMoveLook);
 
-            this.location.add(x, y, z);
-        } else
-            System.err.println("[NPC] Error in move input: difference cant be >= 8");
+				this.location.add(x, y, z);
+			} else
+				System.err.println("[NPC] Error in move input: difference cant be >= 8");
+        }
     }
 
     public void move(Location location) {
@@ -228,7 +232,7 @@ public class FakePlayer {
         Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
         Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, angle(location.getYaw()));
 
-        sendPackets(entityTeleport, entityHeadRotation);
+        broadcastPackets(entityTeleport, entityHeadRotation);
 
         this.location = location;
     }
@@ -238,7 +242,7 @@ public class FakePlayer {
         Reflection.getField(entityEquipment.getClass(), "a").set(entityEquipment, this.entityID);
         Reflection.getField(entityEquipment.getClass(), "b").set(entityEquipment, slot.getNMS());
         Reflection.getField(entityEquipment.getClass(), "c").set(entityEquipment, CraftItemStack.asNMSCopy(item));		//itemStack
-        sendPackets(entityEquipment);
+        broadcastPackets(entityEquipment);
 
         this.equip[slot.getId()] = item;
     }
@@ -248,7 +252,7 @@ public class FakePlayer {
             PacketPlayOutAnimation animation = new PacketPlayOutAnimation();
             Reflection.getField(animation.getClass(), "a").set(animation, this.entityID);
             Reflection.getField(animation.getClass(), "b").set(animation, anim.getId());
-            sendPackets(animation);
+            broadcastPackets(animation);
         }
     }
 
@@ -256,7 +260,7 @@ public class FakePlayer {
         PacketPlayOutEntityStatus entityStatus = new PacketPlayOutEntityStatus();
         Reflection.getField(entityStatus.getClass(), "a").set(entityStatus, this.entityID);
         Reflection.getField(entityStatus.getClass(), "b").set(entityStatus, (byte) status.getId());
-        sendPackets(entityStatus);
+        broadcastPackets(entityStatus);
     }
 
     public void updateGameProfile(GameProfile gameProfile) {
@@ -268,7 +272,7 @@ public class FakePlayer {
     }
 
     public void updateMetadata() {
-        sendPackets(new PacketPlayOutEntityMetadata(this.entityID, this.dataWatcher.toNMS(), true));
+        broadcastPackets(new PacketPlayOutEntityMetadata(this.entityID, this.dataWatcher.toNMS(), true));
     }
 
 
@@ -283,12 +287,12 @@ public class FakePlayer {
         return this.gameProfile.getName();
     }
 
-    public boolean isLiving() {
+    public boolean isAlive() {
         return this.living;
     }
 
     public float getHealth() {
-        if(this.isLiving()) {
+        if(this.isAlive()) {
             return this.health;
         }
         return 0;
@@ -372,21 +376,21 @@ public class FakePlayer {
 
     public void setSneaking(boolean state) {
         updateStatus(this.status[0], state, this.status[3], this.status[4], this.status[5], this.status[6], this.status[7]);
-        this.status[1] = state;
+        this.status[EnumStatus.SNEAK.getId()] = state;
         if(state) {
             this.moveSpeed = SNEAK_SPEED;
         } else {
-            this.moveSpeed = DEFAULT_SPEED;
+            this.moveSpeed = WALK_SPEED;
         }
     }
 
     public void setSprinting(boolean state) {
         updateStatus(this.status[0], this.status[1], state, this.status[4], this.status[5], this.status[6], this.status[7]);
-        this.status[3] = state;
+        this.status[EnumStatus.SPRINT.getId()] = state;
         if(state) {
             this.moveSpeed = SPRINT_SPEED;
         } else {
-            this.moveSpeed = DEFAULT_SPEED;
+            this.moveSpeed = WALK_SPEED;
         }
     }
 
@@ -405,7 +409,6 @@ public class FakePlayer {
         status = changeMask(status, EnumStatus.GLOW.getId(), glow);
         status = changeMask(status, EnumStatus.ELYTRA.getId(), elytra);
 
-        //TODO better use NullDataWatcher.update(EnumDataWatcherObject, Object)
         this.dataWatcher.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, status);
 
         this.status[EnumStatus.FIRE.getId()] = fire;
@@ -429,7 +432,6 @@ public class FakePlayer {
         skinFlags = changeMask(skinFlags, EnumSkinFlag.RIGHT_PANTS.getId(), rightLeg);
         skinFlags = changeMask(skinFlags, EnumSkinFlag.HAT.getId(), hat);
 
-        //TODO better use NullDataWatcher.update(EnumDataWatcherObject, Object)
         this.dataWatcher.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, skinFlags);
     }
 
@@ -439,9 +441,9 @@ public class FakePlayer {
 
     private byte changeMask(byte bitMask, int bit, boolean state) {
         if(state) {
-            return bitMask |= 1 << bit;
+            return (byte) (bitMask | (1 << bit));
         } else {
-            return bitMask &= ~(1 << bit);
+            return (byte) (bitMask & (1 << bit));
         }
     }
 
@@ -459,13 +461,13 @@ public class FakePlayer {
         return (byte) ((int) (value * 256F / 360F));
     }
 
-    private void sendPrivatePackets(Player player, Packet<?>... packets) {
+    private void sendPackets(Player player, Packet<?>... packets) {
         for(Packet<?> packet : packets) {
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
         }
     }
 
-    private void sendPackets(Packet<?>... packets) {
-        Bukkit.getOnlinePlayers().forEach(player -> sendPrivatePackets(player, packets));
+    private void broadcastPackets(Packet<?>... packets) {
+        Bukkit.getOnlinePlayers().forEach(player -> sendPackets(player, packets));
     }
 }

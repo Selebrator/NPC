@@ -23,7 +23,7 @@ public class Reflection {
 	public static IConstructorAccessor getConstructor(Class<?> clazz, Class<?>... parameterTypes) {
 		
 		for(Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-			if(parameterTypes == constructor.getParameterTypes()) {
+			if(isClassListEqual(parameterTypes, constructor.getParameterTypes())){
 				constructor.setAccessible(true);
 				return new IConstructorAccessor() {
 					
@@ -57,37 +57,39 @@ public class Reflection {
 		return null;
 	}
 	
-	public static IMethodAccessor getMethod(Class<?> clazz, String name, Class<?>... patameterTypes) {
+	public static IMethodAccessor getMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
 		
 		for(Method method : clazz.getDeclaredMethods()) {
 			if(method.getName().equals(name)) {
-				method.setAccessible(true);
-				return new IMethodAccessor() {
-					
-					@Override
-					public Object invoke(Object target, Object... args) {
-						try {
-							return method.invoke(target, args);
-						} catch (IllegalAccessException e) {
-							throw new IllegalStateException("Cannot use reflection.", e);
-						} catch (InvocationTargetException e) {
-							return null; // TODO how to handle ?
-						} catch (IllegalArgumentException e) {
-							e.printStackTrace();
-							return null;
+				if(isClassListEqual(parameterTypes, method.getParameterTypes())) {
+					method.setAccessible(true);
+					return new IMethodAccessor() {
+
+						@Override
+						public Object invoke(Object target, Object... args) {
+							try {
+								return method.invoke(target, args);
+							} catch (IllegalAccessException e) {
+								throw new IllegalStateException("Cannot use reflection.", e);
+							} catch (InvocationTargetException e) {
+								return null; // TODO how to handle ?
+							} catch (IllegalArgumentException e) {
+								e.printStackTrace();
+								return null;
+							}
 						}
-					}
-					
-					@Override
-					public Method getMethod() {
-						return method;
-					}
-				};
+
+						@Override
+						public Method getMethod() {
+							return method;
+						}
+					};
+				}
 			}
 		}
 
 		if(clazz.getSuperclass() != null) {
-			return getMethod(clazz, name, patameterTypes);
+			return getMethod(clazz, name, parameterTypes);
 		}
 		return null;
 	}
@@ -140,5 +142,20 @@ public class Reflection {
 			return getField(clazz, name);
 		}
 		return null;
+	}
+
+	public static boolean isClassListEqual(Class<?>[] classes1, Class<?>[] classes2) {
+		boolean equal = true;
+		if (classes1.length != classes2.length) {
+			return false;
+		}
+
+		for (int i = 0; i < classes1.length; i++) {
+			if (classes1[i] != classes2[i]) {
+				equal = false;
+				break;
+			}
+		}
+		return equal;
 	}
 }

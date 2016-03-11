@@ -10,23 +10,13 @@ public class NullDataWatcher {
 	private final DataWatcher dataWatcher;
 	
 	private static final IMethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(DataWatcher.class, "registerObject", DataWatcherObject.class, Object.class);
-	
+
 	public NullDataWatcher() {
 		this.dataWatcher = new DataWatcher(null);
 	}
 	
 	public NullDataWatcher set(EnumDataWatcherObject dataWatcherObject, Object value) {
 		METHOD_DataWatcher_registerObject.invoke(this.dataWatcher, dataWatcherObject.getObject(), value);
-		return this;
-	}
-
-	@Deprecated
-	public NullDataWatcher update(EnumDataWatcherObject dataWatcherObject, Object value) {
-		/*
-		TODO need private DataWatcher.c(DataWatcherObject<T>)  --> fix Reflection
-		DataWatcher.Item item = this.dataWatcher.c(dataWatcherObject.getObject());
-		item.a(value);
-		 */
 		return this;
 	}
 	
