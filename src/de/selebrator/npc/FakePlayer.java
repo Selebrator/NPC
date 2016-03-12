@@ -32,7 +32,7 @@ public class FakePlayer {
 
     private int entityID;
     private GameProfile gameProfile;
-    private NullDataWatcher dataWatcher;
+    private FakePlayerMeta meta;
 
     private boolean living;
     private Location location;
@@ -40,8 +40,6 @@ public class FakePlayer {
 
     private boolean noClip = true;
     private boolean gravity = false;
-
-    private boolean[] status = new boolean[8];
 
     private float health = 20F;
     private double moveSpeed = 4.3D / 20;
@@ -59,10 +57,10 @@ public class FakePlayer {
 
         this.gameProfile = gameProfile;
 
-        this.dataWatcher = new NullDataWatcher();
-        this.updateStatus(false, false, false, false, false, false, false);
+        this.meta = new FakePlayerMeta();
+        this.updateStatus(false, false, false, false, false, false);
         this.updateSkinFlags(true, true, true, true, true, true, true);
-        this.dataWatcher.set(EnumDataWatcherObject.LIVING_HELATH_06, this.health);
+        this.meta.setHealth(this.health);
     }
 
     public void spawn(Location location) {
@@ -79,7 +77,7 @@ public class FakePlayer {
         Reflection.getField(namedEntitySpawn.getClass(), "e").set(namedEntitySpawn, location.getZ());
         Reflection.getField(namedEntitySpawn.getClass(), "f").set(namedEntitySpawn, angle(location.getYaw()));
         Reflection.getField(namedEntitySpawn.getClass(), "g").set(namedEntitySpawn, angle(location.getPitch()));
-        Reflection.getField(namedEntitySpawn.getClass(), "h").set(namedEntitySpawn, this.dataWatcher.toNMS());
+        Reflection.getField(namedEntitySpawn.getClass(), "h").set(namedEntitySpawn, this.meta.toNMS());
 
         broadcastPackets(playerInfo, namedEntitySpawn);
 
@@ -262,7 +260,7 @@ public class FakePlayer {
     }
 
     public void updateMetadata() {
-        broadcastPackets(new PacketPlayOutEntityMetadata(this.entityID, this.dataWatcher.toNMS(), true));
+        broadcastPackets(new PacketPlayOutEntityMetadata(this.entityID, this.meta.toNMS(), true));
     }
 
 
@@ -271,6 +269,10 @@ public class FakePlayer {
 
     public int getEntityID() {
         return this.entityID;
+    }
+
+    public FakePlayerMeta getMeta() {
+        return this.meta;
     }
 
     public String getName() {
@@ -326,30 +328,6 @@ public class FakePlayer {
         return null;
     }
 
-    public boolean isOnFire() {
-        return this.status[EnumStatus.FIRE.getId()];
-    }
-
-    public boolean isSneaking() {
-        return this.status[EnumStatus.SNEAK.getId()];
-    }
-
-    public boolean isSprinting() {
-        return this.status[EnumStatus.SPRINT.getId()];
-    }
-
-    public boolean isInvisible() {
-        return this.status[EnumStatus.INVISIBLE.getId()];
-    }
-
-    public boolean isGlowing() {
-        return this.status[EnumStatus.GLOW.getId()];
-    }
-
-    public boolean isElytraUsed() {
-        return this.status[EnumStatus.ELYTRA.getId()];
-    }
-
     public boolean hasEquipment(EnumEquipmentSlot slot) {
         return this.equip[slot.getId()] != null;
     }
@@ -367,6 +345,11 @@ public class FakePlayer {
         }
     }
 
+    public void setMeta(FakePlayerMeta meta) {
+        this.meta = meta;
+        this.updateMetadata();
+    }
+
     public void setHealth(float health) {
         if(health == 0) {
             this.setStatus(EnumEntityStatus.DEAD);
@@ -377,6 +360,7 @@ public class FakePlayer {
             this.spawn(this.location);
         }
         this.health = health;
+        this.meta.setHealth(health);
     }
 
     public void setMoveSpeed(double speed) {
@@ -395,12 +379,8 @@ public class FakePlayer {
         this.target = target;
     }
 
-    public void setOnFire(boolean state) {
-        updateStatus(EnumStatus.FIRE, state);
-    }
-
     public void setSneaking(boolean state) {
-        updateStatus(EnumStatus.SNEAK, state);
+        meta.setSneaking(state);
         if(state) {
             this.moveSpeed = SNEAK_SPEED;
         } else {
@@ -409,7 +389,7 @@ public class FakePlayer {
     }
 
     public void setSprinting(boolean state) {
-        updateStatus(EnumStatus.SPRINT, state);
+        meta.setSprinting(state);
         if(state) {
             this.moveSpeed = SPRINT_SPEED;
         } else {
@@ -417,81 +397,32 @@ public class FakePlayer {
         }
     }
 
-    public void setInvisible(boolean state) {
-        updateStatus(EnumStatus.INVISIBLE, state);
+    public void updateStatus(boolean fire, boolean sneak, boolean sprint, boolean invisible, boolean glow, boolean elytra) {
+        this.meta.setOnFire(fire);
+        this.meta.setSneaking(sneak);
+        this.meta.setSprinting(sprint);
+        this.meta.setInvisible(invisible);
+        this.meta.setGlowing(glow);
+        this.meta.useElytra(elytra);
+
+        this.updateMetadata();
     }
 
-    public void setGlowing(boolean state) {
-        updateStatus(EnumStatus.GLOW, state);
-    }
-
-    public void useElytra(boolean state) {
-        updateStatus(EnumStatus.ELYTRA, state);
-    }
-
-
-
-    // ### DATAWATCHER BITMASKS ###
-
-    // 0
-    public void updateStatus(boolean fire, boolean sneak, boolean sprint, boolean use, boolean invisible, boolean glow, boolean elytra) {
-        byte bitMask = 0;
-        bitMask = changeBit(bitMask, EnumStatus.FIRE.getId(), fire);
-        bitMask = changeBit(bitMask, EnumStatus.SNEAK.getId(), sneak);
-        bitMask = changeBit(bitMask, EnumStatus.SPRINT.getId(), sprint);
-        bitMask = changeBit(bitMask, EnumStatus.USE.getId(), use);
-        bitMask = changeBit(bitMask, EnumStatus.INVISIBLE.getId(), invisible);
-        bitMask = changeBit(bitMask, EnumStatus.GLOW.getId(), glow);
-        bitMask = changeBit(bitMask, EnumStatus.ELYTRA.getId(), elytra);
-
-        this.dataWatcher.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, bitMask);
-
-        for(EnumStatus current : EnumStatus.values()) {
-            this.status[current.getId()] = readBit(bitMask, current.getId());
-        }
-    }
-
-    public void updateStatus(EnumStatus status, boolean state) {
-        byte bitMask = 0;
-        for(EnumStatus current : EnumStatus.values()) {
-            bitMask = changeBit(bitMask, current.getId(), this.status[current.getId()]);
-        }
-        bitMask = changeBit(bitMask, status.getId(), state);
-
-        this.dataWatcher.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, bitMask);
-
-        this.status[status.getId()] = readBit(bitMask, status.getId());
-    }
-
-    //10
     public void updateSkinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
-        byte bitMask = 0;
-        bitMask = changeBit(bitMask, EnumSkinFlag.CAPE.getId(), cape);
-        bitMask = changeBit(bitMask, EnumSkinFlag.JACKET.getId(), jacket);
-        bitMask = changeBit(bitMask, EnumSkinFlag.LEFT_SLEEVE.getId(), leftArm);
-        bitMask = changeBit(bitMask, EnumSkinFlag.RIGHT_SLEEVE.getId(), rightArm);
-        bitMask = changeBit(bitMask, EnumSkinFlag.LEFT_PANTS.getId(), leftLeg);
-        bitMask = changeBit(bitMask, EnumSkinFlag.RIGHT_PANTS.getId(), rightLeg);
-        bitMask = changeBit(bitMask, EnumSkinFlag.HAT.getId(), hat);
+        this.meta.enableCape(cape);
+        this.meta.enableJacket(jacket);
+        this.meta.enableLeftArm(leftArm);
+        this.meta.enableRightArm(rightArm);
+        this.meta.enableLeftLeg(leftLeg);
+        this.meta.enableRightLeg(rightLeg);
+        this.meta.enableHat(hat);
 
-        this.dataWatcher.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, bitMask);
+        this.updateMetadata();
     }
 
 
 
-    // ### UTIL ###
-
-    private boolean readBit(byte bitMask, int bit) {
-        return (bitMask & (1 << bit)) != 0;
-    }
-
-    private byte changeBit(byte bitMask, int bit, boolean state) {
-        if(state) {
-            return (byte) (bitMask | (1 << bit));
-        } else {
-            return (byte) (bitMask & ~(1 << bit));
-        }
-    }
+    // ##### UTIL #####
 
     //Coordinates as delta
     private float calcYaw(double x, double z) {
