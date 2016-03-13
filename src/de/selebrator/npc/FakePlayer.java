@@ -17,7 +17,7 @@ import net.minecraft.server.v1_9_R1.PacketPlayOutEntityTeleport;
 import net.minecraft.server.v1_9_R1.PacketPlayOutNamedEntitySpawn;
 import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
-import net.minecraft.server.v1_9_R1.WorldSettings.EnumGamemode;
+import net.minecraft.server.v1_9_R1.WorldSettings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -26,10 +26,11 @@ import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 
-public class FakePlayer {
+public class FakePlayer implements NPC {
 
     private final int entityID;
     private GameProfile gameProfile;
@@ -62,11 +63,12 @@ public class FakePlayer {
         this.meta.setName(this.getName());
     }
 
+    @Override
     public void spawn(Location location) {
         PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo();
         Reflection.getField(playerInfo.getClass(), "a").set(playerInfo, EnumPlayerInfoAction.ADD_PLAYER);
         Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(
-                playerInfo.new PlayerInfoData(this.gameProfile, 0, EnumGamemode.NOT_SET, new ChatComponentText(this.gameProfile.getName()))));
+                playerInfo.new PlayerInfoData(this.gameProfile, 0, WorldSettings.EnumGamemode.NOT_SET, new ChatComponentText(this.gameProfile.getName()))));
 
         PacketPlayOutNamedEntitySpawn namedEntitySpawn = new PacketPlayOutNamedEntitySpawn();
         Reflection.getField(namedEntitySpawn.getClass(), "a").set(namedEntitySpawn, this.entityID);
@@ -86,8 +88,11 @@ public class FakePlayer {
         for(EnumEquipmentSlot slot : EnumEquipmentSlot.values()) {
             this.equip(slot, this.equip[slot.getId()]);
         }
+
+        this.look(location.getYaw(), location.getPitch());
     }
 
+    @Override
     public void despawn() {
         PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.REMOVE_PLAYER);
         Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(playerInfo.new PlayerInfoData(this.gameProfile, 0, null, null)));
@@ -101,6 +106,7 @@ public class FakePlayer {
         this.living = false;
     }
 
+	@Override
     public void look(float yaw, float pitch) {
         //rotate body
         PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook();
@@ -121,7 +127,7 @@ public class FakePlayer {
         this.location.setPitch(pitch);
     }
 
-    //Coordinates as delta
+	@Override
     public void look(double x, double y, double z) {
         float yaw = calcYaw(x, z);
         float pitch = calcPitch(x, y, z);
@@ -129,6 +135,7 @@ public class FakePlayer {
         look(yaw, pitch);
     }
 
+	@Override
     public void look(Location location) {
         // calculate yaw and pitch
         double differenceX = location.getX() - this.location.getX();
@@ -138,7 +145,7 @@ public class FakePlayer {
         look(differenceX, differenceY, differenceZ);
     }
 
-    //Coordinates as delta
+	@Override
     public void move(double x, double y, double z) {
         if(Math.abs(x) < 8 && Math.abs(y) < 8 && Math.abs(z) < 8) {
             int changeX = (int) ((((this.location.getX() + x) * 32) - (this.location.getX() * 32)) * 128);
@@ -164,25 +171,21 @@ public class FakePlayer {
             System.err.println("[NPC] Error in move input: difference cant be >= 8");
     }
 
+	@Override
     public void move(Location location) {
-        double differenceX = location.getX() - this.location.getX();
-        double differenceY = location.getY() - this.location.getY();
-        double differenceZ = location.getZ() - this.location.getZ();
+        Vector distance = calcDistanceVector(this.location, location);
 
-        move(differenceX, differenceY, differenceZ);
+        move(distance.getX(), distance.getY(), distance.getZ());
     }
 
+	@Override
     public void step(float yaw, float pitch) {
-        yaw = (float) Math.toRadians(yaw);
-        pitch = (float) Math.toRadians(pitch);
-        double changeX = -Math.sin(yaw);
-        double changeY = -Math.sin(pitch);
-        double changeZ = Math.cos(yaw);
+        Vector direction = calcDirectionVector(this.moveSpeed, yaw, pitch);
 
-        move(changeX * this.moveSpeed, changeY * this.moveSpeed, changeZ * this.moveSpeed);
+        move(direction.getX(), direction.getY(), direction.getZ());
     }
 
-    //Coordinates as delta
+	@Override
     public void step(double x, double y, double z) {
         float yaw = calcYaw(x, z);
         float pitch = calcPitch(x, y, z);
@@ -190,14 +193,14 @@ public class FakePlayer {
         step(yaw, pitch);
     }
 
+	@Override
     public void step(Location location) {
-        double differenceX = location.getX() - this.location.getX();
-        double differenceY = location.getY() - this.location.getY();
-        double differenceZ = location.getZ() - this.location.getZ();
+        Vector distance = calcDistanceVector(this.location, location);
 
-        step(differenceX, differenceY, differenceZ);
+        step(distance.getX(), distance.getY(), distance.getZ());
     }
 
+    @Override
     public void teleport(Location location) {
         PacketPlayOutEntityTeleport entityTeleport = new PacketPlayOutEntityTeleport();
         Reflection.getField(entityTeleport.getClass(), "a").set(entityTeleport, this.entityID);
@@ -217,6 +220,7 @@ public class FakePlayer {
         this.location = location;
     }
 
+    @Override
     public void equip(EnumEquipmentSlot slot, ItemStack item) {
         PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment();
         Reflection.getField(entityEquipment.getClass(), "a").set(entityEquipment, this.entityID);
@@ -227,6 +231,7 @@ public class FakePlayer {
         this.equip[slot.getId()] = item;
     }
 
+    @Override
     public void playAnimation(EnumAnimation anim) {
         PacketPlayOutAnimation animation = new PacketPlayOutAnimation();
         Reflection.getField(animation.getClass(), "a").set(animation, this.entityID);
@@ -234,6 +239,7 @@ public class FakePlayer {
         broadcastPackets(animation);
     }
 
+    @Override
     public void setEntityStatus(EnumEntityStatus status) {
         PacketPlayOutEntityStatus entityStatus = new PacketPlayOutEntityStatus();
         Reflection.getField(entityStatus.getClass(), "a").set(entityStatus, this.entityID);
@@ -241,6 +247,7 @@ public class FakePlayer {
         broadcastPackets(entityStatus);
     }
 
+    @Override
     public void updateMetadata() {
         broadcastPackets(new PacketPlayOutEntityMetadata(this.entityID, this.meta.getDataWatcher(), true));
     }
@@ -294,7 +301,7 @@ public class FakePlayer {
     }
 
     public boolean hasTarget() {
-        return this.target != null;
+        return this.target != null && !this.target.isDead();
     }
 
     public LivingEntity getTarget() {
@@ -362,16 +369,86 @@ public class FakePlayer {
 
     // ##### UTIL #####
 
-    //Coordinates as delta
-    private static float calcYaw(double x, double z) {
-        return (float) ((Math.atan2(z, x) * 180D / Math.PI) - 90F);
+	/**
+     *
+     * @param x relative x
+     * @param y relative y
+     * @param z relative z
+     * @return distance aka ρ (rho)
+     */
+    public static double calcDistanceVector(double x, double y, double z) {
+        return Math.sqrt(x * x + y * y + z * z);
     }
 
-    //Coordinates as delta
-    private static float calcPitch(double x, double y, double z) {
-        return (float) -(Math.atan2(y, Math.sqrt(x * x + z * z)) * 180D / Math.PI);
+	/**
+     *
+     * @param x relative x
+     * @param z relative z
+     * @return yaw aka θ (theta) in degree
+     */
+    public static float calcYaw(double x, double z) {
+        return (float) Math.toDegrees(Math.atan2(z, x)) - 90F;
     }
 
+	/**
+     *
+     * @param x relative x
+     * @param y relative y
+     * @param z relative z
+     * @return pitch aka φ (phi) in degree
+     */
+    public static float calcPitch(double x, double y, double z) {
+        return (float) -Math.toDegrees(Math.atan2(y, Math.sqrt(x * x + z * z)));
+    }
+
+	/**
+     *
+     * @param distance aka ρ (rho)
+     * @param yaw aka θ (theta) in degrees
+     * @param pitch aka φ (phi) in degrees
+     * @return rectangular coordinates
+     */
+    public static Vector calcDirectionVector(double distance, float yaw, float pitch) {
+        Vector direction = new Vector();
+        direction.setX(-Math.sin(Math.toRadians(yaw)));
+        direction.setY(-Math.sin(Math.toRadians(pitch)));
+        direction.setZ(Math.cos(Math.toRadians(yaw)));
+        return direction.multiply(distance);
+    }
+
+	/**
+     *
+     * @param startX current location x
+     * @param startY current location y
+     * @param startZ current location z
+     * @param destinationX target location x
+     * @param destinationY target location y
+     * @param destinationZ target location z
+     * @return distance between start location and destination location
+	 */
+    public static Vector calcDistanceVector(double startX, double startY, double startZ, double destinationX, double destinationY, double destinationZ) {
+        Vector distance = new Vector();
+        distance.setX(destinationX - startX);
+        distance.setY(destinationY - startY);
+        distance.setZ(destinationZ - startZ);
+        return distance;
+    }
+
+	/**
+     *
+     * @param start current location
+     * @param destination target location
+     * @return distance between start location and destination location
+     */
+    public static Vector calcDistanceVector(Location start, Location destination) {
+        return calcDistanceVector(start.getX(), start.getY(), start.getZ(), destination.getX(), destination.getY(), destination.getZ());
+    }
+
+	/**
+     * prepare angle for packet
+     * @param value angle in degrees
+     * @return rotation in 1/265 steps
+     */
     private static byte angle(float value) {
         return (byte) ((int) (value * 256F / 360F));
     }

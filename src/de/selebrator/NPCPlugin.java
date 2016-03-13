@@ -9,11 +9,14 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -44,23 +47,32 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 	@EventHandler
 	public void onClick(PlayerInteractEvent event) {
-			//spawn
-			if(event.getItem() != null && event.getItem().getType() == Material.STICK) {
-				if(event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-					if(npc != null) {
-						npc.spawn(event.getClickedBlock().getLocation().add(0.5, 1, 0.5));
-						return;
-					}
-					event.getPlayer().sendMessage("§cSelect a NPC first");
-
-				} else if(event.getAction() == Action.RIGHT_CLICK_AIR) {
-					if(npc != null) {
-						npc.spawn(event.getPlayer().getLocation());
-						return;
-					}
-					event.getPlayer().sendMessage("§cSelect a NPC first");
+		//spawn
+		ItemStack item = event.getItem();
+		if(item != null && item.getType() == Material.STICK) {
+			if(event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				if(npc != null) {
+					npc.spawn(event.getClickedBlock().getLocation().add(0.5, 1, 0.5));
+					return;
 				}
+				event.getPlayer().sendMessage("§cSelect a NPC first");
+
+			} else if(event.getAction() == Action.RIGHT_CLICK_AIR) {
+				if(npc != null) {
+					npc.spawn(event.getPlayer().getLocation());
+					return;
+				}
+				event.getPlayer().sendMessage("§cSelect a NPC first");
 			}
+		}
+	}
+
+	@EventHandler
+	public void onEntityUse(PlayerInteractEntityEvent event) {
+		ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
+		if(item != null && item.getType() == Material.BLAZE_ROD) {
+			npc.setTarget((LivingEntity) event.getRightClicked());
+		}
 	}
 
 	@Override
@@ -288,11 +300,23 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 		@Override
 		public void run() {
-			if(npc != null && npc.isAlive() && npc.hasTarget()) {
+			if(npc != null && npc.isAlive() && npc.hasTarget() && !npc.getTarget().isDead()) {
 				Vector vNPC = new Vector(npc.getLocation().getX(), npc.getLocation().getY(), npc.getLocation().getZ());
 				Vector vTarget = new Vector(npc.getTarget().getLocation().getX(), npc.getTarget().getLocation().getY(), npc.getTarget().getLocation().getZ());
-				if(vNPC.distance(vTarget) > 3)
+				if(vNPC.distance(vTarget) > 3) {
 					npc.step(npc.getTarget().getLocation());
+				} if(vNPC.distance(vTarget) <= 3){
+					npc.playAnimation(EnumAnimation.SWING_ARM);
+					npc.getTarget().damage(1);
+					Vector distance = FakePlayer.calcDistanceVector(npc.getLocation(), npc.getTarget().getLocation());
+
+					float yaw = FakePlayer.calcYaw(distance.getX(), distance.getZ());
+					float pitch = FakePlayer.calcPitch(distance.getX(), distance.getY(), distance.getZ());
+
+					Vector direction = FakePlayer.calcDirectionVector(0.4, yaw, pitch);
+
+					npc.getTarget().setVelocity(direction);
+				}
 				npc.look(npc.getTarget().getEyeLocation());
 			}
 		}
