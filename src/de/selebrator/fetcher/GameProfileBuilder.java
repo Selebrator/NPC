@@ -1,5 +1,13 @@
 package de.selebrator.fetcher;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import org.bukkit.ChatColor;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,13 +15,6 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 
 public class GameProfileBuilder {
 
@@ -24,7 +25,9 @@ public class GameProfileBuilder {
 	private String skinSignature;
 	
 	public GameProfileBuilder(String name) {
+		name = ChatColor.translateAlternateColorCodes('&', name).substring(0, name.length() <= 16 ? name.length() : 16);
 		this.name = name;
+		name = ChatColor.stripColor(name);
 		this.skinOwner = name;
 
 		this.uuid = createUUID(name);
@@ -32,7 +35,9 @@ public class GameProfileBuilder {
 	}
 	
 	public GameProfileBuilder(String name, String skinOwner) {
+		name = ChatColor.translateAlternateColorCodes('&', name).substring(0, name.length() <= 16 ? name.length() : 16);
 		this.name = name;
+		name = ChatColor.stripColor(name);
 		this.skinOwner = skinOwner;
 		
 		this.uuid = createUUID(name);
@@ -56,7 +61,6 @@ public class GameProfileBuilder {
 			uuid = uuid.substring(1, uuid.length() - 1).replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5");
 			return UUID.fromString(uuid);
 		} catch (Exception e) {
-			System.out.println("no uuid");
 			return UUID.fromString("00000000000020000000000000000000".replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
 		}
 	}

@@ -19,6 +19,7 @@ import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
 import net.minecraft.server.v1_9_R1.WorldSettings.EnumGamemode;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
@@ -30,16 +31,13 @@ import java.util.Arrays;
 
 public class FakePlayer {
 
-    private int entityID;
+    private final int entityID;
     private GameProfile gameProfile;
     private FakePlayerMeta meta;
 
     private boolean living;
     private Location location;
     private LivingEntity target;
-
-    private boolean noClip = true;
-    private boolean gravity = false;
 
     private float health = 20F;
     private double moveSpeed = 4.3D / 20;
@@ -58,9 +56,10 @@ public class FakePlayer {
         this.gameProfile = gameProfile;
 
         this.meta = new FakePlayerMeta();
-        this.updateStatus(false, false, false, false, false, false);
-        this.updateSkinFlags(true, true, true, true, true, true, true);
+        this.meta.setStatus(false, false, false, false, false, false);
+        this.meta.setSkinFlags(true, true, true, true, true, true, true);
         this.meta.setHealth(this.health);
+        this.meta.setName(this.getName());
     }
 
     public void spawn(Location location) {
@@ -77,12 +76,12 @@ public class FakePlayer {
         Reflection.getField(namedEntitySpawn.getClass(), "e").set(namedEntitySpawn, location.getZ());
         Reflection.getField(namedEntitySpawn.getClass(), "f").set(namedEntitySpawn, angle(location.getYaw()));
         Reflection.getField(namedEntitySpawn.getClass(), "g").set(namedEntitySpawn, angle(location.getPitch()));
-        Reflection.getField(namedEntitySpawn.getClass(), "h").set(namedEntitySpawn, this.meta.toNMS());
+        Reflection.getField(namedEntitySpawn.getClass(), "h").set(namedEntitySpawn, this.meta.getDataWatcher());
 
         broadcastPackets(playerInfo, namedEntitySpawn);
 
         this.location = location;
-        this.living = true;
+        this.living = this.meta.getHealth() > 0;
 
         for(EnumEquipmentSlot slot : EnumEquipmentSlot.values()) {
             this.equip(slot, this.equip[slot.getId()]);
@@ -98,29 +97,28 @@ public class FakePlayer {
 
         broadcastPackets(playerInfo, entityDestroy);
 
+        this.location = null;
         this.living = false;
     }
 
     public void look(float yaw, float pitch) {
-        if(this.living) {
-            //rotate body
-            PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook();
-            Reflection.getField(entityLook.getClass().getSuperclass(), "a").set(entityLook, this.entityID);
-            Reflection.getField(entityLook.getClass().getSuperclass(), "e").set(entityLook, angle(yaw));
-            Reflection.getField(entityLook.getClass().getSuperclass(), "f").set(entityLook, angle(pitch));
-            Reflection.getField(entityLook.getClass().getSuperclass(), "g").set(entityLook, false);
-            Reflection.getField(entityLook.getClass().getSuperclass(), "h").set(entityLook, true);
+        //rotate body
+        PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook();
+        Reflection.getField(entityLook.getClass().getSuperclass(), "a").set(entityLook, this.entityID);
+        Reflection.getField(entityLook.getClass().getSuperclass(), "e").set(entityLook, angle(yaw));
+        Reflection.getField(entityLook.getClass().getSuperclass(), "f").set(entityLook, angle(pitch));
+        Reflection.getField(entityLook.getClass().getSuperclass(), "g").set(entityLook, false);
+        Reflection.getField(entityLook.getClass().getSuperclass(), "h").set(entityLook, true);
 
-            //rotate head
-            PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
-            Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
-            Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, angle(yaw));
+        //rotate head
+        PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
+        Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
+        Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, angle(yaw));
 
-            broadcastPackets(entityLook, entityHeadRotation);
+        broadcastPackets(entityLook, entityHeadRotation);
 
-            this.location.setYaw(yaw);
-            this.location.setPitch(pitch);
-        }
+        this.location.setYaw(yaw);
+        this.location.setPitch(pitch);
     }
 
     //Coordinates as delta
@@ -142,40 +140,28 @@ public class FakePlayer {
 
     //Coordinates as delta
     public void move(double x, double y, double z) {
-        if(this.living) {
-            if(Math.abs(x) < 8 && Math.abs(y) < 8 && Math.abs(z) < 8) {
-				int changeX;
-				int changeY;
-				int changeZ;
+        if(Math.abs(x) < 8 && Math.abs(y) < 8 && Math.abs(z) < 8) {
+            int changeX = (int) ((((this.location.getX() + x) * 32) - (this.location.getX() * 32)) * 128);
+            int changeY = (int) ((((this.location.getY() + y) * 32) - (this.location.getY() * 32)) * 128);
+            int changeZ = (int) ((((this.location.getZ() + z) * 32) - (this.location.getZ() * 32)) * 128);
+            float yaw = this.location.getYaw();
+            float pitch = this.location.getPitch();
 
-				if(this.noClip) {
-					changeX = (int) ((((this.location.getX() + x) * 32) - (this.location.getX() * 32)) * 128);
-					changeY = (int) ((((this.location.getY() + y) * 32) - (this.location.getY() * 32)) * 128);
-					changeZ = (int) ((((this.location.getZ() + z) * 32) - (this.location.getZ() * 32)) * 128);
-				} else {
-					//TODO add moving with collision.
-					return;
-				}
+            PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook();
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "a").set(relEntityMoveLook, this.entityID);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "b").set(relEntityMoveLook, changeX);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "c").set(relEntityMoveLook, changeY);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "d").set(relEntityMoveLook, changeZ);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "e").set(relEntityMoveLook, angle(yaw));
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "f").set(relEntityMoveLook, angle(pitch));
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "g").set(relEntityMoveLook, true); //onGround
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "h").set(relEntityMoveLook, true);
 
-				float yaw = this.location.getYaw();
-				float pitch = this.location.getPitch();
+            broadcastPackets(relEntityMoveLook);
 
-				PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook();
-				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "a").set(relEntityMoveLook, this.entityID);
-				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "b").set(relEntityMoveLook, changeX);
-				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "c").set(relEntityMoveLook, changeY);
-				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "d").set(relEntityMoveLook, changeZ);
-				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "e").set(relEntityMoveLook, angle(yaw));
-				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "f").set(relEntityMoveLook, angle(pitch));
-				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "g").set(relEntityMoveLook, true); // onGround
-				Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "h").set(relEntityMoveLook, true);
-
-				broadcastPackets(relEntityMoveLook);
-
-				this.location.add(x, y, z);
-			} else
-				System.err.println("[NPC] Error in move input: difference cant be >= 8");
-        }
+            this.location.add(x, y, z);
+        } else
+            System.err.println("[NPC] Error in move input: difference cant be >= 8");
     }
 
     public void move(Location location) {
@@ -212,10 +198,6 @@ public class FakePlayer {
         step(differenceX, differenceY, differenceZ);
     }
 
-    public void fall() {
-        //TODO
-    }
-
     public void teleport(Location location) {
         PacketPlayOutEntityTeleport entityTeleport = new PacketPlayOutEntityTeleport();
         Reflection.getField(entityTeleport.getClass(), "a").set(entityTeleport, this.entityID);
@@ -239,7 +221,7 @@ public class FakePlayer {
         PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment();
         Reflection.getField(entityEquipment.getClass(), "a").set(entityEquipment, this.entityID);
         Reflection.getField(entityEquipment.getClass(), "b").set(entityEquipment, slot.getNMS());
-        Reflection.getField(entityEquipment.getClass(), "c").set(entityEquipment, CraftItemStack.asNMSCopy(item));		//itemStack
+        Reflection.getField(entityEquipment.getClass(), "c").set(entityEquipment, CraftItemStack.asNMSCopy(item)); //itemStack
         broadcastPackets(entityEquipment);
 
         this.equip[slot.getId()] = item;
@@ -252,7 +234,7 @@ public class FakePlayer {
         broadcastPackets(animation);
     }
 
-    public void setStatus(EnumEntityStatus status) {
+    public void setEntityStatus(EnumEntityStatus status) {
         PacketPlayOutEntityStatus entityStatus = new PacketPlayOutEntityStatus();
         Reflection.getField(entityStatus.getClass(), "a").set(entityStatus, this.entityID);
         Reflection.getField(entityStatus.getClass(), "b").set(entityStatus, (byte) status.getId());
@@ -260,7 +242,7 @@ public class FakePlayer {
     }
 
     public void updateMetadata() {
-        broadcastPackets(new PacketPlayOutEntityMetadata(this.entityID, this.meta.toNMS(), true));
+        broadcastPackets(new PacketPlayOutEntityMetadata(this.entityID, this.meta.getDataWatcher(), true));
     }
 
 
@@ -276,6 +258,10 @@ public class FakePlayer {
     }
 
     public String getName() {
+        return ChatColor.stripColor(this.gameProfile.getName());
+    }
+
+    public String getDisplayName() {
         return this.gameProfile.getName();
     }
 
@@ -284,10 +270,7 @@ public class FakePlayer {
     }
 
     public float getHealth() {
-        if(this.isAlive()) {
-            return this.health;
-        }
-        return 0;
+        return this.isAlive() ? this.health : 0;
     }
 
     public double getMoveSpeed() {
@@ -298,24 +281,16 @@ public class FakePlayer {
         return EYE_HEIGHT;
     }
 
+    public boolean hasLocation() {
+        return this.location != null;
+    }
+
     public Location getLocation() {
-        if(this.location != null)
-            return this.location;
-        return null;
+            return this.hasLocation() ? this.location :  null;
     }
 
     public Location getEyeLocation() {
-        if(this.location != null)
-            return this.location.add(0, EYE_HEIGHT, 0);
-        return null;
-    }
-
-    public boolean hasCollision() {
-        return !this.noClip;
-    }
-
-    public boolean hasGravity() {
-        return this.gravity;
+        return this.hasLocation() ? this.location.add(0, EYE_HEIGHT, 0) :  null;
     }
 
     public boolean hasTarget() {
@@ -323,9 +298,7 @@ public class FakePlayer {
     }
 
     public LivingEntity getTarget() {
-        if(this.hasTarget())
-            return this.target;
-        return null;
+        return this.hasTarget() ? this.target : null;
     }
 
     public boolean hasEquipment(EnumEquipmentSlot slot) {
@@ -352,12 +325,17 @@ public class FakePlayer {
 
     public void setHealth(float health) {
         if(health == 0) {
-            this.setStatus(EnumEntityStatus.DEAD);
+            this.setEntityStatus(EnumEntityStatus.DEAD);
             this.living = false;
         } else if(this.health > health) {
-            this.setStatus(EnumEntityStatus.HURT);
+            this.setEntityStatus(EnumEntityStatus.HURT);
         } else if(this.health == 0 && health > 0) {
-            this.spawn(this.location);
+            if(this.hasLocation()) {
+                this.health = health;
+                this.meta.setHealth(health);
+                this.spawn(this.location);
+                return;
+            }
         }
         this.health = health;
         this.meta.setHealth(health);
@@ -367,84 +345,44 @@ public class FakePlayer {
         this.moveSpeed = speed / 20;
     }
 
-    public void enableNoClip(boolean state) {
-        this.noClip = state;
-    }
-
-    public void enableGravity(boolean state) {
-        this.gravity = state;
-    }
-
     public void setTarget(LivingEntity target) {
         this.target = target;
     }
 
     public void setSneaking(boolean state) {
         meta.setSneaking(state);
-        if(state) {
-            this.moveSpeed = SNEAK_SPEED;
-        } else {
-            this.moveSpeed = WALK_SPEED;
-        }
+        this.moveSpeed = state ? SNEAK_SPEED : WALK_SPEED;
     }
 
     public void setSprinting(boolean state) {
         meta.setSprinting(state);
-        if(state) {
-            this.moveSpeed = SPRINT_SPEED;
-        } else {
-            this.moveSpeed = WALK_SPEED;
-        }
+        this.moveSpeed = state ? SPRINT_SPEED : WALK_SPEED;
     }
-
-    public void updateStatus(boolean fire, boolean sneak, boolean sprint, boolean invisible, boolean glow, boolean elytra) {
-        this.meta.setOnFire(fire);
-        this.meta.setSneaking(sneak);
-        this.meta.setSprinting(sprint);
-        this.meta.setInvisible(invisible);
-        this.meta.setGlowing(glow);
-        this.meta.useElytra(elytra);
-
-        this.updateMetadata();
-    }
-
-    public void updateSkinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
-        this.meta.enableCape(cape);
-        this.meta.enableJacket(jacket);
-        this.meta.enableLeftArm(leftArm);
-        this.meta.enableRightArm(rightArm);
-        this.meta.enableLeftLeg(leftLeg);
-        this.meta.enableRightLeg(rightLeg);
-        this.meta.enableHat(hat);
-
-        this.updateMetadata();
-    }
-
 
 
     // ##### UTIL #####
 
     //Coordinates as delta
-    private float calcYaw(double x, double z) {
+    private static float calcYaw(double x, double z) {
         return (float) ((Math.atan2(z, x) * 180D / Math.PI) - 90F);
     }
 
     //Coordinates as delta
-    private float calcPitch(double x, double y, double z) {
+    private static float calcPitch(double x, double y, double z) {
         return (float) -(Math.atan2(y, Math.sqrt(x * x + z * z)) * 180D / Math.PI);
     }
 
-    private byte angle(float value) {
+    private static byte angle(float value) {
         return (byte) ((int) (value * 256F / 360F));
     }
 
-    private void sendPackets(Player player, Packet<?>... packets) {
+    private static void sendPackets(Player player, Packet<?>... packets) {
         for(Packet<?> packet : packets) {
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
         }
     }
 
-    private void broadcastPackets(Packet<?>... packets) {
+    private static void broadcastPackets(Packet<?>... packets) {
         Bukkit.getOnlinePlayers().forEach(player -> sendPackets(player, packets));
     }
 }

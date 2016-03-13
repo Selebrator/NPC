@@ -34,15 +34,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		npc = new FakePlayer(new GameProfileBuilder("Selebrator").build());
 		fakePlayers.put(1, npc);
 
-		try {
-			task.runTaskTimer(this, 0, 1);
-		} catch (Exception e) {
-			System.out.println("Scheduler already running");
-		}
-
-		/*
-		 * Optifine capes will override Mojangs.
-		 */
+		task.runTaskTimer(this, 0, 1);
 	}
 
 	@Override
@@ -69,14 +61,6 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 					event.getPlayer().sendMessage("§cSelect a NPC first");
 				}
 			}
-			//despawn
-			else if(event.getItem() != null && event.getItem().getType() == Material.BLAZE_ROD) {
-				if(npc != null) {
-					npc.despawn();
-					return;
-				}
-				event.getPlayer().sendMessage("§cSelect a NPC first");
-			}
 	}
 
 	@Override
@@ -96,7 +80,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 						String name = args[1];
 						fakePlayers.put(id, new FakePlayer(new GameProfileBuilder(name).build()));
 						npc = fakePlayers.get(id);
-						player.sendMessage("§8[§a+§8] §eCreated NPC §a" + npc.getName() + " §ewith ID: §a" + id);
+						player.sendMessage("§8[§a+§8] §eCreated NPC §r" + npc.getDisplayName() + " §ewith ID: §a" + id);
 						return true;
 					}
 					player.sendMessage("§c/npc create <name>");
@@ -108,11 +92,11 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 						int id = Integer.parseInt(args[1]);
 						if (fakePlayers.containsKey(id)) {
 							FakePlayer npc = fakePlayers.get(id);
-							String name = fakePlayers.get(id).getName();
+							String name = fakePlayers.get(id).getDisplayName();
 							fakePlayers.remove(id);
 							npc.despawn();
 							this.npc = null;
-							player.sendMessage("§8[§c-§8] §eRemoved NPC §c" + name + " §ewith ID: §c" + id);
+							player.sendMessage("§8[§c-§8] §eRemoved NPC §r" + name + " §ewith ID: §c" + id);
 							return true;
 						}
 						player.sendMessage("§cNPC #" + id + " does not exists  /npc list");
@@ -125,7 +109,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if (args.length == 1) {
 						if (npc != null) {
-							player.sendMessage("§eSelected §a" + npc.getName());
+							player.sendMessage("§eSelected §r" + npc.getDisplayName());
 							return true;
 						}
 						player.sendMessage("§c/npc select <ID>");
@@ -134,7 +118,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 						int id = Integer.parseInt(args[1]);
 						if (fakePlayers.containsKey(id)) {
 							npc = fakePlayers.get(id);
-							player.sendMessage("§eSelected §a" + npc.getName() + " §ewith ID: §a" + id);
+							player.sendMessage("§eSelected §r" + npc.getDisplayName() + " §ewith ID: §a" + id);
 							return true;
 						}
 						player.sendMessage("§cNPC #" + id + " does not exists  /npc list");
@@ -147,7 +131,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if (args.length == 1) {
 						if (!fakePlayers.isEmpty()) {
-							fakePlayers.forEach((id, npc) -> player.sendMessage("§e" + id + ": " + npc.getName()));
+							fakePlayers.forEach((id, npc) -> player.sendMessage("§e" + id + ": §r" + npc.getDisplayName()));
 							return true;
 						}
 						player.sendMessage("§cNo NPC have benn created yet.  /npc create <name>");
@@ -304,7 +288,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 		@Override
 		public void run() {
-			if(npc != null && npc.hasTarget()) {
+			if(npc != null && npc.isAlive() && npc.hasTarget()) {
 				Vector vNPC = new Vector(npc.getLocation().getX(), npc.getLocation().getY(), npc.getLocation().getZ());
 				Vector vTarget = new Vector(npc.getTarget().getLocation().getX(), npc.getTarget().getLocation().getY(), npc.getTarget().getLocation().getZ());
 				if(vNPC.distance(vTarget) > 3)

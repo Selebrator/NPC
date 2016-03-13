@@ -37,7 +37,7 @@ public class FakePlayerMeta {
 		METHOD_DataWatcher_registerObject.invoke(this.dataWatcher, dataWatcherObject.getObject(), value);
 	}
 
-	public DataWatcher toNMS() {
+	public DataWatcher getDataWatcher() {
 		return this.dataWatcher;
 	}
 
@@ -96,6 +96,16 @@ public class FakePlayerMeta {
 
 	public void useElytra(boolean state) {
 		this.status = setBit(this.status, EnumStatus.ELYTRA.getId(), state);
+		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+	}
+
+	public void setStatus(boolean fire, boolean sneak, boolean sprint, boolean invisible, boolean glow, boolean elytra) {
+		this.status = setBit(this.status, EnumStatus.FIRE.getId(), fire);
+		this.status = setBit(this.status, EnumStatus.SNEAK.getId(), sneak);
+		this.status = setBit(this.status, EnumStatus.SPRINT.getId(), sprint);
+		this.status = setBit(this.status, EnumStatus.INVISIBLE.getId(), invisible);
+		this.status = setBit(this.status, EnumStatus.GLOW.getId(), glow);
+		this.status = setBit(this.status, EnumStatus.ELYTRA.getId(), elytra);
 		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
@@ -265,6 +275,17 @@ public class FakePlayerMeta {
 		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
+	public void setSkinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
+		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.CAPE.getId(), cape);
+		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.JACKET.getId(), jacket);
+		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.LEFT_SLEEVE.getId(), leftArm);
+		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.RIGHT_SLEEVE.getId(), rightArm);
+		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.LEFT_PANTS.getId(), leftLeg);
+		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.RIGHT_PANTS.getId(), rightLeg);
+		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.HAT.getId(), hat);
+		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+	}
+
 	// ##### MAIN_HAND #####
 	public EnumMainHand getMainHand() {
 		return this.mainHand;
@@ -278,15 +299,11 @@ public class FakePlayerMeta {
 
 	// ##### UTIL #####
 
-	private boolean getBit(byte bitMask, int bit) {
+	private static boolean getBit(byte bitMask, int bit) {
 		return (bitMask & (1 << bit)) != 0;
 	}
 
-	private byte setBit(byte bitMask, int bit, boolean state) {
-		if(state) {
-			return (byte) (bitMask | (1 << bit));
-		} else {
-			return (byte) (bitMask & ~(1 << bit));
-		}
+	private static byte setBit(byte bitMask, int bit, boolean state) {
+		return state ? (byte) (bitMask | (1 << bit)) : (byte) (bitMask & ~(1 << bit));
 	}
 }
