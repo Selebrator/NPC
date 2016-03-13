@@ -39,6 +39,7 @@ public class FakePlayer implements NPC {
     private boolean living;
     private Location location;
     private LivingEntity target;
+    private EnumNature nature = EnumNature.PASSIVE;
 
     private float health = 20F;
     private double moveSpeed = 4.3D / 20;
@@ -308,6 +309,10 @@ public class FakePlayer implements NPC {
         return this.hasTarget() ? this.target : null;
     }
 
+    public EnumNature getNature() {
+        return this.nature;
+    }
+
     public boolean hasEquipment(EnumEquipmentSlot slot) {
         return this.equip[slot.getId()] != null;
     }
@@ -354,6 +359,10 @@ public class FakePlayer implements NPC {
 
     public void setTarget(LivingEntity target) {
         this.target = target;
+    }
+
+    public void setNature(EnumNature nature) {
+        this.nature = nature;
     }
 
     public void setSneaking(boolean state) {

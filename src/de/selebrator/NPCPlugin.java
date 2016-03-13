@@ -3,6 +3,7 @@ package de.selebrator;
 import de.selebrator.fetcher.GameProfileBuilder;
 import de.selebrator.npc.EnumAnimation;
 import de.selebrator.npc.EnumEquipmentSlot;
+import de.selebrator.npc.EnumNature;
 import de.selebrator.npc.FakePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -263,7 +264,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if (npc != null) {
 						if (args.length == 1) {
-
+							npc.setNature(EnumNature.HOSTILE);
 							return true;
 						}
 						player.sendMessage("§c/npc " + args[0]);
@@ -305,7 +306,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 				Vector vTarget = new Vector(npc.getTarget().getLocation().getX(), npc.getTarget().getLocation().getY(), npc.getTarget().getLocation().getZ());
 				if(vNPC.distance(vTarget) > 3) {
 					npc.step(npc.getTarget().getLocation());
-				} if(vNPC.distance(vTarget) <= 3){
+				} if(vNPC.distance(vTarget) <= 3 && npc.getNature() == EnumNature.HOSTILE){
 					npc.playAnimation(EnumAnimation.SWING_ARM);
 					npc.getTarget().damage(1);
 					Vector distance = FakePlayer.calcDistanceVector(npc.getLocation(), npc.getTarget().getLocation());
