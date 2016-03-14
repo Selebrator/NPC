@@ -1,6 +1,7 @@
 package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
+import de.selebrator.events.NPCDespawnEvent;
 import de.selebrator.events.NPCSpawnEvent;
 import de.selebrator.reflection.Reflection;
 import net.minecraft.server.v1_9_R1.ChatComponentText;
@@ -98,7 +99,8 @@ public class FakePlayer implements NPC {
 
         this.look(location.getYaw(), location.getPitch());
 
-        Bukkit.getPluginManager().callEvent(new NPCSpawnEvent(this));
+        NPCSpawnEvent event = new NPCSpawnEvent(this);
+        Bukkit.getPluginManager().callEvent(event);
         return this;
     }
 
@@ -134,6 +136,9 @@ public class FakePlayer implements NPC {
 
         this.location = null;
         this.living = false;
+
+        NPCDespawnEvent event = new NPCDespawnEvent(this);
+        Bukkit.getPluginManager().callEvent(event);
     }
 
 	@Override

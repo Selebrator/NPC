@@ -1,6 +1,6 @@
 package de.selebrator;
 
-import de.selebrator.events.NPCSpawnEvent;
+import de.selebrator.events.NPCDespawnEvent;
 import de.selebrator.fetcher.GameProfileBuilder;
 import de.selebrator.npc.EnumAnimation;
 import de.selebrator.npc.EnumEquipmentSlot;
@@ -79,8 +79,8 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 	}
 
 	@EventHandler
-	public void onNPCSpawn(NPCSpawnEvent event) {
-		event.getNpc().equip(EnumEquipmentSlot.HELMET, new ItemStack(Material.DIAMOND_HELMET));
+	public void onNPCDespawn(NPCDespawnEvent event) {
+		event.getNpc().respawn(null);
 	}
 
 	@Override
