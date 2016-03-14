@@ -45,67 +45,67 @@ public class FakePlayerMeta {
 	// ##### STATUS #####
 	// ### GETTER ###
 	public boolean isOnFire() {
-		return getBit(this.status, EnumStatus.FIRE.getId());
+		return MathHelper.getBit(this.status, EnumStatus.FIRE.getId());
 	}
 
 	public boolean isSneaking() {
-		return getBit(this.status, EnumStatus.SNEAK.getId());
+		return MathHelper.getBit(this.status, EnumStatus.SNEAK.getId());
 	}
 
 	public boolean isSprinting() {
-		return getBit(this.status, EnumStatus.SPRINT.getId());
+		return MathHelper.getBit(this.status, EnumStatus.SPRINT.getId());
 	}
 
 	public boolean isInvisible() {
-		return getBit(this.status, EnumStatus.INVISIBLE.getId());
+		return MathHelper.getBit(this.status, EnumStatus.INVISIBLE.getId());
 	}
 
 	public boolean isGlowing() {
-		return getBit(this.status, EnumStatus.GLOW.getId());
+		return MathHelper.getBit(this.status, EnumStatus.GLOW.getId());
 	}
 
 	public boolean isElytraUsed() {
-		return getBit(this.status, EnumStatus.ELYTRA.getId());
+		return MathHelper.getBit(this.status, EnumStatus.ELYTRA.getId());
 	}
 
 	// ### SETTER ###
 	public void setOnFire(boolean state) {
-		this.status = setBit(this.status, EnumStatus.FIRE.getId(), state);
+		this.status = MathHelper.setBit(this.status, EnumStatus.FIRE.getId(), state);
 		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	public void setSneaking(boolean state) {
-		this.status = setBit(this.status, EnumStatus.SNEAK.getId(), state);
+		this.status = MathHelper.setBit(this.status, EnumStatus.SNEAK.getId(), state);
 		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	public void setSprinting(boolean state) {
-		this.status = setBit(this.status, EnumStatus.SPRINT.getId(), state);
+		this.status = MathHelper.setBit(this.status, EnumStatus.SPRINT.getId(), state);
 		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	public void setInvisible(boolean state) {
-		this.status = setBit(this.status, EnumStatus.INVISIBLE.getId(), state);
+		this.status = MathHelper.setBit(this.status, EnumStatus.INVISIBLE.getId(), state);
 		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	public void setGlowing(boolean state) {
-		this.status = setBit(this.status, EnumStatus.GLOW.getId(), state);
+		this.status = MathHelper.setBit(this.status, EnumStatus.GLOW.getId(), state);
 		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	public void useElytra(boolean state) {
-		this.status = setBit(this.status, EnumStatus.ELYTRA.getId(), state);
+		this.status = MathHelper.setBit(this.status, EnumStatus.ELYTRA.getId(), state);
 		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	public void setStatus(boolean fire, boolean sneak, boolean sprint, boolean invisible, boolean glow, boolean elytra) {
-		this.status = setBit(this.status, EnumStatus.FIRE.getId(), fire);
-		this.status = setBit(this.status, EnumStatus.SNEAK.getId(), sneak);
-		this.status = setBit(this.status, EnumStatus.SPRINT.getId(), sprint);
-		this.status = setBit(this.status, EnumStatus.INVISIBLE.getId(), invisible);
-		this.status = setBit(this.status, EnumStatus.GLOW.getId(), glow);
-		this.status = setBit(this.status, EnumStatus.ELYTRA.getId(), elytra);
+		this.status = MathHelper.setBit(this.status, EnumStatus.FIRE.getId(), fire);
+		this.status = MathHelper.setBit(this.status, EnumStatus.SNEAK.getId(), sneak);
+		this.status = MathHelper.setBit(this.status, EnumStatus.SPRINT.getId(), sprint);
+		this.status = MathHelper.setBit(this.status, EnumStatus.INVISIBLE.getId(), invisible);
+		this.status = MathHelper.setBit(this.status, EnumStatus.GLOW.getId(), glow);
+		this.status = MathHelper.setBit(this.status, EnumStatus.ELYTRA.getId(), elytra);
 		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
@@ -212,77 +212,77 @@ public class FakePlayerMeta {
 	// ##### SKIN_FLAGS #####
 	// ### GETTER ###
 	public boolean isCapeEnabled() {
-		return getBit(this.skinFlags, EnumSkinFlag.CAPE.getId());
+		return MathHelper.getBit(this.skinFlags, EnumSkinFlag.CAPE.getId());
 	}
 
 	public boolean isJacketEnabled() {
-		return getBit(this.skinFlags, EnumSkinFlag.JACKET.getId());
+		return MathHelper.getBit(this.skinFlags, EnumSkinFlag.JACKET.getId());
 	}
 
 	public boolean isLeftArmEnabled() {
-		return getBit(this.skinFlags, EnumSkinFlag.LEFT_SLEEVE.getId());
+		return MathHelper.getBit(this.skinFlags, EnumSkinFlag.LEFT_SLEEVE.getId());
 	}
 
 	public boolean isRightArmEnabled() {
-		return getBit(this.skinFlags, EnumSkinFlag.RIGHT_SLEEVE.getId());
+		return MathHelper.getBit(this.skinFlags, EnumSkinFlag.RIGHT_SLEEVE.getId());
 	}
 
 	public boolean isLeftLegEnabled() {
-		return getBit(this.skinFlags, EnumSkinFlag.LEFT_PANTS.getId());
+		return MathHelper.getBit(this.skinFlags, EnumSkinFlag.LEFT_PANTS.getId());
 	}
 
 	public boolean isRightLegEnabled() {
-		return getBit(this.skinFlags, EnumSkinFlag.RIGHT_PANTS.getId());
+		return MathHelper.getBit(this.skinFlags, EnumSkinFlag.RIGHT_PANTS.getId());
 	}
 
 	public boolean isHatEnabled() {
-		return getBit(this.skinFlags, EnumSkinFlag.HAT.getId());
+		return MathHelper.getBit(this.skinFlags, EnumSkinFlag.HAT.getId());
 	}
 
 	// ### SETTER ###
 	public void enableCape(boolean state) {
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.CAPE.getId(), state);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.CAPE.getId(), state);
 		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void enableJacket(boolean state) {
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.JACKET.getId(), state);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.JACKET.getId(), state);
 		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void enableLeftArm(boolean state) {
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.LEFT_SLEEVE.getId(), state);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.LEFT_SLEEVE.getId(), state);
 		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void enableRightArm(boolean state) {
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.RIGHT_SLEEVE.getId(), state);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.RIGHT_SLEEVE.getId(), state);
 		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void enableLeftLeg(boolean state) {
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.LEFT_PANTS.getId(), state);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.LEFT_PANTS.getId(), state);
 		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void enableRightLeg(boolean state) {
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.RIGHT_PANTS.getId(), state);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.RIGHT_PANTS.getId(), state);
 		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void enableHat(boolean state) {
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.HAT.getId(), state);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.HAT.getId(), state);
 		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void setSkinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.CAPE.getId(), cape);
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.JACKET.getId(), jacket);
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.LEFT_SLEEVE.getId(), leftArm);
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.RIGHT_SLEEVE.getId(), rightArm);
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.LEFT_PANTS.getId(), leftLeg);
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.RIGHT_PANTS.getId(), rightLeg);
-		this.skinFlags = setBit(this.skinFlags, EnumSkinFlag.HAT.getId(), hat);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.CAPE.getId(), cape);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.JACKET.getId(), jacket);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.LEFT_SLEEVE.getId(), leftArm);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.RIGHT_SLEEVE.getId(), rightArm);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.LEFT_PANTS.getId(), leftLeg);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.RIGHT_PANTS.getId(), rightLeg);
+		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.HAT.getId(), hat);
 		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
@@ -294,16 +294,5 @@ public class FakePlayerMeta {
 	public void setMainHand(EnumMainHand mainHand) {
 		this.set(EnumDataWatcherObject.HUMAN_MAINHAND_13, mainHand.getId());
 		this.mainHand = mainHand;
-	}
-
-
-	// ##### UTIL #####
-
-	private static boolean getBit(byte bitMask, int bit) {
-		return (bitMask & (1 << bit)) != 0;
-	}
-
-	private static byte setBit(byte bitMask, int bit, boolean state) {
-		return state ? (byte) (bitMask | (1 << bit)) : (byte) (bitMask & ~(1 << bit));
 	}
 }

@@ -77,8 +77,8 @@ public class FakePlayer implements NPC {
         Reflection.getField(namedEntitySpawn.getClass(), "c").set(namedEntitySpawn, location.getX());
         Reflection.getField(namedEntitySpawn.getClass(), "d").set(namedEntitySpawn, location.getY());
         Reflection.getField(namedEntitySpawn.getClass(), "e").set(namedEntitySpawn, location.getZ());
-        Reflection.getField(namedEntitySpawn.getClass(), "f").set(namedEntitySpawn, angle(location.getYaw()));
-        Reflection.getField(namedEntitySpawn.getClass(), "g").set(namedEntitySpawn, angle(location.getPitch()));
+        Reflection.getField(namedEntitySpawn.getClass(), "f").set(namedEntitySpawn, MathHelper.angle(location.getYaw()));
+        Reflection.getField(namedEntitySpawn.getClass(), "g").set(namedEntitySpawn, MathHelper.angle(location.getPitch()));
         Reflection.getField(namedEntitySpawn.getClass(), "h").set(namedEntitySpawn, this.meta.getDataWatcher());
 
         broadcastPackets(playerInfo, namedEntitySpawn);
@@ -112,15 +112,15 @@ public class FakePlayer implements NPC {
         //rotate body
         PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook();
         Reflection.getField(entityLook.getClass().getSuperclass(), "a").set(entityLook, this.entityID);
-        Reflection.getField(entityLook.getClass().getSuperclass(), "e").set(entityLook, angle(yaw));
-        Reflection.getField(entityLook.getClass().getSuperclass(), "f").set(entityLook, angle(pitch));
+        Reflection.getField(entityLook.getClass().getSuperclass(), "e").set(entityLook, MathHelper.angle(yaw));
+        Reflection.getField(entityLook.getClass().getSuperclass(), "f").set(entityLook, MathHelper.angle(pitch));
         Reflection.getField(entityLook.getClass().getSuperclass(), "g").set(entityLook, false);
         Reflection.getField(entityLook.getClass().getSuperclass(), "h").set(entityLook, true);
 
         //rotate head
         PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
         Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
-        Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, angle(yaw));
+        Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, MathHelper.angle(yaw));
 
         broadcastPackets(entityLook, entityHeadRotation);
 
@@ -130,20 +130,17 @@ public class FakePlayer implements NPC {
 
 	@Override
     public void look(double x, double y, double z) {
-        float yaw = calcYaw(x, z);
-        float pitch = calcPitch(x, y, z);
+        float yaw = MathHelper.calcYaw(x, z);
+        float pitch = MathHelper.calcPitch(x, y, z);
 
         look(yaw, pitch);
     }
 
 	@Override
     public void look(Location location) {
-        // calculate yaw and pitch
-        double differenceX = location.getX() - this.location.getX();
-        double differenceY = location.getY() - (this.location.getY() + EYE_HEIGHT);
-        double differenceZ = location.getZ() - this.location.getZ();
+        Vector distance = MathHelper.calcDistanceVector(this.getEyeLocation(), location);
 
-        look(differenceX, differenceY, differenceZ);
+        look(distance.getX(), distance.getY(), distance.getZ());
     }
 
 	@Override
@@ -160,8 +157,8 @@ public class FakePlayer implements NPC {
             Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "b").set(relEntityMoveLook, changeX);
             Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "c").set(relEntityMoveLook, changeY);
             Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "d").set(relEntityMoveLook, changeZ);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "e").set(relEntityMoveLook, angle(yaw));
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "f").set(relEntityMoveLook, angle(pitch));
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "e").set(relEntityMoveLook, MathHelper.angle(yaw));
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "f").set(relEntityMoveLook, MathHelper.angle(pitch));
             Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "g").set(relEntityMoveLook, true); //onGround
             Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "h").set(relEntityMoveLook, true);
 
@@ -169,34 +166,34 @@ public class FakePlayer implements NPC {
 
             this.location.add(x, y, z);
         } else
-            System.err.println("[NPC] Error in move input: difference cant be >= 8");
+            System.err.println("[NPC] Error in move input: difference cant be > 8");
     }
 
 	@Override
     public void move(Location location) {
-        Vector distance = calcDistanceVector(this.location, location);
+        Vector distance = MathHelper.calcDistanceVector(this.location, location);
 
         move(distance.getX(), distance.getY(), distance.getZ());
     }
 
 	@Override
     public void step(float yaw, float pitch) {
-        Vector direction = calcDirectionVector(this.moveSpeed, yaw, pitch);
+        Vector direction = MathHelper.calcDirectionVector(this.moveSpeed, yaw, pitch);
 
         move(direction.getX(), direction.getY(), direction.getZ());
     }
 
 	@Override
     public void step(double x, double y, double z) {
-        float yaw = calcYaw(x, z);
-        float pitch = calcPitch(x, y, z);
+        float yaw = MathHelper.calcYaw(x, z);
+        float pitch = MathHelper.calcPitch(x, y, z);
 
         step(yaw, pitch);
     }
 
 	@Override
     public void step(Location location) {
-        Vector distance = calcDistanceVector(this.location, location);
+        Vector distance = MathHelper.calcDistanceVector(this.location, location);
 
         step(distance.getX(), distance.getY(), distance.getZ());
     }
@@ -208,13 +205,13 @@ public class FakePlayer implements NPC {
         Reflection.getField(entityTeleport.getClass(), "b").set(entityTeleport, location.getX());
         Reflection.getField(entityTeleport.getClass(), "c").set(entityTeleport, location.getY());
         Reflection.getField(entityTeleport.getClass(), "d").set(entityTeleport, location.getZ());
-        Reflection.getField(entityTeleport.getClass(), "e").set(entityTeleport, angle(location.getYaw()));
-        Reflection.getField(entityTeleport.getClass(), "f").set(entityTeleport, angle(location.getPitch()));
+        Reflection.getField(entityTeleport.getClass(), "e").set(entityTeleport, MathHelper.angle(location.getYaw()));
+        Reflection.getField(entityTeleport.getClass(), "f").set(entityTeleport, MathHelper.angle(location.getPitch()));
         Reflection.getField(entityTeleport.getClass(), "g").set(entityTeleport, false);		//onGround
 
         PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
         Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
-        Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, angle(location.getYaw()));
+        Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, MathHelper.angle(location.getYaw()));
 
         broadcastPackets(entityTeleport, entityHeadRotation);
 
@@ -377,90 +374,6 @@ public class FakePlayer implements NPC {
 
 
     // ##### UTIL #####
-
-	/**
-     *
-     * @param x relative x
-     * @param y relative y
-     * @param z relative z
-     * @return distance aka ρ (rho)
-     */
-    public static double calcDistanceVector(double x, double y, double z) {
-        return Math.sqrt(x * x + y * y + z * z);
-    }
-
-	/**
-     *
-     * @param x relative x
-     * @param z relative z
-     * @return yaw aka θ (theta) in degree
-     */
-    public static float calcYaw(double x, double z) {
-        return (float) Math.toDegrees(Math.atan2(z, x)) - 90F;
-    }
-
-	/**
-     *
-     * @param x relative x
-     * @param y relative y
-     * @param z relative z
-     * @return pitch aka φ (phi) in degree
-     */
-    public static float calcPitch(double x, double y, double z) {
-        return (float) -Math.toDegrees(Math.atan2(y, Math.sqrt(x * x + z * z)));
-    }
-
-	/**
-     *
-     * @param distance aka ρ (rho)
-     * @param yaw aka θ (theta) in degrees
-     * @param pitch aka φ (phi) in degrees
-     * @return rectangular coordinates
-     */
-    public static Vector calcDirectionVector(double distance, float yaw, float pitch) {
-        Vector direction = new Vector();
-        direction.setX(-Math.sin(Math.toRadians(yaw)));
-        direction.setY(-Math.sin(Math.toRadians(pitch)));
-        direction.setZ(Math.cos(Math.toRadians(yaw)));
-        return direction.multiply(distance);
-    }
-
-	/**
-     *
-     * @param startX current location x
-     * @param startY current location y
-     * @param startZ current location z
-     * @param destinationX target location x
-     * @param destinationY target location y
-     * @param destinationZ target location z
-     * @return distance between start location and destination location
-	 */
-    public static Vector calcDistanceVector(double startX, double startY, double startZ, double destinationX, double destinationY, double destinationZ) {
-        Vector distance = new Vector();
-        distance.setX(destinationX - startX);
-        distance.setY(destinationY - startY);
-        distance.setZ(destinationZ - startZ);
-        return distance;
-    }
-
-	/**
-     *
-     * @param start current location
-     * @param destination target location
-     * @return distance between start location and destination location
-     */
-    public static Vector calcDistanceVector(Location start, Location destination) {
-        return calcDistanceVector(start.getX(), start.getY(), start.getZ(), destination.getX(), destination.getY(), destination.getZ());
-    }
-
-	/**
-     * prepare angle for packet
-     * @param value angle in degrees
-     * @return rotation in 1/265 steps
-     */
-    private static byte angle(float value) {
-        return (byte) ((int) (value * 256F / 360F));
-    }
 
     private static void sendPackets(Player player, Packet<?>... packets) {
         for(Packet<?> packet : packets) {
