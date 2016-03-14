@@ -5,7 +5,9 @@ import org.bukkit.inventory.ItemStack;
 
 public interface NPC {
 
-	void spawn(Location location);
+	FakePlayer spawn(Location location);
+
+	void respawn(Location location);
 
 	void despawn();
 
@@ -76,4 +78,10 @@ public interface NPC {
 	void setEntityStatus(EnumEntityStatus status);
 
 	void updateMetadata();
+
+	int getEntityId();
+
+	FakePlayerMeta getMeta();
+
+	boolean isAlive();
 }

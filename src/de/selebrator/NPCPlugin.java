@@ -265,7 +265,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if (npc != null) {
 						if (args.length == 1) {
-							npc.setNature(EnumNature.HOSTILE);
+
 							return true;
 						}
 						player.sendMessage("§c/npc " + args[0]);

@@ -28,11 +28,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public class FakePlayer implements NPC {
 
-    private final int entityID;
+    private final int entityId;
     private GameProfile gameProfile;
     private FakePlayerMeta meta;
 
@@ -43,17 +44,20 @@ public class FakePlayer implements NPC {
 
     private float health = 20F;
     private double moveSpeed = 4.3D / 20;
-    private static final double WALK_SPEED = 4.3D / 20;
-    private static final double SNEAK_SPEED = 1.3D / 20;
-    private static final double SPRINT_SPEED = 5.6D / 20;
-    private static final double EYE_HEIGHT = 1.6D;
+    private Location respawnLocation;
 
     private ItemStack[] equip = new ItemStack[6];
 
+    private static final double WALK_SPEED = 4.3D / 20;
+    private static final double SNEAK_SPEED = 1.3D / 20;
+    private static final double SPRINT_SPEED = 5.6D / 20;
+    private static final double EYE_HEIGHT_STANDING = 1.62D;
+    private static final double EYE_HEIGHT_SNEAKING = 1.2D;
+
 
     public FakePlayer(GameProfile gameProfile) {
-        this.entityID = (int) Reflection.getField(Entity.class, "entityCount").get(null);
-        Reflection.getField(Entity.class, "entityCount").set(null, this.entityID + 1);
+        this.entityId = (int) Reflection.getField(Entity.class, "entityCount").get(null);
+        Reflection.getField(Entity.class, "entityCount").set(null, this.entityId + 1);
 
         this.gameProfile = gameProfile;
 
@@ -65,14 +69,14 @@ public class FakePlayer implements NPC {
     }
 
     @Override
-    public void spawn(Location location) {
+    public FakePlayer spawn(Location location) {
         PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo();
         Reflection.getField(playerInfo.getClass(), "a").set(playerInfo, EnumPlayerInfoAction.ADD_PLAYER);
         Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(
                 playerInfo.new PlayerInfoData(this.gameProfile, 0, WorldSettings.EnumGamemode.NOT_SET, new ChatComponentText(this.gameProfile.getName()))));
 
         PacketPlayOutNamedEntitySpawn namedEntitySpawn = new PacketPlayOutNamedEntitySpawn();
-        Reflection.getField(namedEntitySpawn.getClass(), "a").set(namedEntitySpawn, this.entityID);
+        Reflection.getField(namedEntitySpawn.getClass(), "a").set(namedEntitySpawn, this.entityId);
         Reflection.getField(namedEntitySpawn.getClass(), "b").set(namedEntitySpawn, this.gameProfile.getId());
         Reflection.getField(namedEntitySpawn.getClass(), "c").set(namedEntitySpawn, location.getX());
         Reflection.getField(namedEntitySpawn.getClass(), "d").set(namedEntitySpawn, location.getY());
@@ -84,6 +88,7 @@ public class FakePlayer implements NPC {
         broadcastPackets(playerInfo, namedEntitySpawn);
 
         this.location = location;
+        if(this.respawnLocation == null) { this.respawnLocation = location; }
         this.living = this.meta.getHealth() > 0;
 
         for(EnumEquipmentSlot slot : EnumEquipmentSlot.values()) {
@@ -91,6 +96,28 @@ public class FakePlayer implements NPC {
         }
 
         this.look(location.getYaw(), location.getPitch());
+
+        return this;
+    }
+
+    @Override
+    public void respawn(@Nullable Location location) {
+        if(!this.isAlive()) {
+            this.target = null;
+            this.location = null;
+            this.health = 20F;
+            this.equip = new ItemStack[6];
+            this.moveSpeed = WALK_SPEED;
+            this.nature = EnumNature.PASSIVE;
+
+            this.meta = new FakePlayerMeta();
+            this.meta.setStatus(false, false, false, false, false, false);
+            this.meta.setSkinFlags(true, true, true, true, true, true, true);
+            this.meta.setHealth(this.health);
+            this.meta.setName(this.getName());
+
+            this.spawn(location != null ? location : this.respawnLocation);
+        }
     }
 
     @Override
@@ -99,7 +126,7 @@ public class FakePlayer implements NPC {
         Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(playerInfo.new PlayerInfoData(this.gameProfile, 0, null, null)));
 
         PacketPlayOutEntityDestroy entityDestroy = new PacketPlayOutEntityDestroy();
-        Reflection.getField(entityDestroy.getClass(), "a").set(entityDestroy, new int[] { this.entityID });
+        Reflection.getField(entityDestroy.getClass(), "a").set(entityDestroy, new int[] { this.entityId});
 
         broadcastPackets(playerInfo, entityDestroy);
 
@@ -111,7 +138,7 @@ public class FakePlayer implements NPC {
     public void look(float yaw, float pitch) {
         //rotate body
         PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook();
-        Reflection.getField(entityLook.getClass().getSuperclass(), "a").set(entityLook, this.entityID);
+        Reflection.getField(entityLook.getClass().getSuperclass(), "a").set(entityLook, this.entityId);
         Reflection.getField(entityLook.getClass().getSuperclass(), "e").set(entityLook, MathHelper.angle(yaw));
         Reflection.getField(entityLook.getClass().getSuperclass(), "f").set(entityLook, MathHelper.angle(pitch));
         Reflection.getField(entityLook.getClass().getSuperclass(), "g").set(entityLook, false);
@@ -119,7 +146,7 @@ public class FakePlayer implements NPC {
 
         //rotate head
         PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
-        Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
+        Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityId);
         Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, MathHelper.angle(yaw));
 
         broadcastPackets(entityLook, entityHeadRotation);
@@ -153,7 +180,7 @@ public class FakePlayer implements NPC {
             float pitch = this.location.getPitch();
 
             PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook();
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "a").set(relEntityMoveLook, this.entityID);
+            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "a").set(relEntityMoveLook, this.entityId);
             Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "b").set(relEntityMoveLook, changeX);
             Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "c").set(relEntityMoveLook, changeY);
             Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "d").set(relEntityMoveLook, changeZ);
@@ -201,7 +228,7 @@ public class FakePlayer implements NPC {
     @Override
     public void teleport(Location location) {
         PacketPlayOutEntityTeleport entityTeleport = new PacketPlayOutEntityTeleport();
-        Reflection.getField(entityTeleport.getClass(), "a").set(entityTeleport, this.entityID);
+        Reflection.getField(entityTeleport.getClass(), "a").set(entityTeleport, this.entityId);
         Reflection.getField(entityTeleport.getClass(), "b").set(entityTeleport, location.getX());
         Reflection.getField(entityTeleport.getClass(), "c").set(entityTeleport, location.getY());
         Reflection.getField(entityTeleport.getClass(), "d").set(entityTeleport, location.getZ());
@@ -210,7 +237,7 @@ public class FakePlayer implements NPC {
         Reflection.getField(entityTeleport.getClass(), "g").set(entityTeleport, false);		//onGround
 
         PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
-        Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityID);
+        Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityId);
         Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, MathHelper.angle(location.getYaw()));
 
         broadcastPackets(entityTeleport, entityHeadRotation);
@@ -221,7 +248,7 @@ public class FakePlayer implements NPC {
     @Override
     public void equip(EnumEquipmentSlot slot, ItemStack item) {
         PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment();
-        Reflection.getField(entityEquipment.getClass(), "a").set(entityEquipment, this.entityID);
+        Reflection.getField(entityEquipment.getClass(), "a").set(entityEquipment, this.entityId);
         Reflection.getField(entityEquipment.getClass(), "b").set(entityEquipment, slot.getNMS());
         Reflection.getField(entityEquipment.getClass(), "c").set(entityEquipment, CraftItemStack.asNMSCopy(item)); //itemStack
         broadcastPackets(entityEquipment);
@@ -232,7 +259,7 @@ public class FakePlayer implements NPC {
     @Override
     public void playAnimation(EnumAnimation anim) {
         PacketPlayOutAnimation animation = new PacketPlayOutAnimation();
-        Reflection.getField(animation.getClass(), "a").set(animation, this.entityID);
+        Reflection.getField(animation.getClass(), "a").set(animation, this.entityId);
         Reflection.getField(animation.getClass(), "b").set(animation, anim.getId());
         broadcastPackets(animation);
     }
@@ -240,24 +267,26 @@ public class FakePlayer implements NPC {
     @Override
     public void setEntityStatus(EnumEntityStatus status) {
         PacketPlayOutEntityStatus entityStatus = new PacketPlayOutEntityStatus();
-        Reflection.getField(entityStatus.getClass(), "a").set(entityStatus, this.entityID);
+        Reflection.getField(entityStatus.getClass(), "a").set(entityStatus, this.entityId);
         Reflection.getField(entityStatus.getClass(), "b").set(entityStatus, (byte) status.getId());
         broadcastPackets(entityStatus);
     }
 
     @Override
     public void updateMetadata() {
-        broadcastPackets(new PacketPlayOutEntityMetadata(this.entityID, this.meta.getDataWatcher(), true));
+        broadcastPackets(new PacketPlayOutEntityMetadata(this.entityId, this.meta.getDataWatcher(), true));
     }
 
 
 
     // ### GETTER ###
 
-    public int getEntityID() {
-        return this.entityID;
+    @Override
+    public int getEntityId() {
+        return this.entityId;
     }
 
+    @Override
     public FakePlayerMeta getMeta() {
         return this.meta;
     }
@@ -270,6 +299,7 @@ public class FakePlayer implements NPC {
         return this.gameProfile.getName();
     }
 
+    @Override
     public boolean isAlive() {
         return this.living;
     }
@@ -282,8 +312,8 @@ public class FakePlayer implements NPC {
         return this.moveSpeed;
     }
 
-    public double getEyeHeight() {
-        return EYE_HEIGHT;
+    public double getEyeHeight(boolean ignoreSneaking) {
+        return ignoreSneaking ? EYE_HEIGHT_STANDING : (this.meta.isSneaking() ? EYE_HEIGHT_SNEAKING : EYE_HEIGHT_STANDING);
     }
 
     public boolean hasLocation() {
@@ -291,11 +321,16 @@ public class FakePlayer implements NPC {
     }
 
     public Location getLocation() {
-            return this.hasLocation() ? this.location :  null;
+            return this.location;
+    }
+
+    public Location getRespawnLocation() {
+        return this.respawnLocation;
     }
 
     public Location getEyeLocation() {
-        return this.hasLocation() ? this.location.add(0, EYE_HEIGHT, 0) :  null;
+        return this.hasLocation() ? this.location.clone().add(0, this.getEyeHeight(false), 0) : null;
+
     }
 
     public boolean hasTarget() {
@@ -350,6 +385,10 @@ public class FakePlayer implements NPC {
         this.meta.setHealth(health);
     }
 
+    public void setRespawnLocation(Location location) {
+        this.respawnLocation = location;
+    }
+
     public void setMoveSpeed(double speed) {
         this.moveSpeed = speed / 20;
     }
@@ -363,12 +402,12 @@ public class FakePlayer implements NPC {
     }
 
     public void setSneaking(boolean state) {
-        meta.setSneaking(state);
+        this.meta.setSneaking(state);
         this.moveSpeed = state ? SNEAK_SPEED : WALK_SPEED;
     }
 
     public void setSprinting(boolean state) {
-        meta.setSprinting(state);
+        this.meta.setSprinting(state);
         this.moveSpeed = state ? SPRINT_SPEED : WALK_SPEED;
     }
 
