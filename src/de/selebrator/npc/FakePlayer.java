@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import de.selebrator.event.npc.NPCDespawnEvent;
 import de.selebrator.event.npc.NPCMoveEvent;
 import de.selebrator.event.npc.NPCSpawnEvent;
+import de.selebrator.event.npc.NPCTeleportEvent;
 import de.selebrator.reflection.Reflection;
 import net.minecraft.server.v1_9_R1.ChatComponentText;
 import net.minecraft.server.v1_9_R1.Entity;
@@ -245,6 +246,12 @@ public class FakePlayer implements NPC {
 
     @Override
     public void teleport(Location location) {
+        NPCTeleportEvent event = new NPCTeleportEvent(this, location);
+        Bukkit.getPluginManager().callEvent(event);
+        if(event.isCancelled()) { return; }
+
+        location = event.getDestination();
+
         PacketPlayOutEntityTeleport entityTeleport = new PacketPlayOutEntityTeleport();
         Reflection.getField(entityTeleport.getClass(), "a").set(entityTeleport, this.entityId);
         Reflection.getField(entityTeleport.getClass(), "b").set(entityTeleport, location.getX());
