@@ -1,6 +1,7 @@
 package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
+import de.selebrator.event.npc.NPCAnimationEvent;
 import de.selebrator.event.npc.NPCDespawnEvent;
 import de.selebrator.event.npc.NPCEquipEvent;
 import de.selebrator.event.npc.NPCMoveEvent;
@@ -291,6 +292,12 @@ public class FakePlayer implements NPC {
 
     @Override
     public void playAnimation(EnumAnimation anim) {
+        NPCAnimationEvent event = new NPCAnimationEvent(this, anim);
+        Bukkit.getPluginManager().callEvent(event);
+        if(event.isCancelled()) { return; }
+
+        anim = event.getAnimation();
+
         PacketPlayOutAnimation animation = new PacketPlayOutAnimation();
         Reflection.getField(animation.getClass(), "a").set(animation, this.entityId);
         Reflection.getField(animation.getClass(), "b").set(animation, anim.getId());
