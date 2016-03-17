@@ -2,6 +2,7 @@ package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
 import de.selebrator.event.npc.NPCDespawnEvent;
+import de.selebrator.event.npc.NPCMoveEvent;
 import de.selebrator.event.npc.NPCSpawnEvent;
 import de.selebrator.reflection.Reflection;
 import net.minecraft.server.v1_9_R1.ChatComponentText;
@@ -180,6 +181,15 @@ public class FakePlayer implements NPC {
 
 	@Override
     public void move(double x, double y, double z) {
+        NPCMoveEvent event = new NPCMoveEvent(this, this.location.clone().add(x, y, z));
+        Bukkit.getPluginManager().callEvent(event);
+        if(event.isCancelled()) { return; }
+
+        Vector distance = MathHelper.calcDistanceVector(this.location, event.getDestination());
+        x = distance.getX();
+        y = distance.getY();
+        z = distance.getZ();
+
         if(Math.abs(x) < 8 && Math.abs(y) < 8 && Math.abs(z) < 8) {
             int changeX = (int) ((((this.location.getX() + x) * 32) - (this.location.getX() * 32)) * 128);
             int changeY = (int) ((((this.location.getY() + y) * 32) - (this.location.getY() * 32)) * 128);

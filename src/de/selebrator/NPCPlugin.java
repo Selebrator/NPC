@@ -1,6 +1,6 @@
 package de.selebrator;
 
-import de.selebrator.event.npc.NPCDespawnEvent;
+import de.selebrator.event.npc.NPCEvent;
 import de.selebrator.fetcher.GameProfileBuilder;
 import de.selebrator.npc.EnumAnimation;
 import de.selebrator.npc.EnumEquipmentSlot;
@@ -79,9 +79,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 	}
 
 	@EventHandler
-	public void onNPCDespawn(NPCDespawnEvent event) {
-		event.getNpc().respawn(null);
-	}
+	public void onNPCEvent(NPCEvent event) {}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
