@@ -1,8 +1,8 @@
 package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
-import de.selebrator.events.NPCDespawnEvent;
-import de.selebrator.events.NPCSpawnEvent;
+import de.selebrator.event.npc.NPCDespawnEvent;
+import de.selebrator.event.npc.NPCSpawnEvent;
 import de.selebrator.reflection.Reflection;
 import net.minecraft.server.v1_9_R1.ChatComponentText;
 import net.minecraft.server.v1_9_R1.Entity;
@@ -45,14 +45,14 @@ public class FakePlayer implements NPC {
     private EnumNature nature = EnumNature.PASSIVE;
 
     private float health = 20F;
-    private double moveSpeed = 4.3D / 20;
+    private double moveSpeed = SPEED_WALKING;
     private Location respawnLocation;
 
     private ItemStack[] equip = new ItemStack[6];
 
-    private static final double WALK_SPEED = 4.3D / 20;
-    private static final double SNEAK_SPEED = 1.3D / 20;
-    private static final double SPRINT_SPEED = 5.6D / 20;
+    private static final double SPEED_WALKING = 4.3D / 20;
+    private static final double SPEED_SNEAKING = 1.3D / 20;
+    private static final double SPEED_SPRINTING = 5.6D / 20;
     private static final double EYE_HEIGHT_STANDING = 1.62D;
     private static final double EYE_HEIGHT_SNEAKING = 1.2D;
 
@@ -71,7 +71,11 @@ public class FakePlayer implements NPC {
     }
 
     @Override
-    public FakePlayer spawn(Location location) {
+    public void spawn(Location location) {
+        NPCSpawnEvent event = new NPCSpawnEvent(this);
+        Bukkit.getPluginManager().callEvent(event);
+        if(event.isCancelled()) { return; }
+
         PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo();
         Reflection.getField(playerInfo.getClass(), "a").set(playerInfo, EnumPlayerInfoAction.ADD_PLAYER);
         Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(
@@ -98,10 +102,6 @@ public class FakePlayer implements NPC {
         }
 
         this.look(location.getYaw(), location.getPitch());
-
-        NPCSpawnEvent event = new NPCSpawnEvent(this);
-        Bukkit.getPluginManager().callEvent(event);
-        return this;
     }
 
     @Override
@@ -111,7 +111,7 @@ public class FakePlayer implements NPC {
             this.location = null;
             this.health = 20F;
             this.equip = new ItemStack[6];
-            this.moveSpeed = WALK_SPEED;
+            this.moveSpeed = SPEED_WALKING;
             this.nature = EnumNature.PASSIVE;
 
             this.meta = new FakePlayerMeta();
@@ -126,6 +126,10 @@ public class FakePlayer implements NPC {
 
     @Override
     public void despawn() {
+        NPCDespawnEvent event = new NPCDespawnEvent(this);
+        Bukkit.getPluginManager().callEvent(event);
+        if(event.isCancelled()) { return; }
+
         PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.REMOVE_PLAYER);
         Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(playerInfo.new PlayerInfoData(this.gameProfile, 0, null, null)));
 
@@ -136,9 +140,6 @@ public class FakePlayer implements NPC {
 
         this.location = null;
         this.living = false;
-
-        NPCDespawnEvent event = new NPCDespawnEvent(this);
-        Bukkit.getPluginManager().callEvent(event);
     }
 
 	@Override
@@ -410,12 +411,12 @@ public class FakePlayer implements NPC {
 
     public void setSneaking(boolean state) {
         this.meta.setSneaking(state);
-        this.moveSpeed = state ? SNEAK_SPEED : WALK_SPEED;
+        this.moveSpeed = state ? SPEED_SNEAKING : SPEED_WALKING;
     }
 
     public void setSprinting(boolean state) {
         this.meta.setSprinting(state);
-        this.moveSpeed = state ? SPRINT_SPEED : WALK_SPEED;
+        this.moveSpeed = state ? SPEED_SPRINTING : SPEED_WALKING;
     }
 
 

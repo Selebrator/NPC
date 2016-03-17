@@ -5,7 +5,7 @@ import org.bukkit.inventory.ItemStack;
 
 public interface NPC {
 
-	FakePlayer spawn(Location location);
+	void spawn(Location location);
 
 	void respawn(Location location);
 

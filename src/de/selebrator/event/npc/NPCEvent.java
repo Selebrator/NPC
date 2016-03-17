@@ -1,4 +1,4 @@
-package de.selebrator.events;
+package de.selebrator.event.npc;
 
 import de.selebrator.npc.FakePlayer;
 import org.bukkit.event.Event;
