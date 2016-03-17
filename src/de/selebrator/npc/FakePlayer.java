@@ -2,6 +2,7 @@ package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
 import de.selebrator.event.npc.NPCDespawnEvent;
+import de.selebrator.event.npc.NPCEquipEvent;
 import de.selebrator.event.npc.NPCMoveEvent;
 import de.selebrator.event.npc.NPCSpawnEvent;
 import de.selebrator.event.npc.NPCTeleportEvent;
@@ -272,6 +273,13 @@ public class FakePlayer implements NPC {
 
     @Override
     public void equip(EnumEquipmentSlot slot, ItemStack item) {
+        NPCEquipEvent event = new NPCEquipEvent(this, slot, item);
+        Bukkit.getPluginManager().callEvent(event);
+        if(event.isCancelled()) { return; }
+
+        slot = event.getSlot();
+        item = event.getItem();
+
         PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment();
         Reflection.getField(entityEquipment.getClass(), "a").set(entityEquipment, this.entityId);
         Reflection.getField(entityEquipment.getClass(), "b").set(entityEquipment, slot.getNMS());
