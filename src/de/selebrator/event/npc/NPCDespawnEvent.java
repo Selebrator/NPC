@@ -1,6 +1,6 @@
 package de.selebrator.event.npc;
 
-import de.selebrator.npc.FakePlayer;
+import de.selebrator.npc.NPC;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
@@ -8,7 +8,7 @@ public class NPCDespawnEvent extends NPCEvent implements Cancellable {
 	private static final HandlerList handlers = new HandlerList();
 	private boolean cancel;
 
-	public NPCDespawnEvent(FakePlayer npc) {
+	public NPCDespawnEvent(NPC npc) {
 		super(npc);
 	}
 

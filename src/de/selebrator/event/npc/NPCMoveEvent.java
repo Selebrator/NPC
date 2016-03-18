@@ -1,6 +1,6 @@
 package de.selebrator.event.npc;
 
-import de.selebrator.npc.FakePlayer;
+import de.selebrator.npc.NPC;
 import org.bukkit.Location;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -10,7 +10,7 @@ public class NPCMoveEvent extends NPCEvent implements Cancellable {
 	private boolean cancel;
 	private Location destination;
 
-	public NPCMoveEvent(FakePlayer npc, Location destination) {
+	public NPCMoveEvent(NPC npc, Location destination) {
 		super(npc);
 		this.destination = destination;
 	}

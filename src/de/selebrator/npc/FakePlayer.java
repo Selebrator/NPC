@@ -34,7 +34,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public class FakePlayer implements NPC {
@@ -109,7 +108,7 @@ public class FakePlayer implements NPC {
     }
 
     @Override
-    public void respawn(@Nullable Location location) {
+    public void respawn(Location location) {
         if(!this.isAlive()) {
             this.target = null;
             this.location = null;
@@ -331,10 +330,12 @@ public class FakePlayer implements NPC {
         return this.meta;
     }
 
+    @Override
     public String getName() {
         return ChatColor.stripColor(this.gameProfile.getName());
     }
 
+    @Override
     public String getDisplayName() {
         return this.gameProfile.getName();
     }
@@ -344,57 +345,70 @@ public class FakePlayer implements NPC {
         return this.living;
     }
 
+    @Override
     public float getHealth() {
         return this.isAlive() ? this.health : 0;
     }
 
+    @Override
     public double getMoveSpeed() {
         return this.moveSpeed;
     }
 
+    @Override
     public double getEyeHeight(boolean ignoreSneaking) {
         return ignoreSneaking ? EYE_HEIGHT_STANDING : (this.meta.isSneaking() ? EYE_HEIGHT_SNEAKING : EYE_HEIGHT_STANDING);
     }
 
+    @Override
     public boolean hasLocation() {
         return this.location != null;
     }
 
+    @Override
     public Location getLocation() {
             return this.location;
     }
 
+    @Override
     public Location getRespawnLocation() {
         return this.respawnLocation;
     }
 
+    @Override
     public Location getEyeLocation() {
         return this.hasLocation() ? this.location.clone().add(0, this.getEyeHeight(false), 0) : null;
 
     }
 
+    @Override
     public boolean hasTarget() {
         return this.target != null && !this.target.isDead();
     }
 
+    @Override
     public LivingEntity getTarget() {
         return this.hasTarget() ? this.target : null;
     }
 
+    @Override
     public EnumNature getNature() {
         return this.nature;
     }
 
+    @Override
     public boolean hasEquipment(EnumEquipmentSlot slot) {
         return this.equip[slot.getId()] != null;
     }
 
+    @Override
     public ItemStack getEquipment(EnumEquipmentSlot slot) {
         return equip[slot.getId()];
     }
 
     // ### SETTER ###
 
+    @Override
     public void updateGameProfile(GameProfile gameProfile) {
         this.gameProfile = gameProfile;
         if(this.living) {
@@ -402,11 +416,13 @@ public class FakePlayer implements NPC {
         }
     }
 
+    @Override
     public void setMeta(FakePlayerMeta meta) {
         this.meta = meta;
         this.updateMetadata();
     }
 
+    @Override
     public void setHealth(float health) {
         if(health == 0) {
             this.setEntityStatus(EnumEntityStatus.DEAD);
@@ -425,27 +441,33 @@ public class FakePlayer implements NPC {
         this.meta.setHealth(health);
     }
 
+    @Override
     public void setRespawnLocation(Location location) {
         this.respawnLocation = location;
     }
 
+    @Override
     public void setMoveSpeed(double speed) {
         this.moveSpeed = speed / 20;
     }
 
+    @Override
     public void setTarget(LivingEntity target) {
         this.target = target;
     }
 
+    @Override
     public void setNature(EnumNature nature) {
         this.nature = nature;
     }
 
+    @Override
     public void setSneaking(boolean state) {
         this.meta.setSneaking(state);
         this.moveSpeed = state ? SPEED_SNEAKING : SPEED_WALKING;
     }
 
+    @Override
     public void setSprinting(boolean state) {
         this.meta.setSprinting(state);
         this.moveSpeed = state ? SPEED_SPRINTING : SPEED_WALKING;

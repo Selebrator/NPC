@@ -1,7 +1,7 @@
 package de.selebrator.event.npc;
 
 import de.selebrator.npc.EnumEquipmentSlot;
-import de.selebrator.npc.FakePlayer;
+import de.selebrator.npc.NPC;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
@@ -12,7 +12,7 @@ public class NPCEquipEvent extends NPCEvent implements Cancellable {
 	private EnumEquipmentSlot slot;
 	private ItemStack item;
 
-	public NPCEquipEvent(FakePlayer npc, EnumEquipmentSlot slot, ItemStack item) {
+	public NPCEquipEvent(NPC npc, EnumEquipmentSlot slot, ItemStack item) {
 		super(npc);
 		this.slot = slot;
 		this.item = item;

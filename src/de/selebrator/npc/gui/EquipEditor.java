@@ -1,12 +1,9 @@
 package de.selebrator.npc.gui;
 
-import java.util.HashMap;
-
 import de.selebrator.fetcher.ItemBuilder;
 import de.selebrator.fetcher.LeatherArmorBuilder;
 import de.selebrator.npc.EnumEquipmentSlot;
-import de.selebrator.npc.FakePlayer;
-
+import de.selebrator.npc.NPC;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -19,16 +16,18 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
+import java.util.HashMap;
+
 public class EquipEditor implements Listener {
 
-	private FakePlayer npc;
+	private NPC npc;
 	private Inventory inventory;
 	private String selected;
 	private String subSelected;
 	
 	private HashMap<EnumEquipmentSlot, ItemStack> equipment = new HashMap<>();
 
-	public EquipEditor(FakePlayer npc, Plugin plugin) {
+	public EquipEditor(NPC npc, Plugin plugin) {
 		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 		
 		this.npc = npc;

@@ -1,6 +1,8 @@
 package de.selebrator.npc;
 
+import com.mojang.authlib.GameProfile;
 import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
 public interface NPC {
@@ -79,9 +81,55 @@ public interface NPC {
 
 	void updateMetadata();
 
+	void updateGameProfile(GameProfile gameProfile);
+
 	int getEntityId();
 
 	FakePlayerMeta getMeta();
 
+	void setMeta(FakePlayerMeta meta);
+
+	String getName();
+
+	String getDisplayName();
+
 	boolean isAlive();
+
+	float getHealth();
+
+	void setHealth(float health);
+
+	double getMoveSpeed();
+
+	void setMoveSpeed(double speed);
+
+	double getEyeHeight(boolean ignoreSneaking);
+
+	boolean hasLocation();
+
+	Location getLocation();
+
+	Location getEyeLocation();
+
+	Location getRespawnLocation();
+
+	void setRespawnLocation(Location location);
+
+	boolean hasTarget();
+
+	LivingEntity getTarget();
+
+	void setTarget(LivingEntity target);
+
+	EnumNature getNature();
+
+	void setNature(EnumNature nature);
+
+	boolean hasEquipment(EnumEquipmentSlot slot);
+
+	ItemStack getEquipment(EnumEquipmentSlot slot);
+
+	void setSneaking(boolean state);
+
+	void setSprinting(boolean state);
 }

@@ -1,7 +1,7 @@
 package de.selebrator.event.npc;
 
 import de.selebrator.npc.EnumAnimation;
-import de.selebrator.npc.FakePlayer;
+import de.selebrator.npc.NPC;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
@@ -10,7 +10,7 @@ public class NPCAnimationEvent extends NPCEvent implements Cancellable {
 	private boolean cancel;
 	private EnumAnimation animation;
 
-	public NPCAnimationEvent(FakePlayer npc, EnumAnimation animation) {
+	public NPCAnimationEvent(NPC npc, EnumAnimation animation) {
 		super(npc);
 		this.animation = animation;
 	}

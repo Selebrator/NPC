@@ -1,12 +1,13 @@
 package de.selebrator;
 
-import de.selebrator.event.npc.NPCEvent;
+import de.selebrator.event.npc.NPCSpawnEvent;
 import de.selebrator.fetcher.GameProfileBuilder;
 import de.selebrator.npc.EnumAnimation;
 import de.selebrator.npc.EnumEquipmentSlot;
 import de.selebrator.npc.EnumNature;
 import de.selebrator.npc.FakePlayer;
 import de.selebrator.npc.MathHelper;
+import de.selebrator.npc.NPC;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -28,15 +29,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
-	
-	private Map<Integer, FakePlayer> fakePlayers = new HashMap<>();
-	private FakePlayer npc;
-	
+
+	private Map<Integer, NPC> fakePlayers = new HashMap<>();
+	private NPC npc;
+
 	@Override
 	public void onEnable() {
 		Bukkit.getPluginManager().registerEvents(this, this);
 		getCommand("npc").setExecutor(this);
-		
+
 		npc = new FakePlayer(new GameProfileBuilder("Selebrator").build());
 		fakePlayers.put(1, npc);
 
@@ -79,7 +80,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 	}
 
 	@EventHandler
-	public void onNPCEvent(NPCEvent event) {}
+	public void onNPCEvent(NPCSpawnEvent event) {}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -109,7 +110,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 					if (args.length == 2) {
 						int id = Integer.parseInt(args[1]);
 						if (fakePlayers.containsKey(id)) {
-							FakePlayer npc = fakePlayers.get(id);
+							NPC npc = fakePlayers.get(id);
 							String name = fakePlayers.get(id).getDisplayName();
 							fakePlayers.remove(id);
 							npc.despawn();
@@ -301,11 +302,12 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		player.sendMessage("§a/npc help");
 		return true;
 	}
-	
+
 	private BukkitRunnable task = new BukkitRunnable() {
 
 		@Override
 		public void run() {
+			fakePlayers.forEach( (id, npc) -> {
 			if(npc != null && npc.isAlive() && npc.hasTarget() && !npc.getTarget().isDead()) {
 				Vector vNPC = new Vector(npc.getLocation().getX(), npc.getLocation().getY(), npc.getLocation().getZ());
 				Vector vTarget = new Vector(npc.getTarget().getLocation().getX(), npc.getTarget().getLocation().getY(), npc.getTarget().getLocation().getZ());
@@ -325,6 +327,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 				}
 				npc.look(npc.getTarget().getEyeLocation());
 			}
+			});
 		}
 	};
 }

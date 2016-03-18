@@ -1,16 +1,16 @@
 package de.selebrator.event.npc;
 
-import de.selebrator.npc.FakePlayer;
+import de.selebrator.npc.NPC;
 import org.bukkit.event.Event;
 
 public abstract class NPCEvent extends Event {
-	private FakePlayer npc;
+	private NPC npc;
 
-	public NPCEvent(FakePlayer npc) {
+	public NPCEvent(NPC npc) {
 		this.npc = npc;
 	}
 
-	public FakePlayer getNpc() {
+	public NPC getNpc() {
 		return this.npc;
 	}
 }
