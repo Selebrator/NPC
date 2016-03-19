@@ -7,39 +7,23 @@ import de.selebrator.event.npc.NPCEquipEvent;
 import de.selebrator.event.npc.NPCMoveEvent;
 import de.selebrator.event.npc.NPCSpawnEvent;
 import de.selebrator.event.npc.NPCTeleportEvent;
+import de.selebrator.fetcher.PacketFetcher;
 import de.selebrator.reflection.Reflection;
-import net.minecraft.server.v1_9_R1.ChatComponentText;
 import net.minecraft.server.v1_9_R1.Entity;
-import net.minecraft.server.v1_9_R1.Packet;
-import net.minecraft.server.v1_9_R1.PacketPlayOutAnimation;
-import net.minecraft.server.v1_9_R1.PacketPlayOutEntity.PacketPlayOutEntityLook;
-import net.minecraft.server.v1_9_R1.PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook;
-import net.minecraft.server.v1_9_R1.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_9_R1.PacketPlayOutEntityEquipment;
-import net.minecraft.server.v1_9_R1.PacketPlayOutEntityHeadRotation;
 import net.minecraft.server.v1_9_R1.PacketPlayOutEntityMetadata;
-import net.minecraft.server.v1_9_R1.PacketPlayOutEntityStatus;
-import net.minecraft.server.v1_9_R1.PacketPlayOutEntityTeleport;
-import net.minecraft.server.v1_9_R1.PacketPlayOutNamedEntitySpawn;
 import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo;
-import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
-import net.minecraft.server.v1_9_R1.WorldSettings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-
-import java.util.Arrays;
 
 public class FakePlayer implements NPC {
 
     private final int entityId;
-    private GameProfile gameProfile;
+    public GameProfile gameProfile;
     private FakePlayerMeta meta;
 
     private boolean living;
@@ -53,7 +37,7 @@ public class FakePlayer implements NPC {
 
     private ItemStack[] equip = new ItemStack[6];
 
-    private static final double SPEED_WALKING = 4.3D / 20;
+    private static final double SPEED_WALKING = 4.32D / 20;
     private static final double SPEED_SNEAKING = 1.3D / 20;
     private static final double SPEED_SPRINTING = 5.6D / 20;
     private static final double EYE_HEIGHT_STANDING = 1.62D;
@@ -79,22 +63,10 @@ public class FakePlayer implements NPC {
         Bukkit.getPluginManager().callEvent(event);
         if(event.isCancelled()) { return; }
 
-        PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo();
-        Reflection.getField(playerInfo.getClass(), "a").set(playerInfo, EnumPlayerInfoAction.ADD_PLAYER);
-        Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(
-                playerInfo.new PlayerInfoData(this.gameProfile, 0, WorldSettings.EnumGamemode.NOT_SET, new ChatComponentText(this.gameProfile.getName()))));
-
-        PacketPlayOutNamedEntitySpawn namedEntitySpawn = new PacketPlayOutNamedEntitySpawn();
-        Reflection.getField(namedEntitySpawn.getClass(), "a").set(namedEntitySpawn, this.entityId);
-        Reflection.getField(namedEntitySpawn.getClass(), "b").set(namedEntitySpawn, this.gameProfile.getId());
-        Reflection.getField(namedEntitySpawn.getClass(), "c").set(namedEntitySpawn, location.getX());
-        Reflection.getField(namedEntitySpawn.getClass(), "d").set(namedEntitySpawn, location.getY());
-        Reflection.getField(namedEntitySpawn.getClass(), "e").set(namedEntitySpawn, location.getZ());
-        Reflection.getField(namedEntitySpawn.getClass(), "f").set(namedEntitySpawn, MathHelper.angle(location.getYaw()));
-        Reflection.getField(namedEntitySpawn.getClass(), "g").set(namedEntitySpawn, MathHelper.angle(location.getPitch()));
-        Reflection.getField(namedEntitySpawn.getClass(), "h").set(namedEntitySpawn, this.meta.getDataWatcher());
-
-        broadcastPackets(playerInfo, namedEntitySpawn);
+        PacketFetcher.broadcastPackets(
+                PacketFetcher.playerInfo(this.gameProfile, PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER),
+                PacketFetcher.namedEntitySpawn(this.entityId, this.gameProfile, location, this.meta.getDataWatcher())
+        );
 
         this.location = location;
         if(this.respawnLocation == null) { this.respawnLocation = location; }
@@ -133,13 +105,10 @@ public class FakePlayer implements NPC {
         Bukkit.getPluginManager().callEvent(event);
         if(event.isCancelled()) { return; }
 
-        PacketPlayOutPlayerInfo playerInfo = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.REMOVE_PLAYER);
-        Reflection.getField(playerInfo.getClass(), "b").set(playerInfo, Arrays.asList(playerInfo.new PlayerInfoData(this.gameProfile, 0, null, null)));
-
-        PacketPlayOutEntityDestroy entityDestroy = new PacketPlayOutEntityDestroy();
-        Reflection.getField(entityDestroy.getClass(), "a").set(entityDestroy, new int[] { this.entityId});
-
-        broadcastPackets(playerInfo, entityDestroy);
+        PacketFetcher.broadcastPackets(
+                PacketFetcher.playerInfo(this.gameProfile, PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER),
+                PacketFetcher.entityDestroy(this.entityId)
+        );
 
         this.location = null;
         this.living = false;
@@ -147,20 +116,10 @@ public class FakePlayer implements NPC {
 
 	@Override
     public void look(float yaw, float pitch) {
-        //rotate body
-        PacketPlayOutEntityLook entityLook = new PacketPlayOutEntityLook();
-        Reflection.getField(entityLook.getClass().getSuperclass(), "a").set(entityLook, this.entityId);
-        Reflection.getField(entityLook.getClass().getSuperclass(), "e").set(entityLook, MathHelper.angle(yaw));
-        Reflection.getField(entityLook.getClass().getSuperclass(), "f").set(entityLook, MathHelper.angle(pitch));
-        Reflection.getField(entityLook.getClass().getSuperclass(), "g").set(entityLook, false);
-        Reflection.getField(entityLook.getClass().getSuperclass(), "h").set(entityLook, true);
-
-        //rotate head
-        PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
-        Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityId);
-        Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, MathHelper.angle(yaw));
-
-        broadcastPackets(entityLook, entityHeadRotation);
+        PacketFetcher.broadcastPackets(
+                PacketFetcher.entityLook(this.entityId, yaw, pitch), //body
+                PacketFetcher.headRotation(this.entityId, yaw) //head
+        );
 
         this.location.setYaw(yaw);
         this.location.setPitch(pitch);
@@ -199,17 +158,9 @@ public class FakePlayer implements NPC {
             float yaw = this.location.getYaw();
             float pitch = this.location.getPitch();
 
-            PacketPlayOutRelEntityMoveLook relEntityMoveLook = new PacketPlayOutRelEntityMoveLook();
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "a").set(relEntityMoveLook, this.entityId);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "b").set(relEntityMoveLook, changeX);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "c").set(relEntityMoveLook, changeY);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "d").set(relEntityMoveLook, changeZ);
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "e").set(relEntityMoveLook, MathHelper.angle(yaw));
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "f").set(relEntityMoveLook, MathHelper.angle(pitch));
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "g").set(relEntityMoveLook, true); //onGround
-            Reflection.getField(relEntityMoveLook.getClass().getSuperclass(), "h").set(relEntityMoveLook, true);
-
-            broadcastPackets(relEntityMoveLook);
+            PacketFetcher.broadcastPackets(
+                    PacketFetcher.relEntityMoveLook(this.entityId, changeX, changeY, changeZ, yaw, pitch)
+            );
 
             this.location.add(x, y, z);
         } else
@@ -253,20 +204,10 @@ public class FakePlayer implements NPC {
 
         location = event.getDestination();
 
-        PacketPlayOutEntityTeleport entityTeleport = new PacketPlayOutEntityTeleport();
-        Reflection.getField(entityTeleport.getClass(), "a").set(entityTeleport, this.entityId);
-        Reflection.getField(entityTeleport.getClass(), "b").set(entityTeleport, location.getX());
-        Reflection.getField(entityTeleport.getClass(), "c").set(entityTeleport, location.getY());
-        Reflection.getField(entityTeleport.getClass(), "d").set(entityTeleport, location.getZ());
-        Reflection.getField(entityTeleport.getClass(), "e").set(entityTeleport, MathHelper.angle(location.getYaw()));
-        Reflection.getField(entityTeleport.getClass(), "f").set(entityTeleport, MathHelper.angle(location.getPitch()));
-        Reflection.getField(entityTeleport.getClass(), "g").set(entityTeleport, false);		//onGround
-
-        PacketPlayOutEntityHeadRotation entityHeadRotation = new PacketPlayOutEntityHeadRotation();
-        Reflection.getField(entityHeadRotation.getClass(), "a").set(entityHeadRotation, this.entityId);
-        Reflection.getField(entityHeadRotation.getClass(), "b").set(entityHeadRotation, MathHelper.angle(location.getYaw()));
-
-        broadcastPackets(entityTeleport, entityHeadRotation);
+        PacketFetcher.broadcastPackets(
+                PacketFetcher.entityTeleport(this.entityId, location),
+                PacketFetcher.headRotation(this.entityId, location.getYaw())
+        );
 
         this.location = location;
     }
@@ -280,11 +221,9 @@ public class FakePlayer implements NPC {
         slot = event.getSlot();
         item = event.getItem();
 
-        PacketPlayOutEntityEquipment entityEquipment = new PacketPlayOutEntityEquipment();
-        Reflection.getField(entityEquipment.getClass(), "a").set(entityEquipment, this.entityId);
-        Reflection.getField(entityEquipment.getClass(), "b").set(entityEquipment, slot.getNMS());
-        Reflection.getField(entityEquipment.getClass(), "c").set(entityEquipment, CraftItemStack.asNMSCopy(item)); //itemStack
-        broadcastPackets(entityEquipment);
+        PacketFetcher.broadcastPackets(
+                PacketFetcher.entityEquipment(this.entityId, slot.getNMS(), CraftItemStack.asNMSCopy(item))
+        );
 
         this.equip[slot.getId()] = item;
     }
@@ -297,23 +236,21 @@ public class FakePlayer implements NPC {
 
         anim = event.getAnimation();
 
-        PacketPlayOutAnimation animation = new PacketPlayOutAnimation();
-        Reflection.getField(animation.getClass(), "a").set(animation, this.entityId);
-        Reflection.getField(animation.getClass(), "b").set(animation, anim.getId());
-        broadcastPackets(animation);
+        PacketFetcher.broadcastPackets(
+                PacketFetcher.animation(this.entityId, anim.getId())
+        );
     }
 
     @Override
     public void setEntityStatus(EnumEntityStatus status) {
-        PacketPlayOutEntityStatus entityStatus = new PacketPlayOutEntityStatus();
-        Reflection.getField(entityStatus.getClass(), "a").set(entityStatus, this.entityId);
-        Reflection.getField(entityStatus.getClass(), "b").set(entityStatus, (byte) status.getId());
-        broadcastPackets(entityStatus);
+        PacketFetcher.broadcastPackets(
+                PacketFetcher.entityStatus(this.entityId, status.getId())
+        );
     }
 
     @Override
     public void updateMetadata() {
-        broadcastPackets(new PacketPlayOutEntityMetadata(this.entityId, this.meta.getDataWatcher(), true));
+        PacketFetcher.broadcastPackets(new PacketPlayOutEntityMetadata(this.entityId, this.meta.getDataWatcher(), true));
     }
 
 
@@ -471,18 +408,5 @@ public class FakePlayer implements NPC {
     public void setSprinting(boolean state) {
         this.meta.setSprinting(state);
         this.moveSpeed = state ? SPEED_SPRINTING : SPEED_WALKING;
-    }
-
-
-    // ##### UTIL #####
-
-    private static void sendPackets(Player player, Packet<?>... packets) {
-        for(Packet<?> packet : packets) {
-            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-        }
-    }
-
-    private static void broadcastPackets(Packet<?>... packets) {
-        Bukkit.getOnlinePlayers().forEach(player -> sendPackets(player, packets));
     }
 }
