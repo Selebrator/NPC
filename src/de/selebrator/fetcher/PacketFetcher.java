@@ -70,7 +70,7 @@ public class PacketFetcher {
 		return packet;
 	}
 
-	public static PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook relEntityMoveLook(int entityId, double changeX, double changeY, double changeZ, float yaw, float pitch) {
+	public static PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook relEntityMoveLook(int entityId, int changeX, int changeY, int changeZ, float yaw, float pitch) {
 		PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook packet = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook();
 		Reflection.getField(packet.getClass().getSuperclass(), "a").set(packet, entityId);
 		Reflection.getField(packet.getClass().getSuperclass(), "b").set(packet, changeX);
