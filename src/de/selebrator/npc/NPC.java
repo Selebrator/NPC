@@ -99,8 +99,16 @@ public interface NPC {
 
 	void setHealth(float health);
 
+	/**
+	 *
+	 * @return movespeed in blocks/second
+	 */
 	double getMoveSpeed();
 
+	/**
+	 *
+	 * @param speed movespeed in blocks/second
+	 */
 	void setMoveSpeed(double speed);
 
 	double getEyeHeight(boolean ignoreSneaking);

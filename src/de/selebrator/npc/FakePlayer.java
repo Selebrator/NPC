@@ -32,14 +32,13 @@ public class FakePlayer implements NPC {
     private EnumNature nature = EnumNature.PASSIVE;
 
     private float health = 20F;
-    private double moveSpeed = SPEED_WALKING;
+    private double moveSpeed = EnumMoveSpeed.WALKING.getSpeed() / 20;
     private Location respawnLocation;
 
     private ItemStack[] equip = new ItemStack[6];
 
-    private static final double SPEED_WALKING = 4.32D / 20;
-    private static final double SPEED_SNEAKING = 1.3D / 20;
-    private static final double SPEED_SPRINTING = 5.6D / 20;
+    private int speedAmplifier = -1;
+
     private static final double EYE_HEIGHT_STANDING = 1.62D;
     private static final double EYE_HEIGHT_SNEAKING = 1.2D;
 
@@ -86,7 +85,7 @@ public class FakePlayer implements NPC {
             this.location = null;
             this.health = 20F;
             this.equip = new ItemStack[6];
-            this.moveSpeed = SPEED_WALKING;
+            this.setMoveSpeed(EnumMoveSpeed.WALKING.getSpeed());
             this.nature = EnumNature.PASSIVE;
 
             this.meta = new FakePlayerMeta();
@@ -289,7 +288,7 @@ public class FakePlayer implements NPC {
 
     @Override
     public double getMoveSpeed() {
-        return this.moveSpeed;
+        return this.moveSpeed * 20;
     }
 
     @Override
@@ -401,12 +400,18 @@ public class FakePlayer implements NPC {
     @Override
     public void setSneaking(boolean state) {
         this.meta.setSneaking(state);
-        this.moveSpeed = state ? SPEED_SNEAKING : SPEED_WALKING;
+        this.setMoveSpeed(MathHelper.calcMoveSpeed(state ? EnumMoveSpeed.SNEAKING : EnumMoveSpeed.WALKING, this.speedAmplifier));
+        if(state)
+            this.meta.setSprinting(false);
+        updateMetadata();
     }
 
     @Override
     public void setSprinting(boolean state) {
         this.meta.setSprinting(state);
-        this.moveSpeed = state ? SPEED_SPRINTING : SPEED_WALKING;
+        this.setMoveSpeed(MathHelper.calcMoveSpeed(state ? EnumMoveSpeed.SPRINTING : EnumMoveSpeed.WALKING, this.speedAmplifier));
+        if(state)
+            this.meta.setSneaking(false);
+        updateMetadata();
     }
 }

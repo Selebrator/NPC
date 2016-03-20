@@ -6,6 +6,16 @@ import org.bukkit.util.Vector;
 public class MathHelper {
 	/**
 	 *
+	 * @param method the method used to move
+	 * @param amplifier speed potion amplifier. -1 if no speed effect applied.
+	 * @return movespeed in blocks/seconds
+	 */
+	public static double calcMoveSpeed(EnumMoveSpeed method, int amplifier) {
+		return method.getSpeed() + (method.getStepSize() * (amplifier + 1));
+	}
+
+	/**
+	 *
 	 * @param x relative x
 	 * @param y relative y
 	 * @param z relative z
