@@ -70,6 +70,17 @@ public class PacketFetcher {
 		return packet;
 	}
 
+	public static PacketPlayOutEntity.PacketPlayOutRelEntityMove relEntityMove(int entityId, int changeX, int changeY, int changeZ) {
+		PacketPlayOutEntity.PacketPlayOutRelEntityMove packet = new PacketPlayOutEntity.PacketPlayOutRelEntityMove();
+		Reflection.getField(packet.getClass().getSuperclass(), "a").set(packet, entityId);
+		Reflection.getField(packet.getClass().getSuperclass(), "b").set(packet, changeX);
+		Reflection.getField(packet.getClass().getSuperclass(), "c").set(packet, changeY);
+		Reflection.getField(packet.getClass().getSuperclass(), "d").set(packet, changeZ);
+		Reflection.getField(packet.getClass().getSuperclass(), "g").set(packet, true); //onGround
+		Reflection.getField(packet.getClass().getSuperclass(), "h").set(packet, true);
+		return packet;
+	}
+
 	public static PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook relEntityMoveLook(int entityId, int changeX, int changeY, int changeZ, float yaw, float pitch) {
 		PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook packet = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook();
 		Reflection.getField(packet.getClass().getSuperclass(), "a").set(packet, entityId);

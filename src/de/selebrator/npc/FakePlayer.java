@@ -154,11 +154,9 @@ public class FakePlayer implements NPC {
             int changeX = (int) ((((this.location.getX() + x) * 32) - (this.location.getX() * 32)) * 128);
             int changeY = (int) ((((this.location.getY() + y) * 32) - (this.location.getY() * 32)) * 128);
             int changeZ = (int) ((((this.location.getZ() + z) * 32) - (this.location.getZ() * 32)) * 128);
-            float yaw = this.location.getYaw();
-            float pitch = this.location.getPitch();
 
             PacketFetcher.broadcastPackets(
-                    PacketFetcher.relEntityMoveLook(this.entityId, changeX, changeY, changeZ, yaw, pitch)
+                    PacketFetcher.relEntityMove(this.entityId, changeX, changeY, changeZ)
             );
 
             this.location.add(x, y, z);
