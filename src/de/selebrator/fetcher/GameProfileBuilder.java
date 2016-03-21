@@ -8,12 +8,14 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.bukkit.ChatColor;
 
+import javax.net.ssl.SSLHandshakeException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.UUID;
 
 public class GameProfileBuilder {
@@ -60,7 +62,7 @@ public class GameProfileBuilder {
 			String uuid = uuidObject.get("id").toString();
 			uuid = uuid.substring(1, uuid.length() - 1).replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5");
 			return UUID.fromString(uuid);
-		} catch (Exception e) {
+		} catch(Exception e) {
 			return UUID.fromString("00000000000020000000000000000000".replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
 		}
 	}
@@ -81,9 +83,9 @@ public class GameProfileBuilder {
 			String signature = propertiesObject.get("signature").toString();
 			this.skinSignature = signature.substring(1, signature.length() - 1);
 			System.out.println("[NPC] Successfully downloaded " + this.skinOwner + "'s Skin");
-		} catch (IllegalStateException e) {
+		} catch(IllegalStateException e) {
 			System.err.println("[NPC] There is no Skin for '" +  this.skinOwner + "' available. Using default Skin instead");
-		} catch (NullPointerException e) {
+		} catch(NullPointerException e) {
 
 		}
 	}
@@ -117,18 +119,19 @@ public class GameProfileBuilder {
 				contentBuilder.append(content);
 			}
 			result = contentBuilder.toString();
-		} catch (MalformedURLException e) {
+		} catch(MalformedURLException e) {
 			System.err.println("[NPC] Unable to connect to Mojang. :(");
-			e.printStackTrace();
-			System.err.println("[NPC] Unable to connect to Mojang. :(");
-		} catch (IOException e) {
+		} catch(UnknownHostException e) {
+			System.err.println("[NPC] Check your internet connection");
+		} catch(SSLHandshakeException e) {
+			System.err.println("[NPC] Check your internet access");
+		} catch(IOException e) {
 			String errorCode = e.getMessage().replace("Server returned HTTP response code: ", "").replace(" for URL: " + domain, "");
 			if(errorCode.contains("429")) {
-				System.err.println("[NPC] Unable to read Information from Mojang. Try again in 20sec.");
+				System.err.println("[NPC] Unable to read Information from Mojang. Try again in 30sec.");
 			} else {
 				e.printStackTrace();
 			}
-				
 		}
 		return result;
 	}
