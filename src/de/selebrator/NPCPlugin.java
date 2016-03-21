@@ -214,8 +214,11 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 				case "health":
 
 					if (npc != null) {
-						if (args.length == 2) {
-							npc.setHealth(Float.parseFloat(args[1]));
+						if (args.length == 1) {
+							player.sendMessage(npc.getHealth() + "");
+							return true;
+						} else if (args.length == 2) {
+							((FakePlayer)npc).setHealth(Float.parseFloat(args[1]));
 							return true;
 						}
 						player.sendMessage("§c/npc " + args[0] + " <0 - 20>");
@@ -308,25 +311,35 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		@Override
 		public void run() {
 			fakePlayers.forEach( (id, npc) -> {
-			if(npc != null && npc.isAlive() && npc.hasTarget() && !npc.getTarget().isDead()) {
-				Vector vNPC = new Vector(npc.getLocation().getX(), npc.getLocation().getY(), npc.getLocation().getZ());
-				Vector vTarget = new Vector(npc.getTarget().getLocation().getX(), npc.getTarget().getLocation().getY(), npc.getTarget().getLocation().getZ());
-				if(vNPC.distance(vTarget) > 3) {
-					npc.step(npc.getTarget().getLocation());
-				} if(vNPC.distance(vTarget) <= 3 && npc.getNature() == EnumNature.HOSTILE){
-					npc.playAnimation(EnumAnimation.SWING_ARM);
-					npc.getTarget().damage(1);
-					Vector distance = MathHelper.calcDistanceVector(npc.getLocation(), npc.getTarget().getLocation());
+				if(npc != null && npc.isAlive()) {
+					if(npc.hasTarget() && !npc.getTarget().isDead()) {
+						Vector vNPC = new Vector(npc.getLocation().getX(), npc.getLocation().getY(), npc.getLocation().getZ());
+						Vector vTarget = new Vector(npc.getTarget().getLocation().getX(), npc.getTarget().getLocation().getY(), npc.getTarget().getLocation().getZ());
+						if(vNPC.distance(vTarget) > 3) {
+							npc.step(npc.getTarget().getLocation());
+						} if(vNPC.distance(vTarget) <= 3 && npc.getNature() == EnumNature.HOSTILE){
+							npc.playAnimation(EnumAnimation.SWING_ARM);
+							npc.getTarget().damage(1);
+							Vector distance = MathHelper.calcDistanceVector(npc.getLocation(), npc.getTarget().getLocation());
 
-					float yaw = MathHelper.calcYaw(distance.getX(), distance.getZ());
-					float pitch = MathHelper.calcPitch(distance.getX(), distance.getY(), distance.getZ());
+							float yaw = MathHelper.calcYaw(distance.getX(), distance.getZ());
+							float pitch = MathHelper.calcPitch(distance.getX(), distance.getY(), distance.getZ());
 
-					Vector direction = MathHelper.calcDirectionVector(0.4, yaw, pitch);
+							Vector direction = MathHelper.calcDirectionVector(0.4, yaw, pitch);
 
-					npc.getTarget().setVelocity(direction);
+							npc.getTarget().setVelocity(direction);
+						}
+						npc.look(npc.getTarget().getEyeLocation());
+					}
+					if(npc.getEyeLocation().getBlock().getType() == Material.STATIONARY_WATER) {
+						npc.setAir(npc.getAir() - 1);
+					} else if(npc.getLocation().getBlock().getType() == Material.AIR) {
+						npc.setAir(300);
+					}
+					if(npc.getNoDamageTicks() > 0) {
+						npc.setNoDamageTicks(npc.getNoDamageTicks() - 1);
+					}
 				}
-				npc.look(npc.getTarget().getEyeLocation());
-			}
 			});
 		}
 	};

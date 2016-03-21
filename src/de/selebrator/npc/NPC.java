@@ -3,6 +3,7 @@ package de.selebrator.npc;
 import com.mojang.authlib.GameProfile;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 
 public interface NPC {
@@ -97,7 +98,17 @@ public interface NPC {
 
 	float getHealth();
 
-	void setHealth(float health);
+	void damage(int amount);
+
+	void damage(int amount, EntityDamageEvent.DamageCause cause);
+
+	int getNoDamageTicks();
+
+	void setNoDamageTicks(int noDamageTicks);
+
+	int getAir();
+
+	void setAir(int air);
 
 	/**
 	 *

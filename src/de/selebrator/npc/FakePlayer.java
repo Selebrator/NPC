@@ -2,6 +2,7 @@ package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
 import de.selebrator.event.npc.NPCAnimationEvent;
+import de.selebrator.event.npc.NPCDamageEvent;
 import de.selebrator.event.npc.NPCDespawnEvent;
 import de.selebrator.event.npc.NPCEquipEvent;
 import de.selebrator.event.npc.NPCMoveEvent;
@@ -17,6 +18,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -32,6 +34,8 @@ public class FakePlayer implements NPC {
     private EnumNature nature = EnumNature.PASSIVE;
 
     private float health = 20F;
+    private int air = 300;
+    private int noDamageTicks;
     private double moveSpeed = EnumMoveSpeed.WALKING.getSpeed() / 20;
     private Location respawnLocation;
 
@@ -53,6 +57,7 @@ public class FakePlayer implements NPC {
         this.meta.setStatus(false, false, false, false, false, false);
         this.meta.setSkinFlags(true, true, true, true, true, true, true);
         this.meta.setHealth(this.health);
+        this.meta.setAir(this.air);
         this.meta.setName(this.getName());
     }
 
@@ -285,6 +290,16 @@ public class FakePlayer implements NPC {
     }
 
     @Override
+    public int getNoDamageTicks() {
+        return  this.noDamageTicks;
+    }
+
+    @Override
+    public int getAir() {
+        return this.air;
+    }
+
+    @Override
     public double getMoveSpeed() {
         return this.moveSpeed * 20;
     }
@@ -356,7 +371,6 @@ public class FakePlayer implements NPC {
         this.updateMetadata();
     }
 
-    @Override
     public void setHealth(float health) {
         if(health == 0) {
             this.setEntityStatus(EnumEntityStatus.DEAD);
@@ -373,6 +387,40 @@ public class FakePlayer implements NPC {
         }
         this.health = health;
         this.meta.setHealth(health);
+    }
+
+    @Override
+    public  void damage(int amount) {
+        damage(amount, EntityDamageEvent.DamageCause.CUSTOM);
+    }
+
+    @Override
+    public void damage(int amount, EntityDamageEvent.DamageCause cause) {
+        if(this.noDamageTicks == 0) {
+            NPCDamageEvent event = new NPCDamageEvent(this, amount, cause);
+            Bukkit.getPluginManager().callEvent(event);
+            if(event.isCancelled()) { return; }
+
+            this.setHealth(this.getHealth() - event.getAmount());
+
+            this.noDamageTicks = 10;
+        }
+    }
+
+    @Override
+    public void setNoDamageTicks(int noDamageTicks) {
+        this.noDamageTicks = noDamageTicks;
+    }
+
+    @Override
+    public void setAir(int air) {
+        if(air <= -20) {
+            this.damage(2, EntityDamageEvent.DamageCause.DROWNING);
+            setAir(0);
+            return;
+        }
+        this.air = air;
+        this.meta.setAir(air);
     }
 
     @Override
