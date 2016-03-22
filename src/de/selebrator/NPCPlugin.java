@@ -1,5 +1,6 @@
 package de.selebrator;
 
+import de.selebrator.event.npc.NPCDamageEvent;
 import de.selebrator.event.npc.NPCSpawnEvent;
 import de.selebrator.fetcher.GameProfileBuilder;
 import de.selebrator.npc.EnumAnimation;
@@ -19,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -77,6 +79,13 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
 		if(item != null && item.getType() == Material.BLAZE_ROD) {
 			npc.setTarget((LivingEntity) event.getRightClicked());
+		}
+	}
+
+	@EventHandler
+	public void onDamage(NPCDamageEvent event) {
+		if(event.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK) {
+			System.out.println("§c" + event.getNpc().getFireTicks());
 		}
 	}
 

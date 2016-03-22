@@ -386,6 +386,7 @@ public class FakePlayer implements NPC {
     public void setHealth(float health) {
         if(health == 0) {
             this.setEntityStatus(EnumEntityStatus.DEAD);
+			this.fireTicks = -20;
 			this.location.getWorld().playSound(this.location, Sound.ENTITY_GENERIC_DEATH, 1, 1);
             this.living = false;
         } else if(this.health > health) {
@@ -574,15 +575,23 @@ public class FakePlayer implements NPC {
 		});
 	}
 
-	private void burn() {
+	private void fire() {
 		getTouchedBlocks().forEach( (block) -> {
 			FakePlayerMeta meta = this.getMeta();
 			if(block.getType() == Material.FIRE) {
 				meta.setOnFire(true);
 				if(this.fireTicks < 160) {
 					this.fireTicks = 160;
+					this.damage(1, EntityDamageEvent.DamageCause.FIRE);
 				}
 			}
+			this.setMeta(meta);
+		});
+	}
+
+	private void burn() {
+		getTouchedBlocks().forEach( (block) -> {
+			FakePlayerMeta meta = this.getMeta();
 			if(block.getType() == Material.STATIONARY_WATER) {
 				meta.setOnFire(false);
 				this.fireTicks = -20;
@@ -594,7 +603,6 @@ public class FakePlayer implements NPC {
 			if(this.fireTicks % 20 == 0) {
 				this.damage(1, EntityDamageEvent.DamageCause.FIRE_TICK);
 			}
-			--this.fireTicks;
 		}
 		if(this.fireTicks == 0) {
 			this.fireTicks = -20;
@@ -617,8 +625,12 @@ public class FakePlayer implements NPC {
     @Override
     public void tick() {
         if(this.isAlive()) {
+			if(this.fireTicks > 0) {
+				--this.fireTicks;
+			}
             drown();
 			lava();
+			fire();
             burn();
 			cactus();
 
