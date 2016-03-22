@@ -463,6 +463,9 @@ public class FakePlayer implements NPC {
             this.meta.setOnFire(false);
             updateMetadata();
         }
+		if(this.location.getWorld().hasStorm() || this.location.getWorld().isThundering()) {
+			this.setFireTicks(0);
+		}
     }
 
     @Override
