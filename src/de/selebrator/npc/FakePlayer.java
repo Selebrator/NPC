@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.entity.LivingEntity;
@@ -40,7 +41,7 @@ public class FakePlayer implements NPC {
 
     private float health = 20F;
     private int air = 300;
-    private int fireTicks = 0;
+    private int fireTicks = -20;
     private int noDamageTicks;
     private double moveSpeed = EnumMoveSpeed.WALKING.getSpeed() / 20;
     private Location respawnLocation;
@@ -385,9 +386,11 @@ public class FakePlayer implements NPC {
     public void setHealth(float health) {
         if(health == 0) {
             this.setEntityStatus(EnumEntityStatus.DEAD);
+			this.location.getWorld().playSound(this.location, Sound.ENTITY_GENERIC_DEATH, 1, 1);
             this.living = false;
         } else if(this.health > health) {
             this.setEntityStatus(EnumEntityStatus.HURT);
+			this.location.getWorld().playSound(this.location, Sound.ENTITY_GENERIC_HURT, 1, 1);
         } else if(this.health == 0 && health > 0) {
             if(this.hasLocation()) {
                 this.health = health;
@@ -434,38 +437,9 @@ public class FakePlayer implements NPC {
         this.meta.setAir(air);
     }
 
-    private void drown() {
-        if(this.getEyeLocation().getBlock().getType() == Material.STATIONARY_WATER) {
-            this.setAir(this.air - 1);
-        } else if(this.getLocation().getBlock().getType() == Material.AIR) {
-            this.setAir(300);
-        }
-        if(this.air <= -20) {
-            this.damage(2, EntityDamageEvent.DamageCause.DROWNING);
-            this.air = 0;
-        }
-    }
-
     @Override
     public void setFireTicks(int fireTicks) {
         this.fireTicks = fireTicks;
-    }
-
-    private void burn() {
-        if(this.fireTicks > 0) {
-            if(this.fireTicks % 20 == 0) {
-                this.damage(1, EntityDamageEvent.DamageCause.FIRE_TICK);
-            }
-            --this.fireTicks;
-        }
-        if(this.fireTicks == 0) {
-            this.fireTicks = -20;
-            this.meta.setOnFire(false);
-            updateMetadata();
-        }
-		if(this.location.getWorld().hasStorm() || this.location.getWorld().isThundering()) {
-			this.setFireTicks(0);
-		}
     }
 
     @Override
@@ -576,27 +550,62 @@ public class FakePlayer implements NPC {
         return blocks;
     }
 
+	private void drown() {
+		if(this.getEyeLocation().getBlock().getType() == Material.STATIONARY_WATER) {
+			this.setAir(this.air - 1);
+		} else if(this.getLocation().getBlock().getType() == Material.AIR) {
+			this.setAir(300);
+		}
+		if(this.air <= -20) {
+			this.damage(2, EntityDamageEvent.DamageCause.DROWNING);
+			this.air = 0;
+		}
+	}
+
+	private void burn() {
+		getTouchedBlocks().forEach( (block) -> {
+			FakePlayerMeta meta = this.getMeta();
+			if(block.getType() == Material.FIRE) {
+				meta.setOnFire(true);
+				this.fireTicks = 160;
+			}
+			if(block.getType() == Material.STATIONARY_WATER) {
+				meta.setOnFire(false);
+				this.fireTicks = -20;
+			}
+			this.setMeta(meta);
+		});
+
+		if(this.fireTicks > 0) {
+			if(this.fireTicks % 20 == 0) {
+				this.damage(1, EntityDamageEvent.DamageCause.FIRE_TICK);
+			}
+			--this.fireTicks;
+		}
+		if(this.fireTicks == 0) {
+			this.fireTicks = -20;
+			this.meta.setOnFire(false);
+			updateMetadata();
+		}
+		if(this.location.getWorld().hasStorm() || this.location.getWorld().isThundering()) {
+			this.setFireTicks(0);
+		}
+	}
+
+	private void cactus() {
+		getTouchedBlocks().forEach( (block) -> {
+			if(block.getType() == Material.CACTUS) {
+				this.damage(1, EntityDamageEvent.DamageCause.CONTACT);
+			}
+		});
+	}
+
     @Override
     public void tick() {
         if(this.isAlive()) {
-            List<Block> blocks = getTouchedBlocks();
-            blocks.forEach( (block) -> {
-                if(this.touches(block)) {
-                    FakePlayerMeta meta = this.getMeta();
-                    if(block.getType() == Material.FIRE) {
-                        meta.setOnFire(true);
-                        this.fireTicks = 160;
-                    }
-                    if(block.getType() == Material.STATIONARY_WATER) {
-                        meta.setOnFire(false);
-                        this.fireTicks = -20;
-                    }
-                    this.setMeta(meta);
-                }
-            });
-
             drown();
             burn();
+			cactus();
 
             if(this.getNoDamageTicks() > 0) {
                 --this.noDamageTicks;
