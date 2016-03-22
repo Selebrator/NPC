@@ -562,12 +562,26 @@ public class FakePlayer implements NPC {
 		}
 	}
 
+	private void lava() {
+		getTouchedBlocks().forEach( (block) -> {
+			if(block.getType() == Material.STATIONARY_LAVA) {
+				this.damage(4, EntityDamageEvent.DamageCause.LAVA);
+				meta.setOnFire(true);
+				if(this.fireTicks < 160) {
+					this.fireTicks = 160;
+				}
+			}
+		});
+	}
+
 	private void burn() {
 		getTouchedBlocks().forEach( (block) -> {
 			FakePlayerMeta meta = this.getMeta();
 			if(block.getType() == Material.FIRE) {
 				meta.setOnFire(true);
-				this.fireTicks = 160;
+				if(this.fireTicks < 160) {
+					this.fireTicks = 160;
+				}
 			}
 			if(block.getType() == Material.STATIONARY_WATER) {
 				meta.setOnFire(false);
@@ -604,6 +618,7 @@ public class FakePlayer implements NPC {
     public void tick() {
         if(this.isAlive()) {
             drown();
+			lava();
             burn();
 			cactus();
 
