@@ -16,11 +16,16 @@ import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FakePlayer implements NPC {
 
@@ -35,6 +40,7 @@ public class FakePlayer implements NPC {
 
     private float health = 20F;
     private int air = 300;
+    private int fireTicks = 0;
     private int noDamageTicks;
     private double moveSpeed = EnumMoveSpeed.WALKING.getSpeed() / 20;
     private Location respawnLocation;
@@ -300,6 +306,11 @@ public class FakePlayer implements NPC {
     }
 
     @Override
+    public int getFireTicks() {
+        return this.fireTicks;
+    }
+
+    @Override
     public double getMoveSpeed() {
         return this.moveSpeed * 20;
     }
@@ -423,6 +434,37 @@ public class FakePlayer implements NPC {
         this.meta.setAir(air);
     }
 
+    private void drown() {
+        if(this.getEyeLocation().getBlock().getType() == Material.STATIONARY_WATER) {
+            this.setAir(this.air - 1);
+        } else if(this.getLocation().getBlock().getType() == Material.AIR) {
+            this.setAir(300);
+        }
+        if(this.air <= -20) {
+            this.damage(2, EntityDamageEvent.DamageCause.DROWNING);
+            this.air = 0;
+        }
+    }
+
+    @Override
+    public void setFireTicks(int fireTicks) {
+        this.fireTicks = fireTicks;
+    }
+
+    private void burn() {
+        if(this.fireTicks > 0) {
+            if(this.fireTicks % 20 == 0) {
+                this.damage(1, EntityDamageEvent.DamageCause.FIRE_TICK);
+            }
+            --this.fireTicks;
+        }
+        if(this.fireTicks == 0) {
+            this.fireTicks = -20;
+            this.meta.setOnFire(false);
+            updateMetadata();
+        }
+    }
+
     @Override
     public void setRespawnLocation(Location location) {
         this.respawnLocation = location;
@@ -459,5 +501,103 @@ public class FakePlayer implements NPC {
         if(state)
             this.meta.setSneaking(false);
         updateMetadata();
+    }
+
+    @Override
+    public boolean touches(Block block) {
+        double x = (block.getX() + 0.5) - this.location.getX();
+        double y = block.getY() - this.location.getY();
+        double z = (block.getZ() + 0.5) - this.location.getZ();
+
+        return ((-0.8D < x && x < -0.2D) || (-0.2D < x && x < 0.2D) || (0.2 < x && x < 0.8D))
+            && (-1 < y && y < (0.2D + this.getEyeHeight(false)))
+            && ((-0.8D < z && z < -0.2D) || (-0.2D < z && z < 0.2D) || (0.2 < z && z < 0.8D));
+    }
+
+    @Override
+    public List<Block> getTouchedBlocks() {
+        List<Block> surrounding = getSurroundingBlocks();
+        List<Block> touched = new ArrayList<>();
+        surrounding.forEach( (block) -> {
+            if(this.touches(block)) {
+                touched.add(block);
+            }
+        });
+        return touched;
+    }
+
+    @Override
+    public List<Block> getSurroundingBlocks() {
+        List<Block> blocks = new ArrayList<>();
+        Block block = this.location.getBlock();
+        blocks.add(block.getRelative(-1, -1, -1));
+        blocks.add(block.getRelative(-1, -1, 0));
+        blocks.add(block.getRelative(-1, -1, 1));
+        blocks.add(block.getRelative(0, -1, -1));
+        blocks.add(block.getRelative(0, -1, 0));
+        blocks.add(block.getRelative(0, -1, 1));
+        blocks.add(block.getRelative(1, -1, -1));
+        blocks.add(block.getRelative(1, -1, 0));
+        blocks.add(block.getRelative(1, -1, 1));
+
+        blocks.add(block.getRelative(-1, 0, -1));
+        blocks.add(block.getRelative(-1, 0, 0));
+        blocks.add(block.getRelative(-1, 0, 1));
+        blocks.add(block.getRelative(0, 0, -1));
+        blocks.add(block.getRelative(0, 0, 0));
+        blocks.add(block.getRelative(0, 0, 1));
+        blocks.add(block.getRelative(1, 0, -1));
+        blocks.add(block.getRelative(1, 0, 0));
+        blocks.add(block.getRelative(1, 0, 1));
+
+        blocks.add(block.getRelative(-1, 1, -1));
+        blocks.add(block.getRelative(-1, 1, 0));
+        blocks.add(block.getRelative(-1, 1, 1));
+        blocks.add(block.getRelative(0, 1, -1));
+        blocks.add(block.getRelative(0, 1, 0));
+        blocks.add(block.getRelative(0, 1, 1));
+        blocks.add(block.getRelative(1, 1, -1));
+        blocks.add(block.getRelative(1, 1, 0));
+        blocks.add(block.getRelative(1, 1, 1));
+
+        blocks.add(block.getRelative(-1, 2, -1));
+        blocks.add(block.getRelative(-1, 2, 0));
+        blocks.add(block.getRelative(-1, 2, 1));
+        blocks.add(block.getRelative(0, 2, -1));
+        blocks.add(block.getRelative(0, 2, 0));
+        blocks.add(block.getRelative(0, 2, 1));
+        blocks.add(block.getRelative(1, 2, -1));
+        blocks.add(block.getRelative(1, 2, 0));
+        blocks.add(block.getRelative(1, 2, 1));
+
+        return blocks;
+    }
+
+    @Override
+    public void tick() {
+        if(this.isAlive()) {
+            List<Block> blocks = getTouchedBlocks();
+            blocks.forEach( (block) -> {
+                if(this.touches(block)) {
+                    FakePlayerMeta meta = this.getMeta();
+                    if(block.getType() == Material.FIRE) {
+                        meta.setOnFire(true);
+                        this.fireTicks = 160;
+                    }
+                    if(block.getType() == Material.STATIONARY_WATER) {
+                        meta.setOnFire(false);
+                        this.fireTicks = -20;
+                    }
+                    this.setMeta(meta);
+                }
+            });
+
+            drown();
+            burn();
+
+            if(this.getNoDamageTicks() > 0) {
+                --this.noDamageTicks;
+            }
+        }
     }
 }

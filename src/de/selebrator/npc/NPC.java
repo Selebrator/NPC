@@ -2,9 +2,12 @@ package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 public interface NPC {
 
@@ -110,6 +113,10 @@ public interface NPC {
 
 	void setAir(int air);
 
+	int getFireTicks();
+
+	void setFireTicks(int fireTicks);
+
 	/**
 	 *
 	 * @return movespeed in blocks/second
@@ -151,4 +158,12 @@ public interface NPC {
 	void setSneaking(boolean state);
 
 	void setSprinting(boolean state);
+
+	boolean touches(Block block);
+
+	List<Block> getTouchedBlocks();
+
+	List<Block> getSurroundingBlocks();
+
+	void tick();
 }

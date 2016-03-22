@@ -9,6 +9,7 @@ import de.selebrator.npc.FakePlayer;
 import de.selebrator.npc.MathHelper;
 import de.selebrator.npc.NPC;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -269,6 +270,20 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 					player.sendMessage("§cSelect a NPC first");
 					return true;
 
+				case "tp":
+
+					if (npc != null) {
+						if (args.length == 4) {
+							Location location = npc.getLocation().clone().add(Double.valueOf(args[1]), Double.valueOf(args[2]), Double.valueOf(args[3]));
+							npc.teleport(location);
+							return true;
+						}
+						player.sendMessage("§c/npc " + args[0]);
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+
 				case "test":
 
 					if (npc != null) {
@@ -331,15 +346,8 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 						}
 						npc.look(npc.getTarget().getEyeLocation());
 					}
-					if(npc.getEyeLocation().getBlock().getType() == Material.STATIONARY_WATER) {
-						npc.setAir(npc.getAir() - 1);
-					} else if(npc.getLocation().getBlock().getType() == Material.AIR) {
-						npc.setAir(300);
-					}
-					if(npc.getNoDamageTicks() > 0) {
-						npc.setNoDamageTicks(npc.getNoDamageTicks() - 1);
-					}
 				}
+				npc.tick();
 			});
 		}
 	};
