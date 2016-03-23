@@ -429,11 +429,6 @@ public class FakePlayer implements NPC {
 
     @Override
     public void setAir(int air) {
-        if(air <= -20) {
-            this.damage(2, EntityDamageEvent.DamageCause.DROWNING);
-            setAir(0);
-            return;
-        }
         this.air = air;
         this.meta.setAir(air);
     }
@@ -551,88 +546,71 @@ public class FakePlayer implements NPC {
         return blocks;
     }
 
-	private void drown() {
+	public void ignite(int fireTicks) {
+		this.meta.setOnFire(true);
+		if(this.fireTicks < fireTicks) {
+			this.fireTicks = fireTicks;
+		}
+	}
+
+	public void extinguish() {
+		this.meta.setOnFire(false);
+		this.fireTicks = -20;
+	}
+
+    private void ambientDamage() {
+        this.getTouchedBlocks().forEach( (block) -> {
+            //lava
+            if(block.getType() == Material.STATIONARY_LAVA) {
+                this.ignite(160);
+                this.damage(4, EntityDamageEvent.DamageCause.LAVA);
+            }
+
+            //fire(contact)
+            if(block.getType() == Material.FIRE) {
+               	this.ignite(160);
+                this.damage(1, EntityDamageEvent.DamageCause.FIRE);
+            }
+
+            //fire(tick)
+            if(block.getType() == Material.STATIONARY_WATER
+                    || this.location.getWorld().hasStorm()
+                    || this.location.getWorld().isThundering()) {
+                this.extinguish();
+            }
+
+            if(this.fireTicks > 0) {
+                if(this.fireTicks % 20 == 0) {
+					--this.fireTicks;
+                    this.damage(1, EntityDamageEvent.DamageCause.FIRE_TICK);
+                }
+            } else if(this.fireTicks == 0) {
+                this.extinguish();
+            }
+
+            //cactus
+            if(block.getType() == Material.CACTUS) {
+                this.damage(1, EntityDamageEvent.DamageCause.CONTACT);
+            }
+        });
+
+		//drown
 		if(this.getEyeLocation().getBlock().getType() == Material.STATIONARY_WATER) {
-			this.setAir(this.air - 1);
-		} else if(this.getLocation().getBlock().getType() == Material.AIR) {
+			--this.air;
+			this.setAir(this.air);
+		} else if(!this.getEyeLocation().getBlock().getType().isSolid() && !this.getEyeLocation().getBlock().isLiquid()) {
 			this.setAir(300);
 		}
 		if(this.air <= -20) {
 			this.damage(2, EntityDamageEvent.DamageCause.DROWNING);
 			this.air = 0;
 		}
-	}
-
-	private void lava() {
-		getTouchedBlocks().forEach( (block) -> {
-			if(block.getType() == Material.STATIONARY_LAVA) {
-				this.damage(4, EntityDamageEvent.DamageCause.LAVA);
-				meta.setOnFire(true);
-				if(this.fireTicks < 160) {
-					this.fireTicks = 160;
-				}
-			}
-		});
-	}
-
-	private void fire() {
-		getTouchedBlocks().forEach( (block) -> {
-			FakePlayerMeta meta = this.getMeta();
-			if(block.getType() == Material.FIRE) {
-				meta.setOnFire(true);
-				if(this.fireTicks < 160) {
-					this.fireTicks = 160;
-					this.damage(1, EntityDamageEvent.DamageCause.FIRE);
-				}
-			}
-			this.setMeta(meta);
-		});
-	}
-
-	private void burn() {
-		getTouchedBlocks().forEach( (block) -> {
-			FakePlayerMeta meta = this.getMeta();
-			if(block.getType() == Material.STATIONARY_WATER) {
-				meta.setOnFire(false);
-				this.fireTicks = -20;
-			}
-			this.setMeta(meta);
-		});
-
-		if(this.fireTicks > 0) {
-			if(this.fireTicks % 20 == 0) {
-				this.damage(1, EntityDamageEvent.DamageCause.FIRE_TICK);
-			}
-		}
-		if(this.fireTicks == 0) {
-			this.fireTicks = -20;
-			this.meta.setOnFire(false);
-			updateMetadata();
-		}
-		if(this.location.getWorld().hasStorm() || this.location.getWorld().isThundering()) {
-			this.setFireTicks(0);
-		}
-	}
-
-	private void cactus() {
-		getTouchedBlocks().forEach( (block) -> {
-			if(block.getType() == Material.CACTUS) {
-				this.damage(1, EntityDamageEvent.DamageCause.CONTACT);
-			}
-		});
-	}
+    }
 
     @Override
     public void tick() {
         if(this.isAlive()) {
-			if(this.fireTicks > 0) {
-				--this.fireTicks;
-			}
-            drown();
-			lava();
-			fire();
-            burn();
-			cactus();
+            ambientDamage();
 
             if(this.getNoDamageTicks() > 0) {
                 --this.noDamageTicks;
