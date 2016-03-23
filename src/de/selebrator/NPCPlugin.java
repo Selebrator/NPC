@@ -7,7 +7,6 @@ import de.selebrator.npc.EnumAnimation;
 import de.selebrator.npc.EnumEquipmentSlot;
 import de.selebrator.npc.EnumNature;
 import de.selebrator.npc.FakePlayer;
-import de.selebrator.npc.MathHelper;
 import de.selebrator.npc.NPC;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -339,19 +338,12 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 					if(npc.hasTarget() && !npc.getTarget().isDead()) {
 						Vector vNPC = new Vector(npc.getLocation().getX(), npc.getLocation().getY(), npc.getLocation().getZ());
 						Vector vTarget = new Vector(npc.getTarget().getLocation().getX(), npc.getTarget().getLocation().getY(), npc.getTarget().getLocation().getZ());
-						if(vNPC.distance(vTarget) > 3) {
+						double distance = vNPC.distance(vTarget);
+						if(distance > 3) {
 							npc.step(npc.getTarget().getLocation());
-						} if(vNPC.distance(vTarget) <= 3 && npc.getNature() == EnumNature.HOSTILE){
-							npc.playAnimation(EnumAnimation.SWING_ARM);
-							npc.getTarget().damage(1);
-							Vector distance = MathHelper.calcDistanceVector(npc.getLocation(), npc.getTarget().getLocation());
-
-							float yaw = MathHelper.calcYaw(distance.getX(), distance.getZ());
-							float pitch = MathHelper.calcPitch(distance.getX(), distance.getY(), distance.getZ());
-
-							Vector direction = MathHelper.calcDirectionVector(0.4, yaw, pitch);
-
-							npc.getTarget().setVelocity(direction);
+						}
+						if(distance <= 3 && npc.getNature() == EnumNature.HOSTILE){
+							npc.attack(npc.getTarget());
 						}
 						npc.look(npc.getTarget().getEyeLocation());
 					}

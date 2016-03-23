@@ -165,5 +165,7 @@ public interface NPC {
 
 	List<Block> getSurroundingBlocks();
 
+	void attack(LivingEntity target);
+
 	void tick();
 }

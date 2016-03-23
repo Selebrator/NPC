@@ -472,6 +472,7 @@ public class FakePlayer implements NPC {
         updateMetadata();
     }
 
+
     @Override
     public boolean touches(Block block) {
         double x = (block.getX() + 0.5) - this.location.getX();
@@ -554,7 +555,7 @@ public class FakePlayer implements NPC {
 		this.fireTicks = -20;
 	}
 
-    private void ambientDamage() {
+    private void applyAmbientDamage() {
         this.getTouchedBlocks().forEach( (block) -> {
             //lava
             if(block.getType() == Material.STATIONARY_LAVA) {
@@ -603,10 +604,26 @@ public class FakePlayer implements NPC {
 		}
     }
 
+	@Override
+	public void attack(LivingEntity target) {
+		if(this.isAlive() && !target.isDead()) {
+			this.playAnimation(EnumAnimation.SWING_ARM);
+			target.damage(1);
+			Vector distance = MathHelper.calcDistanceVector(this.getLocation(), target.getLocation());
+
+			float yaw = MathHelper.calcYaw(distance.getX(), distance.getZ());
+			float pitch = MathHelper.calcPitch(distance.getX(), distance.getY(), distance.getZ());
+
+			Vector direction = MathHelper.calcDirectionVector(0.4, yaw, pitch);
+
+			target.setVelocity(direction);
+		}
+	}
+
     @Override
     public void tick() {
         if(this.isAlive()) {
-            ambientDamage();
+			applyAmbientDamage();
 
             if(this.getNoDamageTicks() > 0) {
                 --this.noDamageTicks;
