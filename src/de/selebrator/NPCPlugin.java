@@ -292,6 +292,19 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 					player.sendMessage("§cSelect a NPC first");
 					return true;
 
+				case "freeze":
+
+					if (npc != null) {
+						if (args.length == 1) {
+							npc.freeze(!npc.isFrozen());
+							return true;
+						}
+						player.sendMessage("§c/npc " + args[0]);
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+
 				case "test":
 
 					if (npc != null) {
@@ -334,7 +347,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		@Override
 		public void run() {
 			fakePlayers.forEach( (id, npc) -> {
-				if(npc != null && npc.isAlive()) {
+				if(npc != null && npc.isAlive() && !npc.isFrozen()) {
 					if(npc.hasTarget() && !npc.getTarget().isDead()) {
 						Vector vNPC = new Vector(npc.getLocation().getX(), npc.getLocation().getY(), npc.getLocation().getZ());
 						Vector vTarget = new Vector(npc.getTarget().getLocation().getX(), npc.getTarget().getLocation().getY(), npc.getTarget().getLocation().getZ());

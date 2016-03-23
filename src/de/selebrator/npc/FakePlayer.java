@@ -34,6 +34,7 @@ public class FakePlayer implements NPC {
 	public GameProfile gameProfile;
 	private FakePlayerMeta meta;
 
+	private boolean frozen = false;
 	private boolean living;
 	private Location location;
 	private LivingEntity target;
@@ -290,6 +291,11 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
+	public boolean isFrozen() {
+		return this.frozen;
+	}
+
+	@Override
 	public float getHealth() {
 		return this.isAlive() ? this.health : 0;
 	}
@@ -379,6 +385,11 @@ public class FakePlayer implements NPC {
 	public void setMeta(FakePlayerMeta meta) {
 		this.meta = meta;
 		this.updateMetadata();
+	}
+
+	@Override
+	public void freeze(boolean frozen) {
+		this.frozen = frozen;
 	}
 
 	public void setHealth(float health) {
@@ -550,11 +561,13 @@ public class FakePlayer implements NPC {
 		if(this.fireTicks < fireTicks) {
 			this.fireTicks = fireTicks;
 		}
+		updateMetadata();
 	}
 
 	public void extinguish() {
 		this.meta.setOnFire(false);
 		this.fireTicks = -20;
+		updateMetadata();
 	}
 
 	private void applyAmbientDamage() {
@@ -580,7 +593,6 @@ public class FakePlayer implements NPC {
 
 			if(this.fireTicks > 0) {
 				if(this.fireTicks % 20 == 0) {
-					--this.fireTicks;
 					this.damage(1, EntityDamageEvent.DamageCause.FIRE_TICK);
 				}
 			} else if(this.fireTicks == 0) {
@@ -624,7 +636,11 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void tick() {
-		if(this.isAlive()) {
+		if(this.isAlive() && !this.frozen) {
+			if(this.fireTicks > 0) {
+				--this.fireTicks;
+			}
+
 			applyAmbientDamage();
 
 			if(this.getNoDamageTicks() > 0) {

@@ -99,6 +99,10 @@ public interface NPC {
 
 	boolean isAlive();
 
+	boolean isFrozen();
+
+	void freeze(boolean freeze);
+
 	float getHealth();
 
 	void damage(int amount);
