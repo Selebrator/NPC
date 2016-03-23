@@ -89,15 +89,6 @@ public class MathHelper {
 		return calcDistanceVector(start.getX(), start.getY(), start.getZ(), destination.getX(), destination.getY(), destination.getZ());
 	}
 
-	/**
-	 * prepare angle for packet
-	 * @param value angle in degrees
-	 * @return rotation in 1/265 steps
-	 */
-	public static byte angle(float value) {
-		return (byte) ((int) (value * 256F / 360F));
-	}
-
 	public static boolean getBit(byte bitMask, int bit) {
 		return (bitMask & (1 << bit)) != 0;
 	}

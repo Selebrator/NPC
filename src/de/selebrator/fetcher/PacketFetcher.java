@@ -1,7 +1,6 @@
 package de.selebrator.fetcher;
 
 import com.mojang.authlib.GameProfile;
-import de.selebrator.npc.MathHelper;
 import de.selebrator.reflection.Reflection;
 import net.minecraft.server.v1_9_R1.ChatComponentText;
 import net.minecraft.server.v1_9_R1.DataWatcher;
@@ -33,8 +32,8 @@ public class PacketFetcher {
 		Reflection.getField(packet.getClass(), "c").set(packet, location.getX());
 		Reflection.getField(packet.getClass(), "d").set(packet, location.getY());
 		Reflection.getField(packet.getClass(), "e").set(packet, location.getZ());
-		Reflection.getField(packet.getClass(), "f").set(packet, MathHelper.angle(location.getYaw()));
-		Reflection.getField(packet.getClass(), "g").set(packet, MathHelper.angle(location.getPitch()));
+		Reflection.getField(packet.getClass(), "f").set(packet, angle(location.getYaw()));
+		Reflection.getField(packet.getClass(), "g").set(packet, angle(location.getPitch()));
 		Reflection.getField(packet.getClass(), "h").set(packet, dataWatcher);
 		return packet;
 	}
@@ -56,8 +55,8 @@ public class PacketFetcher {
 	public static PacketPlayOutEntity.PacketPlayOutEntityLook entityLook(int entityId, float yaw, float pitch) {
 		PacketPlayOutEntity.PacketPlayOutEntityLook packet = new PacketPlayOutEntity.PacketPlayOutEntityLook();
 		Reflection.getField(packet.getClass().getSuperclass(), "a").set(packet, entityId);
-		Reflection.getField(packet.getClass().getSuperclass(), "e").set(packet, MathHelper.angle(yaw));
-		Reflection.getField(packet.getClass().getSuperclass(), "f").set(packet, MathHelper.angle(pitch));
+		Reflection.getField(packet.getClass().getSuperclass(), "e").set(packet, angle(yaw));
+		Reflection.getField(packet.getClass().getSuperclass(), "f").set(packet, angle(pitch));
 		Reflection.getField(packet.getClass().getSuperclass(), "g").set(packet, false);
 		Reflection.getField(packet.getClass().getSuperclass(), "h").set(packet, true);
 		return packet;
@@ -66,29 +65,29 @@ public class PacketFetcher {
 	public static PacketPlayOutEntityHeadRotation headRotation(int entityId, float yaw) {
 		PacketPlayOutEntityHeadRotation packet = new PacketPlayOutEntityHeadRotation();
 		Reflection.getField(packet.getClass(), "a").set(packet, entityId);
-		Reflection.getField(packet.getClass(), "b").set(packet, MathHelper.angle(yaw));
+		Reflection.getField(packet.getClass(), "b").set(packet, angle(yaw));
 		return packet;
 	}
 
-	public static PacketPlayOutEntity.PacketPlayOutRelEntityMove relEntityMove(int entityId, int changeX, int changeY, int changeZ) {
+	public static PacketPlayOutEntity.PacketPlayOutRelEntityMove relEntityMove(int entityId, double x, double y, double z) {
 		PacketPlayOutEntity.PacketPlayOutRelEntityMove packet = new PacketPlayOutEntity.PacketPlayOutRelEntityMove();
 		Reflection.getField(packet.getClass().getSuperclass(), "a").set(packet, entityId);
-		Reflection.getField(packet.getClass().getSuperclass(), "b").set(packet, changeX);
-		Reflection.getField(packet.getClass().getSuperclass(), "c").set(packet, changeY);
-		Reflection.getField(packet.getClass().getSuperclass(), "d").set(packet, changeZ);
+		Reflection.getField(packet.getClass().getSuperclass(), "b").set(packet, rel(x));
+		Reflection.getField(packet.getClass().getSuperclass(), "c").set(packet, rel(y));
+		Reflection.getField(packet.getClass().getSuperclass(), "d").set(packet, rel(z));
 		Reflection.getField(packet.getClass().getSuperclass(), "g").set(packet, true); //onGround
 		Reflection.getField(packet.getClass().getSuperclass(), "h").set(packet, true);
 		return packet;
 	}
 
-	public static PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook relEntityMoveLook(int entityId, int changeX, int changeY, int changeZ, float yaw, float pitch) {
+	public static PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook relEntityMoveLook(int entityId, double x, double y, double z, float yaw, float pitch) {
 		PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook packet = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook();
 		Reflection.getField(packet.getClass().getSuperclass(), "a").set(packet, entityId);
-		Reflection.getField(packet.getClass().getSuperclass(), "b").set(packet, changeX);
-		Reflection.getField(packet.getClass().getSuperclass(), "c").set(packet, changeY);
-		Reflection.getField(packet.getClass().getSuperclass(), "d").set(packet, changeZ);
-		Reflection.getField(packet.getClass().getSuperclass(), "e").set(packet, MathHelper.angle(yaw));
-		Reflection.getField(packet.getClass().getSuperclass(), "f").set(packet, MathHelper.angle(pitch));
+		Reflection.getField(packet.getClass().getSuperclass(), "b").set(packet, rel(x));
+		Reflection.getField(packet.getClass().getSuperclass(), "c").set(packet, rel(y));
+		Reflection.getField(packet.getClass().getSuperclass(), "d").set(packet, rel(z));
+		Reflection.getField(packet.getClass().getSuperclass(), "e").set(packet, angle(yaw));
+		Reflection.getField(packet.getClass().getSuperclass(), "f").set(packet, angle(pitch));
 		Reflection.getField(packet.getClass().getSuperclass(), "g").set(packet, true); //onGround
 		Reflection.getField(packet.getClass().getSuperclass(), "h").set(packet, true);
 		return packet;
@@ -100,8 +99,8 @@ public class PacketFetcher {
 		Reflection.getField(packet.getClass(), "b").set(packet, location.getX());
 		Reflection.getField(packet.getClass(), "c").set(packet, location.getY());
 		Reflection.getField(packet.getClass(), "d").set(packet, location.getZ());
-		Reflection.getField(packet.getClass(), "e").set(packet, MathHelper.angle(location.getYaw()));
-		Reflection.getField(packet.getClass(), "f").set(packet, MathHelper.angle(location.getPitch()));
+		Reflection.getField(packet.getClass(), "e").set(packet, angle(location.getYaw()));
+		Reflection.getField(packet.getClass(), "f").set(packet, angle(location.getPitch()));
 		Reflection.getField(packet.getClass(), "g").set(packet, false);		//onGround
 		return packet;
 	}
@@ -137,5 +136,21 @@ public class PacketFetcher {
 
 	public static void broadcastPackets(Packet<?>... packets) {
 		Bukkit.getOnlinePlayers().forEach(player -> sendPackets(player, packets));
+	}
+
+	/**
+	 * prepare angle for packet
+	 * @param value angle in degrees
+	 * @return rotation in 1/265 steps
+	 */
+	public static byte angle(float value) {
+		return (byte) ((int) (value * 256F / 360F));
+	}
+
+	/**
+	 * prepare relative coordinate for packet
+	 */
+	public static int rel(double value) {
+		return (int) (4096 * value);
 	}
 }

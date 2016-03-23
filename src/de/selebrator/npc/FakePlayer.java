@@ -163,12 +163,8 @@ public class FakePlayer implements NPC {
         z = distance.getZ();
 
         if(Math.abs(x) < 8 && Math.abs(y) < 8 && Math.abs(z) < 8) {
-            int changeX = (int) ((((this.location.getX() + x) * 32) - (this.location.getX() * 32)) * 128);
-            int changeY = (int) ((((this.location.getY() + y) * 32) - (this.location.getY() * 32)) * 128);
-            int changeZ = (int) ((((this.location.getZ() + z) * 32) - (this.location.getZ() * 32)) * 128);
-
             PacketFetcher.broadcastPackets(
-                    PacketFetcher.relEntityMove(this.entityId, changeX, changeY, changeZ)
+                    PacketFetcher.relEntityMove(this.entityId, x, y, z)
             );
 
             this.location.add(x, y, z);
