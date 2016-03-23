@@ -71,6 +71,22 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 				event.getPlayer().sendMessage("§cSelect a NPC first");
 			}
 		}
+		if(item != null && item.getType() == Material.EMERALD) {
+			if(event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				if(npc != null) {
+					npc.respawn(event.getClickedBlock().getLocation().add(0.5, 1, 0.5));
+					return;
+				}
+				event.getPlayer().sendMessage("§cSelect a NPC first");
+
+			} else if(event.getAction() == Action.RIGHT_CLICK_AIR) {
+				if(npc != null) {
+					npc.respawn(null);
+					return;
+				}
+				event.getPlayer().sendMessage("§cSelect a NPC first");
+			}
+		}
 	}
 
 	@EventHandler
@@ -355,7 +371,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 						if(distance > 3) {
 							npc.step(npc.getTarget().getLocation());
 						}
-						if(distance <= 3 && npc.getNature() == EnumNature.HOSTILE){
+						if(distance <= 2.5 && npc.getNature() == EnumNature.HOSTILE){
 							npc.attack(npc.getTarget());
 						}
 						npc.look(npc.getTarget().getEyeLocation());

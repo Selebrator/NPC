@@ -105,6 +105,12 @@ public interface NPC {
 
 	float getHealth();
 
+	void setHealth(float health);
+
+	float getMaxHealth();
+
+	void setMaxHealth(float maxHealth);
+
 	void damage(int amount);
 
 	void damage(int amount, EntityDamageEvent.DamageCause cause);
@@ -113,9 +119,9 @@ public interface NPC {
 
 	void setNoDamageTicks(int noDamageTicks);
 
-	int getAir();
+	int getRemainingAir();
 
-	void setAir(int air);
+	void setRemainingAir(int air);
 
 	int getFireTicks();
 

@@ -34,22 +34,21 @@ public class FakePlayer implements NPC {
 	public GameProfile gameProfile;
 	private FakePlayerMeta meta;
 
-	private boolean frozen = false;
+	private boolean frozen;
 	private boolean living;
 	private Location location;
 	private LivingEntity target;
-	private EnumNature nature = EnumNature.PASSIVE;
+	private EnumNature nature;
 
-	private float health = 20F;
-	private int air = 300;
-	private int fireTicks = -20;
+	private float maxHealth;
+	private int fireTicks;
 	private int noDamageTicks;
-	private double moveSpeed = EnumMoveSpeed.WALKING.getSpeed() / 20;
+	private double moveSpeed;
 	private Location respawnLocation;
 
 	private ItemStack[] equip = new ItemStack[6];
 
-	private int speedAmplifier = -1;
+	private int speedAmplifier;
 
 	private static final double EYE_HEIGHT_STANDING = 1.62D;
 	private static final double EYE_HEIGHT_SNEAKING = 1.2D;
@@ -61,12 +60,7 @@ public class FakePlayer implements NPC {
 
 		this.gameProfile = gameProfile;
 
-		this.meta = new FakePlayerMeta();
-		this.meta.setStatus(false, false, false, false, false, false);
-		this.meta.setSkinFlags(true, true, true, true, true, true, true);
-		this.meta.setHealth(this.health);
-		this.meta.setAir(this.air);
-		this.meta.setName(this.getName());
+		initialize();
 	}
 
 	@Override
@@ -94,19 +88,7 @@ public class FakePlayer implements NPC {
 	@Override
 	public void respawn(Location location) {
 		if(!this.isAlive()) {
-			this.target = null;
-			this.location = null;
-			this.health = 20F;
-			this.equip = new ItemStack[6];
-			this.setMoveSpeed(EnumMoveSpeed.WALKING.getSpeed());
-			this.nature = EnumNature.PASSIVE;
-
-			this.meta = new FakePlayerMeta();
-			this.meta.setStatus(false, false, false, false, false, false);
-			this.meta.setSkinFlags(true, true, true, true, true, true, true);
-			this.meta.setHealth(this.health);
-			this.meta.setName(this.getName());
-
+			this.softReset();
 			this.spawn(location != null ? location : this.respawnLocation);
 		}
 	}
@@ -297,7 +279,12 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public float getHealth() {
-		return this.isAlive() ? this.health : 0;
+		return this.isAlive() ? this.meta.getHealth() : 0;
+	}
+
+	@Override
+	public float getMaxHealth() {
+		return this.maxHealth;
 	}
 
 	@Override
@@ -306,8 +293,8 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public int getAir() {
-		return this.air;
+	public int getRemainingAir() {
+		return this.meta.getAir();
 	}
 
 	@Override
@@ -392,25 +379,32 @@ public class FakePlayer implements NPC {
 		this.frozen = frozen;
 	}
 
+	@Override
 	public void setHealth(float health) {
+		if(health > this.maxHealth) {
+			health = this.maxHealth;
+		}
 		if(health == 0) {
 			this.setEntityStatus(EnumEntityStatus.DEAD);
 			this.fireTicks = -20;
-			this.location.getWorld().playSound(this.location, Sound.ENTITY_GENERIC_DEATH, 1, 1);
+			playSound(Sound.ENTITY_GENERIC_DEATH);
 			this.living = false;
-		} else if(this.health > health) {
+		} else if(this.getHealth() > health) {
 			this.setEntityStatus(EnumEntityStatus.HURT);
-			this.location.getWorld().playSound(this.location, Sound.ENTITY_GENERIC_HURT, 1, 1);
-		} else if(this.health == 0 && health > 0) {
+			playSound(Sound.ENTITY_GENERIC_HURT);
+		} else if(this.getHealth() == 0 && health > 0) {
 			if(this.hasLocation()) {
-				this.health = health;
 				this.meta.setHealth(health);
 				this.spawn(this.location);
 				return;
 			}
 		}
-		this.health = health;
 		this.meta.setHealth(health);
+	}
+
+	@Override
+	public void setMaxHealth(float maxHealth) {
+		this.maxHealth = maxHealth;
 	}
 
 	@Override
@@ -437,8 +431,7 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public void setAir(int air) {
-		this.air = air;
+	public void setRemainingAir(int air) {
 		this.meta.setAir(air);
 	}
 
@@ -485,6 +478,12 @@ public class FakePlayer implements NPC {
 		updateMetadata();
 	}
 
+
+	private void playSound(Sound sound) {
+		if(!this.meta.isSilent()) {
+			this.location.getWorld().playSound(this.location, sound, 1, 1);
+		}
+	}
 
 	@Override
 	public boolean touches(Block block) {
@@ -607,14 +606,13 @@ public class FakePlayer implements NPC {
 
 		//drown
 		if(this.getEyeLocation().getBlock().getType() == Material.STATIONARY_WATER) {
-			--this.air;
-			this.setAir(this.air);
+			this.meta.setAir(this.meta.getAir() - 1);
 		} else if(!this.getEyeLocation().getBlock().getType().isSolid() && !this.getEyeLocation().getBlock().isLiquid()) {
-			this.setAir(300);
+			this.meta.setAir(300);
 		}
-		if(this.air <= -20) {
+		if(this.meta.getAir() <= -20) {
 			this.damage(2, EntityDamageEvent.DamageCause.DROWNING);
-			this.air = 0;
+			this.meta.setAir(0);
 		}
 	}
 
@@ -647,5 +645,50 @@ public class FakePlayer implements NPC {
 				--this.noDamageTicks;
 			}
 		}
+	}
+
+	public void initialize() {
+		this.meta = new FakePlayerMeta();
+		this.meta.setStatus(false, false, false, false, false, false);
+		this.meta.setSkinFlags(true, true, true, true, true, true, true);
+		this.meta.setHealth(20);
+		this.meta.setAir(300);
+		this.meta.setName(this.getName());
+
+		this.frozen = false;
+		this.living = false;
+		this.location = null;
+		this.target = null;
+		this.nature = EnumNature.PASSIVE;
+
+		this.maxHealth = 20;
+		this.fireTicks = -20;
+		this.noDamageTicks = 0;
+		this.moveSpeed = EnumMoveSpeed.WALKING.getSpeed() / 20;
+
+		this.equip = new ItemStack[6];
+
+		this.speedAmplifier = -1;
+	}
+
+	public void softReset() {
+		this.meta.setAir(300);
+		this.meta.setSilent(false);
+		this.meta.setHealth(20F);
+
+		this.frozen = false;
+		this.living = false;
+		this.location = null;
+		this.target = null;
+		this.nature = EnumNature.PASSIVE;
+
+		this.maxHealth = 20;
+		this.fireTicks = -20;
+		this.noDamageTicks = 0;
+		this.moveSpeed = EnumMoveSpeed.WALKING.getSpeed() / 20;
+
+		this.equip = new ItemStack[6];
+
+		this.speedAmplifier = -1;
 	}
 }
