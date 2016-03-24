@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
@@ -76,8 +75,6 @@ public interface NPC {
 	void step(Location location);
 
 	void teleport(Location location);
-
-	void equip(EnumEquipmentSlot slot, ItemStack item);
 
 	void playAnimation(EnumAnimation animation);
 
@@ -161,9 +158,7 @@ public interface NPC {
 
 	void setNature(EnumNature nature);
 
-	boolean hasEquipment(EnumEquipmentSlot slot);
-
-	ItemStack getEquipment(EnumEquipmentSlot slot);
+	FakePlayerEquipment getEquipment();
 
 	void setSneaking(boolean state);
 

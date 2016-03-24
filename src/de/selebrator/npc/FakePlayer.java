@@ -34,6 +34,7 @@ public class FakePlayer implements NPC {
 	public GameProfile gameProfile;
 	public FakePlayerMeta meta;
 	public FakePlayerAttributes attributes;
+	public FakePlayerEquipment equip;
 
 	private boolean frozen;
 	private boolean living;
@@ -44,8 +45,6 @@ public class FakePlayer implements NPC {
 	private int fireTicks;
 	private int noDamageTicks;
 	private Location respawnLocation;
-
-	private ItemStack[] equip = new ItemStack[6];
 
 	private int speedAmplifier;
 
@@ -61,6 +60,8 @@ public class FakePlayer implements NPC {
 
 		initialize();
 	}
+
+	// ### PACKET MANIPULATION ###
 
 	@Override
 	public void spawn(Location location) {
@@ -78,7 +79,7 @@ public class FakePlayer implements NPC {
 		this.living = this.meta.getHealth() > 0;
 
 		for(EnumEquipmentSlot slot : EnumEquipmentSlot.values()) {
-			this.equip(slot, this.equip[slot.getId()]);
+			this.equip(slot, this.equip.getEquipment()[slot.getId()]);
 		}
 
 		this.look(location.getYaw(), location.getPitch());
@@ -201,7 +202,6 @@ public class FakePlayer implements NPC {
 		this.location = location;
 	}
 
-	@Override
 	public void equip(EnumEquipmentSlot slot, ItemStack item) {
 		NPCEquipEvent event = new NPCEquipEvent(this, slot, item);
 		Bukkit.getPluginManager().callEvent(event);
@@ -213,8 +213,6 @@ public class FakePlayer implements NPC {
 		PacketFetcher.broadcastPackets(
 				PacketFetcher.entityEquipment(this.entityId, slot.getNMS(), CraftItemStack.asNMSCopy(item))
 		);
-
-		this.equip[slot.getId()] = item;
 	}
 
 	@Override
@@ -348,13 +346,8 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public boolean hasEquipment(EnumEquipmentSlot slot) {
-		return this.equip[slot.getId()] != null;
-	}
-
-	@Override
-	public ItemStack getEquipment(EnumEquipmentSlot slot) {
-		return equip[slot.getId()];
+	public FakePlayerEquipment getEquipment() {
+		return this.equip;
 	}
 
 	// ### SETTER ###
@@ -477,6 +470,7 @@ public class FakePlayer implements NPC {
 		updateMetadata();
 	}
 
+	// ### LIVE ###
 
 	private void playSound(Sound sound) {
 		if(!this.meta.isSilent()) {
@@ -667,7 +661,7 @@ public class FakePlayer implements NPC {
 		this.noDamageTicks = 0;
 		this.attributes.setMoveSpeed(EnumMoveSpeed.WALKING.getSpeed());
 
-		this.equip = new ItemStack[6];
+		this.equip = new FakePlayerEquipment(this);
 
 		this.speedAmplifier = -1;
 	}
@@ -686,11 +680,11 @@ public class FakePlayer implements NPC {
 		this.nature = EnumNature.PASSIVE;
 
 		this.attributes.setMaxHealth(20);
-		this.fireTicks = -20;
+		this.extinguish();
 		this.noDamageTicks = 0;
 		this.attributes.setMoveSpeed(EnumMoveSpeed.WALKING.getSpeed());
 
-		this.equip = new ItemStack[6];
+		this.equip = new FakePlayerEquipment(this);
 
 		this.speedAmplifier = -1;
 	}

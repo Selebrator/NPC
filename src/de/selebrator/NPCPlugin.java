@@ -7,6 +7,7 @@ import de.selebrator.npc.EnumEquipmentSlot;
 import de.selebrator.npc.EnumNature;
 import de.selebrator.npc.FakePlayer;
 import de.selebrator.npc.NPC;
+import de.selebrator.npc.gui.EquipEditor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -204,11 +205,14 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 				case "equip":
 
 					if (npc != null) {
-						if (args.length == 2) {
-							npc.equip(EnumEquipmentSlot.valueOf(args[1].toUpperCase()), player.getInventory().getItemInMainHand());
+						if(args.length == 1) {
+							new EquipEditor(npc, this).open(player);
+							return true;
+						} else if (args.length == 2) {
+							npc.getEquipment().set(EnumEquipmentSlot.valueOf(args[1].toUpperCase()), player.getInventory().getItemInMainHand());
 							return true;
 						}
-						player.sendMessage("§c/npc equip <slot>");
+						player.sendMessage("§c/npc equip [slot]");
 						return true;
 					}
 					player.sendMessage("§cSelect a NPC first");

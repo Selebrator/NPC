@@ -40,7 +40,7 @@ public class PacketFetcher {
 
 	public static PacketPlayOutEntityDestroy entityDestroy(int entityId) {
 		PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy();
-		Reflection.getField(packet.getClass(), "a").set(packet, new int[] { entityId});
+		Reflection.getField(packet.getClass(), "a").set(packet, new int[] { entityId });
 		return packet;
 	}
 
