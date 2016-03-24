@@ -128,10 +128,6 @@ public class FakePlayerEquipment {
 		holder.equip(slot, item);
 	}
 
-	public ItemStack[] getEquipment() {
-		return new ItemStack[] { this.mainHand, this.offHand, this.boots, this.leggings, this.chestplate, this.helmet };
-	}
-
 	public NPC getHolder() {
 		return this.holder;
 	}

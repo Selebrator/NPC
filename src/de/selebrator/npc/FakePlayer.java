@@ -79,7 +79,7 @@ public class FakePlayer implements NPC {
 		this.living = this.meta.getHealth() > 0;
 
 		for(EnumEquipmentSlot slot : EnumEquipmentSlot.values()) {
-			this.equip(slot, this.equip.getEquipment()[slot.getId()]);
+			this.equip(slot, this.equip.get(slot));
 		}
 
 		this.look(location.getYaw(), location.getPitch());
