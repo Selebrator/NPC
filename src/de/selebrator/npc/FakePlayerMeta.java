@@ -2,8 +2,8 @@ package de.selebrator.npc;
 
 import de.selebrator.reflection.IMethodAccessor;
 import de.selebrator.reflection.Reflection;
+import de.selebrator.reflection.ServerPackage;
 import net.minecraft.server.v1_9_R1.DataWatcher;
-import net.minecraft.server.v1_9_R1.DataWatcherObject;
 
 public class FakePlayerMeta {
 
@@ -27,13 +27,13 @@ public class FakePlayerMeta {
 	private EnumMainHand mainHand;
 
 
-	private static final IMethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(DataWatcher.class, "registerObject", DataWatcherObject.class, Object.class);
+	private static final IMethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(DataWatcher.class, "registerObject", net.minecraft.server.v1_9_R1.DataWatcherObject.class, Object.class);
 
 	public FakePlayerMeta() {
 		this.dataWatcher = new DataWatcher(null);
 	}
 
-	public void set(EnumDataWatcherObject dataWatcherObject, Object value) {
+	public void set(DataWatcherObject dataWatcherObject, Object value) {
 		METHOD_DataWatcher_registerObject.invoke(this.dataWatcher, dataWatcherObject.getObject(), value);
 	}
 
@@ -71,32 +71,32 @@ public class FakePlayerMeta {
 	// ### SETTER ###
 	public void setOnFire(boolean state) {
 		this.status = MathHelper.setBit(this.status, EnumStatus.FIRE.getId(), state);
-		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	public void setSneaking(boolean state) {
 		this.status = MathHelper.setBit(this.status, EnumStatus.SNEAK.getId(), state);
-		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	public void setSprinting(boolean state) {
 		this.status = MathHelper.setBit(this.status, EnumStatus.SPRINT.getId(), state);
-		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	public void setInvisible(boolean state) {
 		this.status = MathHelper.setBit(this.status, EnumStatus.INVISIBLE.getId(), state);
-		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	public void setGlowing(boolean state) {
 		this.status = MathHelper.setBit(this.status, EnumStatus.GLOW.getId(), state);
-		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	public void useElytra(boolean state) {
 		this.status = MathHelper.setBit(this.status, EnumStatus.ELYTRA.getId(), state);
-		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	public void setStatus(boolean fire, boolean sneak, boolean sprint, boolean invisible, boolean glow, boolean elytra) {
@@ -106,7 +106,7 @@ public class FakePlayerMeta {
 		this.status = MathHelper.setBit(this.status, EnumStatus.INVISIBLE.getId(), invisible);
 		this.status = MathHelper.setBit(this.status, EnumStatus.GLOW.getId(), glow);
 		this.status = MathHelper.setBit(this.status, EnumStatus.ELYTRA.getId(), elytra);
-		this.set(EnumDataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	// ##### AIR #####
@@ -115,7 +115,7 @@ public class FakePlayerMeta {
 	}
 
 	public void setAir(int air) {
-		this.set(EnumDataWatcherObject.ENTITY_AIR_01, air);
+		this.set(DataWatcherObject.ENTITY_AIR_01, air);
 		this.air = air;
 	}
 
@@ -125,7 +125,7 @@ public class FakePlayerMeta {
 	}
 
 	public void setName(String name) {
-		this.set(EnumDataWatcherObject.ENTITY_NAME_02, name);
+		this.set(DataWatcherObject.ENTITY_NAME_02, name);
 		this.name = name;
 	}
 
@@ -135,7 +135,7 @@ public class FakePlayerMeta {
 	}
 
 	public void setNameVisible(boolean nameVisible) {
-		this.set(EnumDataWatcherObject.ENTITY_NAME_VISIBLE_03, nameVisible);
+		this.set(DataWatcherObject.ENTITY_NAME_VISIBLE_03, nameVisible);
 		this.nameVisible = nameVisible;
 	}
 
@@ -145,7 +145,7 @@ public class FakePlayerMeta {
 	}
 
 	public void setSilent(boolean silent) {
-		this.set(EnumDataWatcherObject.ENTITY_SILENT_04, silent);
+		this.set(DataWatcherObject.ENTITY_SILENT_04, silent);
 		this.silent = silent;
 	}
 
@@ -155,7 +155,7 @@ public class FakePlayerMeta {
 	}
 
 	public void setHealth(float health) {
-		this.set(EnumDataWatcherObject.LIVING_HEAlTH_06, health);
+		this.set(DataWatcherObject.LIVING_HEAlTH_06, health);
 		this.health = health;
 	}
 
@@ -165,7 +165,7 @@ public class FakePlayerMeta {
 	}
 
 	public void setPotionColor(int potionColor) {
-		this.set(EnumDataWatcherObject.LIVING_POTION_COLOR_07, potionColor);
+		this.set(DataWatcherObject.LIVING_POTION_COLOR_07, potionColor);
 		this.potionColor = potionColor;
 	}
 
@@ -175,7 +175,7 @@ public class FakePlayerMeta {
 	}
 
 	public void setPotionAmbient(boolean potionAmbient) {
-		this.set(EnumDataWatcherObject.LIVING_POTION_AMBIENT_08, potionAmbient);
+		this.set(DataWatcherObject.LIVING_POTION_AMBIENT_08, potionAmbient);
 		this.potionAmbient = potionAmbient;
 	}
 
@@ -185,7 +185,7 @@ public class FakePlayerMeta {
 	}
 
 	public void setArrows(int arrows) {
-		this.set(EnumDataWatcherObject.LIVING_ARROWS_09, arrows);
+		this.set(DataWatcherObject.LIVING_ARROWS_09, arrows);
 		this.arrows = arrows;
 	}
 
@@ -195,7 +195,7 @@ public class FakePlayerMeta {
 	}
 
 	public void setAbsorption(float absorption) {
-		this.set(EnumDataWatcherObject.HUMAN_ABSORPTION_10, absorption);
+		this.set(DataWatcherObject.HUMAN_ABSORPTION_10, absorption);
 		this.absorption = absorption;
 	}
 
@@ -205,7 +205,7 @@ public class FakePlayerMeta {
 	}
 
 	public void setScore(int score) {
-		this.set(EnumDataWatcherObject.HUMAN_SCORE_11, score);
+		this.set(DataWatcherObject.HUMAN_SCORE_11, score);
 		this.score = score;
 	}
 
@@ -242,37 +242,37 @@ public class FakePlayerMeta {
 	// ### SETTER ###
 	public void enableCape(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.CAPE.getId(), state);
-		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void enableJacket(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.JACKET.getId(), state);
-		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void enableLeftArm(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.LEFT_SLEEVE.getId(), state);
-		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void enableRightArm(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.RIGHT_SLEEVE.getId(), state);
-		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void enableLeftLeg(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.LEFT_PANTS.getId(), state);
-		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void enableRightLeg(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.RIGHT_PANTS.getId(), state);
-		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void enableHat(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.HAT.getId(), state);
-		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	public void setSkinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
@@ -283,7 +283,7 @@ public class FakePlayerMeta {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.LEFT_PANTS.getId(), leftLeg);
 		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.RIGHT_PANTS.getId(), rightLeg);
 		this.skinFlags = MathHelper.setBit(this.skinFlags, EnumSkinFlag.HAT.getId(), hat);
-		this.set(EnumDataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
 	}
 
 	// ##### MAIN_HAND #####
@@ -292,7 +292,37 @@ public class FakePlayerMeta {
 	}
 
 	public void setMainHand(EnumMainHand mainHand) {
-		this.set(EnumDataWatcherObject.HUMAN_MAINHAND_13, mainHand.getId());
+		this.set(DataWatcherObject.HUMAN_MAINHAND_13, mainHand.getId());
 		this.mainHand = mainHand;
+	}
+
+	public enum DataWatcherObject {
+		ENTITY_STATUS_BITMASK_00("Entity", "ax"),
+		ENTITY_AIR_01("Entity", "ay"),
+		ENTITY_NAME_02("Entity", "az"),
+		ENTITY_NAME_VISIBLE_03("Entity", "aA"),
+		ENTITY_SILENT_04("Entity", "aB"),
+
+		LIVING_UNKNOWN_05("EntityLiving", "as"),
+		LIVING_HEAlTH_06("EntityLiving", "HEALTH"),
+		LIVING_POTION_COLOR_07("EntityLiving", "f"),
+		LIVING_POTION_AMBIENT_08("EntityLiving", "g"),
+		LIVING_ARROWS_09("EntityLiving", "h"),
+
+		HUMAN_ABSORPTION_10("EntityHuman", "a"),
+		HUMAN_SCORE_11("EntityHuman", "b"),
+		HUMAN_SKIN_BITBASK_12("EntityHuman", "bp"),
+		HUMAN_MAINHAND_13("EntityHuman", "bq");
+
+		private Object object;
+
+		DataWatcherObject(String owner, String field) {
+			Class<?> ownerClazz = Reflection.getClass(ServerPackage.NMS, owner);
+			this.object = Reflection.getField(ownerClazz, field).get(null);
+		}
+
+		public Object getObject() {
+			return object;
+		}
 	}
 }
