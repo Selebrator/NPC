@@ -32,7 +32,8 @@ public class FakePlayer implements NPC {
 
 	private final int entityId;
 	public GameProfile gameProfile;
-	private FakePlayerMeta meta;
+	public FakePlayerMeta meta;
+	public FakePlayerAttributes attributes;
 
 	private boolean frozen;
 	private boolean living;
@@ -40,10 +41,8 @@ public class FakePlayer implements NPC {
 	private LivingEntity target;
 	private EnumNature nature;
 
-	private float maxHealth;
 	private int fireTicks;
 	private int noDamageTicks;
-	private double moveSpeed;
 	private Location respawnLocation;
 
 	private ItemStack[] equip = new ItemStack[6];
@@ -166,7 +165,7 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void step(float yaw, float pitch) {
-		Vector direction = MathHelper.calcDirectionVector(this.moveSpeed, yaw, pitch);
+		Vector direction = MathHelper.calcDirectionVector(this.attributes.getMoveSpeed() / 20, yaw, pitch);
 
 		move(direction.getX(), direction.getY(), direction.getZ());
 	}
@@ -284,7 +283,7 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public float getMaxHealth() {
-		return this.maxHealth;
+		return (float) this.attributes.getMaxHealth();
 	}
 
 	@Override
@@ -304,7 +303,7 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public double getMoveSpeed() {
-		return this.moveSpeed * 20;
+		return this.attributes.getMoveSpeed();
 	}
 
 	@Override
@@ -381,8 +380,8 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void setHealth(float health) {
-		if(health > this.maxHealth) {
-			health = this.maxHealth;
+		if(health > this.attributes.getMaxHealth()) {
+			health = (float) this.attributes.getMaxHealth();
 		}
 		if(health == 0) {
 			this.setEntityStatus(EnumEntityStatus.DEAD);
@@ -404,7 +403,7 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void setMaxHealth(float maxHealth) {
-		this.maxHealth = maxHealth;
+		this.attributes.setMaxHealth(maxHealth);
 	}
 
 	@Override
@@ -447,7 +446,7 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void setMoveSpeed(double speed) {
-		this.moveSpeed = speed / 20;
+		this.attributes.setMoveSpeed(speed);
 	}
 
 	@Override
@@ -620,7 +619,7 @@ public class FakePlayer implements NPC {
 	public void attack(LivingEntity target) {
 		if(this.isAlive() && !target.isDead()) {
 			this.playAnimation(EnumAnimation.SWING_ARM);
-			target.damage(1);
+			target.damage(this.attributes.getAttackDamage());
 			Vector distance = MathHelper.calcDistanceVector(this.getLocation(), target.getLocation());
 
 			float yaw = MathHelper.calcYaw(distance.getX(), distance.getZ());
@@ -655,16 +654,18 @@ public class FakePlayer implements NPC {
 		this.meta.setAir(300);
 		this.meta.setName(this.getName());
 
+		this.attributes = new FakePlayerAttributes();
+
 		this.frozen = false;
 		this.living = false;
 		this.location = null;
 		this.target = null;
 		this.nature = EnumNature.PASSIVE;
 
-		this.maxHealth = 20;
+		this.attributes.setMaxHealth(20);
 		this.fireTicks = -20;
 		this.noDamageTicks = 0;
-		this.moveSpeed = EnumMoveSpeed.WALKING.getSpeed() / 20;
+		this.attributes.setMoveSpeed(EnumMoveSpeed.WALKING.getSpeed());
 
 		this.equip = new ItemStack[6];
 
@@ -676,16 +677,18 @@ public class FakePlayer implements NPC {
 		this.meta.setSilent(false);
 		this.meta.setHealth(20F);
 
+		this.attributes = new FakePlayerAttributes();
+
 		this.frozen = false;
 		this.living = false;
 		this.location = null;
 		this.target = null;
 		this.nature = EnumNature.PASSIVE;
 
-		this.maxHealth = 20;
+		this.attributes.setMaxHealth(20);
 		this.fireTicks = -20;
 		this.noDamageTicks = 0;
-		this.moveSpeed = EnumMoveSpeed.WALKING.getSpeed() / 20;
+		this.attributes.setMoveSpeed(EnumMoveSpeed.WALKING.getSpeed());
 
 		this.equip = new ItemStack[6];
 

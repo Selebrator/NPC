@@ -1,6 +1,5 @@
 package de.selebrator;
 
-import de.selebrator.event.npc.NPCDamageEvent;
 import de.selebrator.event.npc.NPCSpawnEvent;
 import de.selebrator.fetcher.GameProfileBuilder;
 import de.selebrator.npc.EnumAnimation;
@@ -19,7 +18,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -94,13 +92,6 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
 		if(item != null && item.getType() == Material.BLAZE_ROD) {
 			npc.setTarget((LivingEntity) event.getRightClicked());
-		}
-	}
-
-	@EventHandler
-	public void onDamage(NPCDamageEvent event) {
-		if(event.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK) {
-			System.out.println("§c" + event.getNpc().getFireTicks());
 		}
 	}
 
@@ -368,13 +359,15 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 						Vector vNPC = new Vector(npc.getLocation().getX(), npc.getLocation().getY(), npc.getLocation().getZ());
 						Vector vTarget = new Vector(npc.getTarget().getLocation().getX(), npc.getTarget().getLocation().getY(), npc.getTarget().getLocation().getZ());
 						double distance = vNPC.distance(vTarget);
-						if(distance > 3) {
-							npc.step(npc.getTarget().getLocation());
+						if(distance < ((FakePlayer)npc).attributes.getFollowRange()) {
+							if(distance > 3) {
+								npc.step(npc.getTarget().getLocation());
+							}
+							npc.look(npc.getTarget().getEyeLocation());
 						}
 						if(distance <= 2.5 && npc.getNature() == EnumNature.HOSTILE){
 							npc.attack(npc.getTarget());
 						}
-						npc.look(npc.getTarget().getEyeLocation());
 					}
 				}
 				npc.tick();
