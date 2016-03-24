@@ -1,12 +1,14 @@
 package de.selebrator.npc;
 
+import org.bukkit.attribute.Attribute;
+
 public class FakePlayerAttributes {
-	private double maxHealth = Attribute.GENERIC_MAX_HEALTH.defaultValue;
-	private double followRange = Attribute.GENERIC_FOLLOW_RANGE.defaultValue;
-	private double knockbackResistance = Attribute.GENERIC_KNOCKBACK_RESISTANCE.defaultValue;
-	private double movementSpeed = Attribute.GENERIC_MOVEMENT_SPEED.defaultValue;
-	private double attackDamage = Attribute.GENERIC_ATTACK_DAMAGE.defaultValue;
-	private double armor = Attribute.GENERIC_ARMOR.defaultValue;
+	private double maxHealth = 20;
+	private double followRange = 32;
+	private double knockbackResistance = 0;
+	private double movementSpeed = 4.3D;
+	private double attackDamage = 1;
+	private double armor = 0;
 
 	// ##### MAX_HEALTH #####
 	public double getMaxHealth() {
@@ -14,11 +16,7 @@ public class FakePlayerAttributes {
 	}
 
 	public void setMaxHealth(double maxHealth) {
-		if(maxHealth > Attribute.GENERIC_MAX_HEALTH.min && maxHealth < Attribute.GENERIC_MAX_HEALTH.max) {
-			this.maxHealth = maxHealth;
-		} else {
-			throw new IllegalArgumentException("Value out of range.");
-		}
+		set(Attribute.GENERIC_MAX_HEALTH, maxHealth);
 	}
 
 	// ##### FOLLOW_RANGE #####
@@ -27,26 +25,16 @@ public class FakePlayerAttributes {
 	}
 
 	public void setFollowRange(double followRange) {
-		if(followRange > Attribute.GENERIC_FOLLOW_RANGE.min && followRange < Attribute.GENERIC_FOLLOW_RANGE.max) {
-			this.followRange = followRange;
-		} else {
-			throw new IllegalArgumentException("Value out of range.");
-		}
+		set(Attribute.GENERIC_FOLLOW_RANGE, followRange);
 	}
 
 	// ##### KNOCKBACK_RESISTANCE #####
-
-
 	public double getKnockbackResistance() {
 		return this.knockbackResistance;
 	}
 
 	public void setKnockbackResistance(double knockbackResistance) {
-		if(knockbackResistance > Attribute.GENERIC_KNOCKBACK_RESISTANCE.min && knockbackResistance < Attribute.GENERIC_KNOCKBACK_RESISTANCE.max) {
-			this.knockbackResistance = knockbackResistance;
-		} else {
-			throw new IllegalArgumentException("Value out of range.");
-		}
+		set(Attribute.GENERIC_KNOCKBACK_RESISTANCE, knockbackResistance);
 	}
 
 	// ##### MOVEMENT_SPEED #####
@@ -55,11 +43,7 @@ public class FakePlayerAttributes {
 	}
 
 	public void setMoveSpeed(double movementSpeed) {
-		if(movementSpeed > Attribute.GENERIC_MOVEMENT_SPEED.min && movementSpeed < Attribute.GENERIC_MOVEMENT_SPEED.max) {
-			this.movementSpeed = movementSpeed;
-		} else {
-			throw new IllegalArgumentException("Value out of range.");
-		}
+		set(Attribute.GENERIC_MOVEMENT_SPEED, movementSpeed);
 	}
 
 	// ##### ATTACK_DAMAGE #####
@@ -68,11 +52,7 @@ public class FakePlayerAttributes {
 	}
 
 	public void setAttackDamage(double attackDamage) {
-		if(attackDamage > Attribute.GENERIC_ATTACK_DAMAGE.min && attackDamage < Attribute.GENERIC_ATTACK_DAMAGE.max) {
-			this.attackDamage = attackDamage;
-		} else {
-			throw new IllegalArgumentException("Value out of range.");
-		}
+		set(Attribute.GENERIC_ATTACK_DAMAGE, attackDamage);
 	}
 
 	// ##### ARMOR #####
@@ -81,29 +61,83 @@ public class FakePlayerAttributes {
 	}
 
 	public void setArmor(double armor) {
-		if(armor > Attribute.GENERIC_ARMOR.min && armor < Attribute.GENERIC_ARMOR.max) {
-			this.armor = armor;
-		} else {
-			throw new IllegalArgumentException("Value out of range.");
-		}
+		set(Attribute.GENERIC_ARMOR, armor);
 	}
 
-	public enum Attribute {
-		GENERIC_MAX_HEALTH(20, 0, 1024),
-		GENERIC_FOLLOW_RANGE(32, 0, 2048),
-		GENERIC_KNOCKBACK_RESISTANCE(0, 0, 1),
-		GENERIC_MOVEMENT_SPEED(EnumMoveSpeed.WALKING.getSpeed(), 0, 1024),
-		GENERIC_ATTACK_DAMAGE(1, 0, 2048),
-		GENERIC_ARMOR(0, 0, 30);
-
-		private double defaultValue;
-		private double min;
-		private double max;
-
-		Attribute(double defaultValue, double min, double max) {
-			this.defaultValue = defaultValue;
-			this.min = min;
-			this.max = max;
+	// ##### GENERAL #####
+	public double get(Attribute attribute) {
+		switch(attribute) {
+			case GENERIC_MAX_HEALTH:
+				return this.maxHealth;
+			case GENERIC_FOLLOW_RANGE:
+				return this.followRange;
+			case GENERIC_KNOCKBACK_RESISTANCE:
+				return this.knockbackResistance;
+			case GENERIC_MOVEMENT_SPEED:
+				return this.movementSpeed;
+			case GENERIC_ATTACK_DAMAGE:
+				return this.attackDamage;
+			case GENERIC_ATTACK_SPEED:
+				throw new UnsupportedOperationException("Not supported.");
+			case GENERIC_ARMOR:
+				return this.armor;
+			case GENERIC_LUCK:
+				throw new UnsupportedOperationException("Not supported.");
+			case HORSE_JUMP_STRENGTH:
+				throw new UnsupportedOperationException("Not supported.");
+			case ZOMBIE_SPAWN_REINFORCEMENTS:
+				throw new UnsupportedOperationException("Not supported.");
 		}
+		throw new IllegalArgumentException();
+	}
+
+	public void set(Attribute attribute, double value) throws IllegalArgumentException {
+		switch(attribute) {
+			case GENERIC_MAX_HEALTH:
+				if(0 <= value && value <= 1024) {
+					this.maxHealth = value;
+					return;
+				}
+				break;
+			case GENERIC_FOLLOW_RANGE:
+				if(0 <= value && value <= 2048) {
+					this.followRange = value;
+					return;
+				}
+				break;
+			case GENERIC_KNOCKBACK_RESISTANCE:
+				if(0 <= value && value <= 1) {
+					this.knockbackResistance = value;
+					return;
+				}
+				break;
+			case GENERIC_MOVEMENT_SPEED:
+				if(0 <= value && value <= 1024) {
+					this.movementSpeed = value;
+					return;
+				}
+				break;
+			case GENERIC_ATTACK_DAMAGE:
+				if(0 <= value && value <= 2048) {
+					this.attackDamage = value;
+					return;
+				}
+				break;
+			case GENERIC_ATTACK_SPEED:
+				throw new UnsupportedOperationException("Not supported.");
+			case GENERIC_ARMOR:
+				if(0 <= value && value <= 30) {
+					this.armor = value;
+					return;
+				}
+				break;
+			case GENERIC_LUCK:
+				throw new UnsupportedOperationException("Not supported.");
+			case HORSE_JUMP_STRENGTH:
+				throw new UnsupportedOperationException("Not supported.");
+			case ZOMBIE_SPAWN_REINFORCEMENTS:
+				throw new UnsupportedOperationException("Not supported.");
+		}
+		throw new IllegalArgumentException("Value out of range.");
 	}
 }
