@@ -4,6 +4,7 @@ import de.selebrator.reflection.IMethodAccessor;
 import de.selebrator.reflection.Reflection;
 import de.selebrator.reflection.ServerPackage;
 import net.minecraft.server.v1_9_R1.DataWatcher;
+import org.bukkit.inventory.MainHand;
 
 public class FakePlayerMeta {
 
@@ -24,7 +25,7 @@ public class FakePlayerMeta {
 	private float absorption;
 	private int score;
 	private byte skinFlags;
-	private EnumMainHand mainHand;
+	private MainHand mainHand;
 
 
 	private static final IMethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(DataWatcher.class, "registerObject", net.minecraft.server.v1_9_R1.DataWatcherObject.class, Object.class);
@@ -287,12 +288,19 @@ public class FakePlayerMeta {
 	}
 
 	// ##### MAIN_HAND #####
-	public EnumMainHand getMainHand() {
+	public MainHand getMainHand() {
 		return this.mainHand;
 	}
 
-	public void setMainHand(EnumMainHand mainHand) {
-		this.set(DataWatcherObject.HUMAN_MAINHAND_13, mainHand.getId());
+	public void setMainHand(MainHand mainHand) {
+		switch(mainHand) {
+			case LEFT:
+				this.set(DataWatcherObject.HUMAN_MAINHAND_13, 0);
+				break;
+			case RIGHT:
+				this.set(DataWatcherObject.HUMAN_MAINHAND_13, 1);
+				break;
+		}
 		this.mainHand = mainHand;
 	}
 
