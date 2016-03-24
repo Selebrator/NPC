@@ -15,6 +15,7 @@ public class FakePlayerEquipment {
 		this.holder = holder;
 	}
 
+	// ##### MAIN HAND #####
 	public ItemStack getMainHand() {
 		return this.mainHand;
 	}
@@ -23,6 +24,7 @@ public class FakePlayerEquipment {
 		this.set(EnumEquipmentSlot.MAIN_HAND, mainHand);
 	}
 
+	// ##### OFF HAND #####
 	public ItemStack getOffHand() {
 		return this.offHand;
 	}
@@ -31,6 +33,7 @@ public class FakePlayerEquipment {
 		this.set(EnumEquipmentSlot.OFF_HAND, offHand);
 	}
 
+	// ##### HELMET #####
 	public ItemStack getHelmet() {
 		return this.helmet;
 	}
@@ -39,6 +42,7 @@ public class FakePlayerEquipment {
 		this.set(EnumEquipmentSlot.HELMET, helmet);
 	}
 
+	// ##### CHESTPLATE #####
 	public ItemStack getChestplate() {
 		return this.chestplate;
 	}
@@ -47,6 +51,7 @@ public class FakePlayerEquipment {
 		this.set(EnumEquipmentSlot.CHESTPLATE, chestplate);
 	}
 
+	// ##### LEGGINGS #####
 	public ItemStack getLeggings() {
 		return this.leggings;
 	}
@@ -55,6 +60,7 @@ public class FakePlayerEquipment {
 		this.set(EnumEquipmentSlot.LEGGINGS, leggings);
 	}
 
+	// ##### BOOTS #####
 	public ItemStack getBoots() {
 		return this.boots;
 	}
@@ -63,6 +69,7 @@ public class FakePlayerEquipment {
 		this.set(EnumEquipmentSlot.BOOTS, boots);
 	}
 
+	// ##### ARMOR #####
 	public ItemStack[] getArmor() {
 		return new ItemStack[] { this.helmet, this.chestplate, this.leggings, this.boots };
 	}
@@ -78,8 +85,23 @@ public class FakePlayerEquipment {
 		this.setBoots(armor[3]);
 	}
 
-	public ItemStack[] getEquipment() {
-		return new ItemStack[] { this.mainHand, this.offHand, this.boots, this.leggings, this.chestplate, this.helmet };
+	// ##### GENERAL #####
+	public ItemStack get(EnumEquipmentSlot slot) {
+		switch(slot) {
+			case MAIN_HAND:
+				return this.mainHand;
+			case OFF_HAND:
+				return this.offHand;
+			case BOOTS:
+				return this.boots;
+			case LEGGINGS:
+				return this.leggings;
+			case CHESTPLATE:
+				return this.chestplate;
+			case HELMET:
+				return this.helmet;
+		}
+		throw new IllegalArgumentException();
 	}
 
 	public void set(EnumEquipmentSlot slot, ItemStack item) {
@@ -104,6 +126,10 @@ public class FakePlayerEquipment {
 				break;
 		}
 		holder.equip(slot, item);
+	}
+
+	public ItemStack[] getEquipment() {
+		return new ItemStack[] { this.mainHand, this.offHand, this.boots, this.leggings, this.chestplate, this.helmet };
 	}
 
 	public NPC getHolder() {
