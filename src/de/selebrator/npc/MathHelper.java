@@ -1,6 +1,12 @@
 package de.selebrator.npc;
 
+import net.minecraft.server.v1_9_R1.MobEffect;
+import net.minecraft.server.v1_9_R1.MobEffectList;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_9_R1.potion.CraftPotionEffectType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionEffectTypeWrapper;
 import org.bukkit.util.Vector;
 
 public class MathHelper {
@@ -95,5 +101,19 @@ public class MathHelper {
 
 	public static byte setBit(byte bitMask, int bit, boolean state) {
 		return state ? (byte) (bitMask | (1 << bit)) : (byte) (bitMask & ~(1 << bit));
+	}
+
+	public static MobEffectList EffectType_BukkitToMinecraft(PotionEffectType potionEffectType) {
+		return ((CraftPotionEffectType)((PotionEffectTypeWrapper)potionEffectType).getType()).getHandle();
+	}
+
+	public static MobEffect Effect_BukkitToMinecraft(PotionEffect potionEffect) {
+		return new MobEffect(
+				EffectType_BukkitToMinecraft(potionEffect.getType()),
+				potionEffect.getDuration(),
+				potionEffect.getAmplifier(),
+				potionEffect.isAmbient(),
+				potionEffect.hasParticles()
+		);
 	}
 }

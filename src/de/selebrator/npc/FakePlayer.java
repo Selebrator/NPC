@@ -26,6 +26,8 @@ import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
@@ -361,6 +363,11 @@ public class FakePlayer implements NPC {
 		return this.effects.containsKey(effectList);
 	}
 
+	@Override
+	public boolean hasPotionEffect(PotionEffectType effectType) {
+		return this.hasEffect(MathHelper.EffectType_BukkitToMinecraft(effectType));
+	}
+
 	public MobEffect getEffect(MobEffectList effectList) {
 		return this.effects.get(effectList);
 	}
@@ -369,9 +376,32 @@ public class FakePlayer implements NPC {
 		return this.effects.values();
 	}
 
+	@Override
+	public Collection<PotionEffect> getActivePotionEffects() {
+		Collection<PotionEffect> potionEffects = new ArrayList<>();
+		this.effects.values().forEach( effect -> {
+			potionEffects.add(
+					new PotionEffect(
+							PotionEffectType.getByName(effect.getMobEffect().a()),
+							effect.getDuration(),
+							effect.getAmplifier(),
+							effect.isAmbient(),
+							effect.isShowParticles())
+			);
+		});
+		return potionEffects;
+	}
+
 	public void addEffect(MobEffect effect) {
 		this.effects.put(effect.getMobEffect(), effect);
 		this.calcPotionColor(this.getEffects());
+	}
+
+	@Override
+	public void addPotionEffect(PotionEffect effect) {
+		this.addEffect(
+				MathHelper.Effect_BukkitToMinecraft(effect)
+		);
 	}
 
 	public void addEffects(Collection<MobEffect> effects) {
@@ -381,9 +411,27 @@ public class FakePlayer implements NPC {
 		this.calcPotionColor(this.getEffects());
 	}
 
+	@Override
+	public void addPotionEffects(Collection<PotionEffect> effects) {
+		for(PotionEffect effect : effects) {
+			this.effects.put(
+					MathHelper.EffectType_BukkitToMinecraft(effect.getType()),
+					MathHelper.Effect_BukkitToMinecraft(effect)
+			);
+		}
+		this.calcPotionColor(this.getEffects());
+	}
+
 	public void removeEffect(MobEffectList effectList) {
 		this.effects.remove(effectList);
 		this.calcPotionColor(this.getEffects());
+	}
+
+	@Override
+	public void removePotionEffect(PotionEffectType effectType) {
+		this.effects.remove(
+				MathHelper.EffectType_BukkitToMinecraft(effectType)
+		);
 	}
 
 	// ### SETTER ###

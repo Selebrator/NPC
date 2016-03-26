@@ -5,7 +5,10 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface NPC {
@@ -159,6 +162,16 @@ public interface NPC {
 	void setNature(EnumNature nature);
 
 	FakePlayerEquipment getEquipment();
+
+	boolean hasPotionEffect(PotionEffectType potionEffectType);
+
+	Collection<PotionEffect> getActivePotionEffects();
+
+	void addPotionEffect(PotionEffect potionEffect);
+
+	void addPotionEffects(Collection<PotionEffect> potionEffects);
+
+	void removePotionEffect(PotionEffectType potionEffectType);
 
 	void setSneaking(boolean state);
 
