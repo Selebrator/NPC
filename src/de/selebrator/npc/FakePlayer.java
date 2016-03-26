@@ -11,8 +11,11 @@ import de.selebrator.event.npc.NPCTeleportEvent;
 import de.selebrator.fetcher.PacketFetcher;
 import de.selebrator.reflection.Reflection;
 import net.minecraft.server.v1_9_R1.Entity;
+import net.minecraft.server.v1_9_R1.MobEffect;
+import net.minecraft.server.v1_9_R1.MobEffectList;
 import net.minecraft.server.v1_9_R1.PacketPlayOutEntityMetadata;
 import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_9_R1.PotionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -26,7 +29,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FakePlayer implements NPC {
 
@@ -46,6 +52,7 @@ public class FakePlayer implements NPC {
 	private int noDamageTicks;
 	private Location respawnLocation;
 
+	private Map<MobEffectList, MobEffect> effects = new HashMap<>();
 	private int speedAmplifier;
 
 	private static final double EYE_HEIGHT_STANDING = 1.62D;
@@ -350,6 +357,35 @@ public class FakePlayer implements NPC {
 		return this.equip;
 	}
 
+	public boolean hasEffect(MobEffectList effectList) {
+		return this.effects.containsKey(effectList);
+	}
+
+	public MobEffect getEffect(MobEffectList effectList) {
+		return this.effects.get(effectList);
+	}
+
+	public Collection<MobEffect> getEffects() {
+		return this.effects.values();
+	}
+
+	public void addEffect(MobEffect effect) {
+		this.effects.put(effect.getMobEffect(), effect);
+		this.calcPotionColor(this.getEffects());
+	}
+
+	public void addEffects(Collection<MobEffect> effects) {
+		for(MobEffect effect : effects) {
+			this.effects.put(effect.getMobEffect(), effect);
+		}
+		this.calcPotionColor(this.getEffects());
+	}
+
+	public void removeEffect(MobEffectList effectList) {
+		this.effects.remove(effectList);
+		this.calcPotionColor(this.getEffects());
+	}
+
 	// ### SETTER ###
 
 	@Override
@@ -478,6 +514,18 @@ public class FakePlayer implements NPC {
 		}
 	}
 
+	public void calcPotionColor(Collection<MobEffect> effects) {
+		boolean ambient = true;
+		for(MobEffect effect : effects) {
+			if(!effect.isAmbient()) {
+				ambient = false;
+			}
+		}
+		this.meta.setPotionAmbient(ambient);
+		this.meta.setPotionColor(effects.isEmpty() ? 0 : PotionUtil.a(effects));
+		updateMetadata();
+	}
+
 	@Override
 	public boolean touches(Block block) {
 		double x = (block.getX() + 0.5) - this.location.getX();
@@ -562,7 +610,7 @@ public class FakePlayer implements NPC {
 		updateMetadata();
 	}
 
-	private void applyAmbientDamage() {
+	public void applyAmbientDamage() {
 		this.getTouchedBlocks().forEach( (block) -> {
 			//lava
 			if(block.getType() == Material.STATIONARY_LAVA) {
@@ -609,6 +657,19 @@ public class FakePlayer implements NPC {
 		}
 	}
 
+	public void tickPotions() {
+		Collection<MobEffect> effectsToProcess = this.getEffects();
+		for(MobEffect effect : effectsToProcess) {
+			int duration = effect.getDuration();
+			if(duration <= 0) {
+				this.effects.remove(effect.getMobEffect());
+			} else {
+				Reflection.getField(effect.getClass(), "duration").set(effect, duration - 1);
+			}
+		}
+		this.addEffects(effectsToProcess);
+	}
+
 	@Override
 	public void attack(LivingEntity target) {
 		if(this.isAlive() && !target.isDead()) {
@@ -632,6 +693,7 @@ public class FakePlayer implements NPC {
 				--this.fireTicks;
 			}
 
+			tickPotions();
 			applyAmbientDamage();
 
 			if(this.getNoDamageTicks() > 0) {
@@ -663,6 +725,7 @@ public class FakePlayer implements NPC {
 
 		this.equip = new FakePlayerEquipment(this);
 
+		this.effects = new HashMap<>();
 		this.speedAmplifier = -1;
 	}
 
@@ -686,6 +749,7 @@ public class FakePlayer implements NPC {
 
 		this.equip = new FakePlayerEquipment(this);
 
+		this.effects = new HashMap<>();
 		this.speedAmplifier = -1;
 	}
 }
