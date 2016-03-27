@@ -11,6 +11,7 @@ import de.selebrator.npc.gui.EquipEditor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -260,19 +261,6 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 					player.sendMessage("§cSelect a NPC first");
 					return true;
 
-				case "speed":
-
-					if (npc != null) {
-						if (args.length == 2) {
-							npc.setMoveSpeed(Double.parseDouble(args[1]));
-							return true;
-						}
-						player.sendMessage("§c/npc " + args[0]);
-						return true;
-					}
-					player.sendMessage("§cSelect a NPC first");
-					return true;
-
 				case "update":
 
 					if (npc != null) {
@@ -363,7 +351,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 						Vector vNPC = new Vector(npc.getLocation().getX(), npc.getLocation().getY(), npc.getLocation().getZ());
 						Vector vTarget = new Vector(npc.getTarget().getLocation().getX(), npc.getTarget().getLocation().getY(), npc.getTarget().getLocation().getZ());
 						double distance = vNPC.distance(vTarget);
-						if(distance < ((FakePlayer)npc).attributes.getFollowRange()) {
+						if(distance < npc.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).getValue()) {
 							if(distance > 3) {
 								npc.step(npc.getTarget().getLocation());
 							}

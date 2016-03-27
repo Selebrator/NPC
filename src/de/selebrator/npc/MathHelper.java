@@ -12,16 +12,6 @@ import org.bukkit.util.Vector;
 public class MathHelper {
 	/**
 	 *
-	 * @param method the method used to move
-	 * @param amplifier speed potion amplifier. -1 if no speed effect applied.
-	 * @return movespeed in blocks/seconds
-	 */
-	public static double calcMoveSpeed(EnumMoveSpeed method, int amplifier) {
-		return method.getSpeed() + (method.getStepSize() * (amplifier + 1));
-	}
-
-	/**
-	 *
 	 * @param x relative x
 	 * @param y relative y
 	 * @param z relative z
@@ -103,13 +93,18 @@ public class MathHelper {
 		return state ? (byte) (bitMask | (1 << bit)) : (byte) (bitMask & ~(1 << bit));
 	}
 
-	public static MobEffectList EffectType_BukkitToMinecraft(PotionEffectType potionEffectType) {
-		return ((CraftPotionEffectType)((PotionEffectTypeWrapper)potionEffectType).getType()).getHandle();
+	public static MobEffectList convertEffectType(PotionEffectType potionEffectType) {
+		if(potionEffectType instanceof PotionEffectTypeWrapper)
+			return ((CraftPotionEffectType)((PotionEffectTypeWrapper)potionEffectType).getType()).getHandle();
+		else if(potionEffectType instanceof PotionEffectType)
+			return ((CraftPotionEffectType)potionEffectType).getHandle();
+		else
+			throw new IllegalArgumentException();
 	}
 
-	public static MobEffect Effect_BukkitToMinecraft(PotionEffect potionEffect) {
+	public static MobEffect convertEffect(PotionEffect potionEffect) {
 		return new MobEffect(
-				EffectType_BukkitToMinecraft(potionEffect.getType()),
+				convertEffectType(potionEffect.getType()),
 				potionEffect.getDuration(),
 				potionEffect.getAmplifier(),
 				potionEffect.isAmbient(),

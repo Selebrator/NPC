@@ -9,6 +9,7 @@ import de.selebrator.event.npc.NPCMoveEvent;
 import de.selebrator.event.npc.NPCSpawnEvent;
 import de.selebrator.event.npc.NPCTeleportEvent;
 import de.selebrator.fetcher.PacketFetcher;
+import de.selebrator.npc.attribute.FakeAttributeInstance;
 import de.selebrator.reflection.Reflection;
 import net.minecraft.server.v1_9_R1.Entity;
 import net.minecraft.server.v1_9_R1.MobEffect;
@@ -21,6 +22,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.entity.LivingEntity;
@@ -41,7 +44,6 @@ public class FakePlayer implements NPC {
 	private final int entityId;
 	public GameProfile gameProfile;
 	public FakePlayerMeta meta;
-	public FakePlayerAttributes attributes;
 	public FakePlayerEquipment equip;
 
 	private boolean frozen;
@@ -55,8 +57,10 @@ public class FakePlayer implements NPC {
 	private Location respawnLocation;
 
 	private Map<MobEffectList, MobEffect> effects = new HashMap<>();
-	private int speedAmplifier;
+	private Map<Attribute, FakeAttributeInstance> attributes = new HashMap<>();
 
+	private final AttributeModifier MOVEMENT_SPEED_MODIFIER_SNEAKING = new AttributeModifier("Sneaking spped reduction", -0.7D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+	private final AttributeModifier MOVEMENT_SPEED_MODIFIER_SPRINTING = new AttributeModifier("Sprinting speed boost", 0.30000001192092896D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
 	private static final double EYE_HEIGHT_STANDING = 1.62D;
 	private static final double EYE_HEIGHT_SNEAKING = 1.2D;
 
@@ -175,7 +179,7 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void step(float yaw, float pitch) {
-		Vector direction = MathHelper.calcDirectionVector(this.attributes.getMoveSpeed() / 20, yaw, pitch);
+		Vector direction = MathHelper.calcDirectionVector(this.getMoveSpeed() / 20, yaw, pitch);
 
 		move(direction.getX(), direction.getY(), direction.getZ());
 	}
@@ -289,11 +293,6 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public float getMaxHealth() {
-		return (float) this.attributes.getMaxHealth();
-	}
-
-	@Override
 	public int getNoDamageTicks() {
 		return  this.noDamageTicks;
 	}
@@ -310,7 +309,7 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public double getMoveSpeed() {
-		return this.attributes.getMoveSpeed();
+		return this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).getValue() * 6.16714296217D;
 	}
 
 	@Override
@@ -365,7 +364,7 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public boolean hasPotionEffect(PotionEffectType effectType) {
-		return this.hasEffect(MathHelper.EffectType_BukkitToMinecraft(effectType));
+		return this.hasEffect(MathHelper.convertEffectType(effectType));
 	}
 
 	public MobEffect getEffect(MobEffectList effectList) {
@@ -400,7 +399,7 @@ public class FakePlayer implements NPC {
 	@Override
 	public void addPotionEffect(PotionEffect effect) {
 		this.addEffect(
-				MathHelper.Effect_BukkitToMinecraft(effect)
+				MathHelper.convertEffect(effect)
 		);
 	}
 
@@ -415,8 +414,8 @@ public class FakePlayer implements NPC {
 	public void addPotionEffects(Collection<PotionEffect> effects) {
 		for(PotionEffect effect : effects) {
 			this.effects.put(
-					MathHelper.EffectType_BukkitToMinecraft(effect.getType()),
-					MathHelper.Effect_BukkitToMinecraft(effect)
+					MathHelper.convertEffectType(effect.getType()),
+					MathHelper.convertEffect(effect)
 			);
 		}
 		this.calcPotionColor(this.getEffects());
@@ -430,8 +429,13 @@ public class FakePlayer implements NPC {
 	@Override
 	public void removePotionEffect(PotionEffectType effectType) {
 		this.effects.remove(
-				MathHelper.EffectType_BukkitToMinecraft(effectType)
+				MathHelper.convertEffectType(effectType)
 		);
+	}
+
+	@Override
+	public FakeAttributeInstance getAttribute(Attribute attribute) {
+		return this.attributes.get(attribute);
 	}
 
 	// ### SETTER ###
@@ -457,8 +461,8 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void setHealth(float health) {
-		if(health > this.attributes.getMaxHealth()) {
-			health = (float) this.attributes.getMaxHealth();
+		if(health > this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue()) {
+			health = (float) this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue();
 		}
 		if(health == 0) {
 			this.setEntityStatus(EnumEntityStatus.DEAD);
@@ -476,11 +480,6 @@ public class FakePlayer implements NPC {
 			}
 		}
 		this.meta.setHealth(health);
-	}
-
-	@Override
-	public void setMaxHealth(float maxHealth) {
-		this.attributes.setMaxHealth(maxHealth);
 	}
 
 	@Override
@@ -522,11 +521,6 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public void setMoveSpeed(double speed) {
-		this.attributes.setMoveSpeed(speed);
-	}
-
-	@Override
 	public void setTarget(LivingEntity target) {
 		this.target = target;
 	}
@@ -539,18 +533,24 @@ public class FakePlayer implements NPC {
 	@Override
 	public void setSneaking(boolean state) {
 		this.meta.setSneaking(state);
-		this.setMoveSpeed(MathHelper.calcMoveSpeed(state ? EnumMoveSpeed.SNEAKING : EnumMoveSpeed.WALKING, this.speedAmplifier));
-		if(state)
+		if(state) {
+			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(MOVEMENT_SPEED_MODIFIER_SNEAKING);
 			this.meta.setSprinting(false);
+		}
+		else
+			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(MOVEMENT_SPEED_MODIFIER_SNEAKING);
 		updateMetadata();
 	}
 
 	@Override
 	public void setSprinting(boolean state) {
 		this.meta.setSprinting(state);
-		this.setMoveSpeed(MathHelper.calcMoveSpeed(state ? EnumMoveSpeed.SPRINTING : EnumMoveSpeed.WALKING, this.speedAmplifier));
-		if(state)
+		if(state) {
+			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(MOVEMENT_SPEED_MODIFIER_SPRINTING);
 			this.meta.setSneaking(false);
+		} else {
+			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(MOVEMENT_SPEED_MODIFIER_SPRINTING);
+		}
 		updateMetadata();
 	}
 
@@ -722,7 +722,7 @@ public class FakePlayer implements NPC {
 	public void attack(LivingEntity target) {
 		if(this.isAlive() && !target.isDead()) {
 			this.playAnimation(EnumAnimation.SWING_ARM);
-			target.damage(this.attributes.getAttackDamage());
+			target.damage(this.attributes.get(Attribute.GENERIC_ATTACK_DAMAGE).getValue());
 			Vector distance = MathHelper.calcDistanceVector(this.getLocation(), target.getLocation());
 
 			float yaw = MathHelper.calcYaw(distance.getX(), distance.getZ());
@@ -758,23 +758,27 @@ public class FakePlayer implements NPC {
 		this.meta.setAir(300);
 		this.meta.setName(this.getName());
 
-		this.attributes = new FakePlayerAttributes();
+		this.attributes = new HashMap<>();
+		this.attributes.put(Attribute.GENERIC_MAX_HEALTH, new FakeAttributeInstance(Attribute.GENERIC_MAX_HEALTH, 20));
+		this.attributes.put(Attribute.GENERIC_FOLLOW_RANGE, new FakeAttributeInstance(Attribute.GENERIC_FOLLOW_RANGE, 32));
+		this.attributes.put(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new FakeAttributeInstance(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 0));
+		this.attributes.put(Attribute.GENERIC_MOVEMENT_SPEED, new FakeAttributeInstance(Attribute.GENERIC_MOVEMENT_SPEED, 0.699999988079071D));
+		this.attributes.put(Attribute.GENERIC_ATTACK_DAMAGE, new FakeAttributeInstance(Attribute.GENERIC_ATTACK_DAMAGE, 1));
+		this.attributes.put(Attribute.GENERIC_ARMOR, new FakeAttributeInstance(Attribute.GENERIC_ARMOR, 0));
+		this.attributes.put(Attribute.GENERIC_ATTACK_SPEED, new FakeAttributeInstance(Attribute.GENERIC_ATTACK_SPEED, 4));
+		this.attributes.put(Attribute.GENERIC_LUCK, new FakeAttributeInstance(Attribute.GENERIC_LUCK, 0));
 
 		this.frozen = false;
 		this.living = false;
 		this.location = null;
 		this.target = null;
 		this.nature = EnumNature.PASSIVE;
-
-		this.attributes.setMaxHealth(20);
 		this.fireTicks = -20;
 		this.noDamageTicks = 0;
-		this.attributes.setMoveSpeed(EnumMoveSpeed.WALKING.getSpeed());
 
 		this.equip = new FakePlayerEquipment(this);
 
 		this.effects = new HashMap<>();
-		this.speedAmplifier = -1;
 	}
 
 	public void softReset() {
@@ -782,7 +786,7 @@ public class FakePlayer implements NPC {
 		this.meta.setSilent(false);
 		this.meta.setHealth(20F);
 
-		this.attributes = new FakePlayerAttributes();
+		this.attributes.forEach((attribute, fakeAttributeInstance) -> fakeAttributeInstance.removeAllModifiers());
 
 		this.frozen = false;
 		this.living = false;
@@ -790,14 +794,11 @@ public class FakePlayer implements NPC {
 		this.target = null;
 		this.nature = EnumNature.PASSIVE;
 
-		this.attributes.setMaxHealth(20);
 		this.extinguish();
 		this.noDamageTicks = 0;
-		this.attributes.setMoveSpeed(EnumMoveSpeed.WALKING.getSpeed());
 
 		this.equip = new FakePlayerEquipment(this);
 
 		this.effects = new HashMap<>();
-		this.speedAmplifier = -1;
 	}
 }

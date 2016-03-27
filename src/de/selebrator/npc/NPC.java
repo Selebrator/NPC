@@ -1,7 +1,9 @@
 package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
+import de.selebrator.npc.attribute.FakeAttributeInstance;
 import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -107,10 +109,6 @@ public interface NPC {
 
 	void setHealth(float health);
 
-	float getMaxHealth();
-
-	void setMaxHealth(float maxHealth);
-
 	void damage(int amount);
 
 	void damage(int amount, EntityDamageEvent.DamageCause cause);
@@ -132,12 +130,6 @@ public interface NPC {
 	 * @return movespeed in blocks/second
 	 */
 	double getMoveSpeed();
-
-	/**
-	 *
-	 * @param speed movespeed in blocks/second
-	 */
-	void setMoveSpeed(double speed);
 
 	double getEyeHeight(boolean ignoreSneaking);
 
@@ -172,6 +164,8 @@ public interface NPC {
 	void addPotionEffects(Collection<PotionEffect> potionEffects);
 
 	void removePotionEffect(PotionEffectType potionEffectType);
+
+	FakeAttributeInstance getAttribute(Attribute attribute);
 
 	void setSneaking(boolean state);
 
