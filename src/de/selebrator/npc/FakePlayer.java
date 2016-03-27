@@ -59,7 +59,7 @@ public class FakePlayer implements NPC {
 	private Map<MobEffectList, MobEffect> effects = new HashMap<>();
 	private Map<Attribute, FakeAttributeInstance> attributes = new HashMap<>();
 
-	private final AttributeModifier MOVEMENT_SPEED_MODIFIER_SNEAKING = new AttributeModifier("Sneaking spped reduction", -0.7D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+	private final AttributeModifier MOVEMENT_SPEED_MODIFIER_SNEAKING = new AttributeModifier("Sneaking speed reduction", -0.7D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
 	private final AttributeModifier MOVEMENT_SPEED_MODIFIER_SPRINTING = new AttributeModifier("Sprinting speed boost", 0.30000001192092896D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
 	private static final double EYE_HEIGHT_STANDING = 1.62D;
 	private static final double EYE_HEIGHT_SNEAKING = 1.2D;

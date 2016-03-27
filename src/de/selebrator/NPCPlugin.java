@@ -1,6 +1,5 @@
 package de.selebrator;
 
-import de.selebrator.npc.event.NPCSpawnEvent;
 import de.selebrator.fetcher.GameProfileBuilder;
 import de.selebrator.npc.EnumAnimation;
 import de.selebrator.npc.EnumEquipmentSlot;
@@ -96,9 +95,6 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 			npc.setTarget((LivingEntity) event.getRightClicked());
 		}
 	}
-
-	@EventHandler
-	public void onNPCEvent(NPCSpawnEvent event) {}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -239,7 +235,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 							player.sendMessage(npc.getHealth() + "");
 							return true;
 						} else if (args.length == 2) {
-							((FakePlayer)npc).setHealth(Float.parseFloat(args[1]));
+							npc.setHealth(Float.parseFloat(args[1]));
 							return true;
 						}
 						player.sendMessage("§c/npc " + args[0] + " <0 - 20>");
