@@ -1,6 +1,6 @@
 package de.selebrator;
 
-import de.selebrator.event.npc.NPCSpawnEvent;
+import de.selebrator.npc.event.NPCSpawnEvent;
 import de.selebrator.fetcher.GameProfileBuilder;
 import de.selebrator.npc.EnumAnimation;
 import de.selebrator.npc.EnumEquipmentSlot;

@@ -1,4 +1,4 @@
-package de.selebrator.event.npc;
+package de.selebrator.npc.event;
 
 import de.selebrator.npc.EnumEquipmentSlot;
 import de.selebrator.npc.NPC;

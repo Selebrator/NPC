@@ -1,15 +1,18 @@
-package de.selebrator.event.npc;
+package de.selebrator.npc.event;
 
 import de.selebrator.npc.NPC;
+import org.bukkit.Location;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
-public class NPCSpawnEvent extends NPCEvent implements Cancellable {
+public class NPCTeleportEvent extends NPCEvent implements Cancellable {
 	private static final HandlerList handlers = new HandlerList();
 	private boolean cancel;
+	private Location destination;
 
-	public NPCSpawnEvent(NPC npc) {
+	public NPCTeleportEvent(NPC npc, Location destination) {
 		super(npc);
+		this.destination = destination;
 	}
 
 	@Override
@@ -29,5 +32,13 @@ public class NPCSpawnEvent extends NPCEvent implements Cancellable {
 	@Override
 	public void setCancelled(boolean cancel) {
 		this.cancel = cancel;
+	}
+
+	public Location getDestination() {
+		return this.destination;
+	}
+
+	public void setDestination(Location destination) {
+		this.destination = destination;
 	}
 }

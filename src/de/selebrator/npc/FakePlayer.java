@@ -1,13 +1,13 @@
 package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
-import de.selebrator.event.npc.NPCAnimationEvent;
-import de.selebrator.event.npc.NPCDamageEvent;
-import de.selebrator.event.npc.NPCDespawnEvent;
-import de.selebrator.event.npc.NPCEquipEvent;
-import de.selebrator.event.npc.NPCMoveEvent;
-import de.selebrator.event.npc.NPCSpawnEvent;
-import de.selebrator.event.npc.NPCTeleportEvent;
+import de.selebrator.npc.event.NPCAnimationEvent;
+import de.selebrator.npc.event.NPCDamageEvent;
+import de.selebrator.npc.event.NPCDespawnEvent;
+import de.selebrator.npc.event.NPCEquipEvent;
+import de.selebrator.npc.event.NPCMoveEvent;
+import de.selebrator.npc.event.NPCSpawnEvent;
+import de.selebrator.npc.event.NPCTeleportEvent;
 import de.selebrator.fetcher.PacketFetcher;
 import de.selebrator.npc.attribute.FakeAttributeInstance;
 import de.selebrator.reflection.Reflection;
@@ -378,16 +378,15 @@ public class FakePlayer implements NPC {
 	@Override
 	public Collection<PotionEffect> getActivePotionEffects() {
 		Collection<PotionEffect> potionEffects = new ArrayList<>();
-		this.effects.values().forEach( effect -> {
-			potionEffects.add(
-					new PotionEffect(
-							PotionEffectType.getByName(effect.getMobEffect().a()),
-							effect.getDuration(),
-							effect.getAmplifier(),
-							effect.isAmbient(),
-							effect.isShowParticles())
-			);
-		});
+		this.effects.values().forEach( effect ->
+				potionEffects.add(
+						new PotionEffect(
+								PotionEffectType.getByName(effect.getMobEffect().a()),
+								effect.getDuration(),
+								effect.getAmplifier(),
+								effect.isAmbient(),
+								effect.isShowParticles())
+				));
 		return potionEffects;
 	}
 
@@ -706,6 +705,7 @@ public class FakePlayer implements NPC {
 	}
 
 	public void tickPotions() {
+		//--duration
 		Collection<MobEffect> effectsToProcess = this.getEffects();
 		for(MobEffect effect : effectsToProcess) {
 			int duration = effect.getDuration();
