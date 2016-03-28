@@ -109,9 +109,9 @@ public interface NPC {
 
 	void setHealth(float health);
 
-	void damage(int amount);
+	void damage(float amount);
 
-	void damage(int amount, EntityDamageEvent.DamageCause cause);
+	void damage(float amount, EntityDamageEvent.DamageCause cause);
 
 	int getNoDamageTicks();
 
@@ -148,6 +148,10 @@ public interface NPC {
 	LivingEntity getTarget();
 
 	void setTarget(LivingEntity target);
+
+	boolean isInvulnerable();
+
+	void setInvulnerable(boolean invulnerable);
 
 	EnumNature getNature();
 

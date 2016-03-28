@@ -8,10 +8,10 @@ import org.bukkit.event.entity.EntityDamageEvent;
 public class NPCDamageEvent extends NPCEvent implements Cancellable {
 	private static final HandlerList handlers = new HandlerList();
 	private boolean cancel;
-	private int amount;
+	private float amount;
 	private EntityDamageEvent.DamageCause cause;
 
-	public NPCDamageEvent(NPC npc, int amount, EntityDamageEvent.DamageCause cause) {
+	public NPCDamageEvent(NPC npc, float amount, EntityDamageEvent.DamageCause cause) {
 		super(npc);
 		this.amount = amount;
 		this.cause = cause;
@@ -36,11 +36,11 @@ public class NPCDamageEvent extends NPCEvent implements Cancellable {
 		this.cancel = cancel;
 	}
 
-	public int getAmount() {
+	public float getAmount() {
 		return this.amount;
 	}
 
-	public void setAmount(int amount) {
+	public void setAmount(float amount) {
 		this.amount = amount;
 	}
 

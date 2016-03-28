@@ -27,6 +27,9 @@ public class FakePlayerMeta {
 	private byte skinFlags;
 	private MainHand mainHand;
 
+	private boolean defaultInvisible;
+	private boolean defaultGlowing;
+
 
 	private static final IMethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(DataWatcher.class, "registerObject", net.minecraft.server.v1_9_R1.DataWatcherObject.class, Object.class);
 
@@ -61,8 +64,16 @@ public class FakePlayerMeta {
 		return MathHelper.getBit(this.status, EnumStatus.INVISIBLE.getId());
 	}
 
+	public boolean isDefaultInvisible() {
+		return this.defaultInvisible;
+	}
+
 	public boolean isGlowing() {
 		return MathHelper.getBit(this.status, EnumStatus.GLOW.getId());
+	}
+
+	public boolean isDefaultGlowing() {
+		return this.defaultGlowing;
 	}
 
 	public boolean isElytraUsed() {
@@ -88,10 +99,21 @@ public class FakePlayerMeta {
 	public void setInvisible(boolean state) {
 		this.status = MathHelper.setBit(this.status, EnumStatus.INVISIBLE.getId(), state);
 		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+		this.defaultInvisible = state;
+	}
+
+	public void setInvisibleTemp(boolean state) {
+		this.status = MathHelper.setBit(this.status, EnumStatus.INVISIBLE.getId(), state || this.defaultInvisible);
+		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
 	public void setGlowing(boolean state) {
 		this.status = MathHelper.setBit(this.status, EnumStatus.GLOW.getId(), state);
+		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+		this.defaultGlowing = state;
+	}
+	public void setGlowingTemp(boolean state) {
+		this.status = MathHelper.setBit(this.status, EnumStatus.GLOW.getId(), state || this.defaultGlowing);
 		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
@@ -197,7 +219,7 @@ public class FakePlayerMeta {
 
 	public void setAbsorption(float absorption) {
 		this.set(DataWatcherObject.HUMAN_ABSORPTION_10, absorption);
-		this.absorption = absorption;
+		this.absorption = absorption > 0 ? absorption : 0;
 	}
 
 	// ##### SCORE #####

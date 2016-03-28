@@ -93,6 +93,15 @@ public class FakeAttributeInstance implements AttributeInstance {
 		this.modifiers.remove(attributeModifier);
 	}
 
+	public void removeModifier(String name) {
+		for(AttributeModifier modifier : this.modifiers) {
+			if(modifier.getName().equals(name)) {
+				this.modifiers.remove(modifier);
+				break;
+			}
+		}
+	}
+
 	public void removeAllModifiers() {
 		this.modifiers.clear();
 	}

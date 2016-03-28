@@ -1,6 +1,8 @@
 package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
+import de.selebrator.fetcher.PacketFetcher;
+import de.selebrator.npc.attribute.FakeAttributeInstance;
 import de.selebrator.npc.event.NPCAnimationEvent;
 import de.selebrator.npc.event.NPCDamageEvent;
 import de.selebrator.npc.event.NPCDespawnEvent;
@@ -8,12 +10,11 @@ import de.selebrator.npc.event.NPCEquipEvent;
 import de.selebrator.npc.event.NPCMoveEvent;
 import de.selebrator.npc.event.NPCSpawnEvent;
 import de.selebrator.npc.event.NPCTeleportEvent;
-import de.selebrator.fetcher.PacketFetcher;
-import de.selebrator.npc.attribute.FakeAttributeInstance;
 import de.selebrator.reflection.Reflection;
 import net.minecraft.server.v1_9_R1.Entity;
 import net.minecraft.server.v1_9_R1.MobEffect;
 import net.minecraft.server.v1_9_R1.MobEffectList;
+import net.minecraft.server.v1_9_R1.MobEffects;
 import net.minecraft.server.v1_9_R1.PacketPlayOutEntityMetadata;
 import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_9_R1.PotionUtil;
@@ -54,13 +55,14 @@ public class FakePlayer implements NPC {
 
 	private int fireTicks;
 	private int noDamageTicks;
+	private boolean invulnerable;
 	private Location respawnLocation;
 
 	private Map<MobEffectList, MobEffect> effects = new HashMap<>();
 	private Map<Attribute, FakeAttributeInstance> attributes = new HashMap<>();
 
-	private final AttributeModifier MOVEMENT_SPEED_MODIFIER_SNEAKING = new AttributeModifier("Sneaking speed reduction", -0.7D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
-	private final AttributeModifier MOVEMENT_SPEED_MODIFIER_SPRINTING = new AttributeModifier("Sprinting speed boost", 0.30000001192092896D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+	private static final AttributeModifier MOVEMENT_SPEED_MODIFIER_SNEAKING = new AttributeModifier("Sneaking speed reduction", -0.7D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+	private static final AttributeModifier MOVEMENT_SPEED_MODIFIER_SPRINTING = new AttributeModifier("Sprinting speed boost", 0.30000001192092896D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
 	private static final double EYE_HEIGHT_STANDING = 1.62D;
 	private static final double EYE_HEIGHT_SNEAKING = 1.2D;
 
@@ -349,6 +351,11 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
+	public boolean isInvulnerable() {
+		return this.invulnerable;
+	}
+
+	@Override
 	public EnumNature getNature() {
 		return this.nature;
 	}
@@ -358,8 +365,8 @@ public class FakePlayer implements NPC {
 		return this.equip;
 	}
 
-	public boolean hasEffect(MobEffectList effectList) {
-		return this.effects.containsKey(effectList);
+	public boolean hasEffect(MobEffectList type) {
+		return this.effects.containsKey(type);
 	}
 
 	@Override
@@ -367,8 +374,8 @@ public class FakePlayer implements NPC {
 		return this.hasEffect(MathHelper.convertEffectType(effectType));
 	}
 
-	public MobEffect getEffect(MobEffectList effectList) {
-		return this.effects.get(effectList);
+	public MobEffect getEffect(MobEffectList type) {
+		return this.effects.get(type);
 	}
 
 	public Collection<MobEffect> getEffects() {
@@ -391,45 +398,109 @@ public class FakePlayer implements NPC {
 	}
 
 	public void addEffect(MobEffect effect) {
-		this.effects.put(effect.getMobEffect(), effect);
-		this.calcPotionColor(this.getEffects());
+		MobEffectList type = effect.getMobEffect();
+		this.effects.put(type, effect);
+		if(!type.isInstant()) {
+			this.calcPotionColor(this.getEffects());
+		}
+
+		byte level = (byte) (effect.getAmplifier() + 1);
+		if(type == MobEffects.INCREASE_DAMAGE) {
+			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(
+					new AttributeModifier("potion.damageBoost" + level, 3.0D * level, AttributeModifier.Operation.ADD_NUMBER)
+			);
+		} else if(type == MobEffects.WEAKNESS) {
+			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(
+					new AttributeModifier("potion.weakness" + level, -4.0D * level, AttributeModifier.Operation.ADD_NUMBER)
+			);
+		} else if(type == MobEffects.FASTER_MOVEMENT) {
+			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(
+					new AttributeModifier("potion.moveSpeed" + level, 0.20000000298023224D * level, AttributeModifier.Operation.MULTIPLY_SCALAR_1)
+			);
+		} else if(type == MobEffects.SLOWER_MOVEMENT) {
+			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(
+					new AttributeModifier("potion.moveSlowdown" + level, -0.15000000596046448D * level, AttributeModifier.Operation.MULTIPLY_SCALAR_1)
+			);
+		} else if(type == MobEffects.HEAL) {
+			this.setHealth(this.getHealth() + (4.0F * (float) Math.pow(2.0D, level - 1.0D)));
+			this.removeEffect(MobEffects.HEAL);
+		} else if(type == MobEffects.HARM) {
+			this.damage((6.0F * (float) Math.pow(2.0D, level - 1.0D)), EntityDamageEvent.DamageCause.MAGIC);
+			this.removeEffect(MobEffects.HARM);
+		} else if(type == MobEffects.INVISIBILITY) {
+			this.meta.setInvisibleTemp(true);
+			updateMetadata();
+		} else if(type == MobEffects.GLOWING) {
+			this.meta.setGlowingTemp(true);
+			updateMetadata();
+		} else if(type == MobEffects.HEALTH_BOOST) {
+			this.getAttribute(Attribute.GENERIC_MAX_HEALTH).addModifier(
+					new AttributeModifier("potion.healthBoost" + level, 4.0D * level, AttributeModifier.Operation.ADD_NUMBER)
+			);
+		} else if(type == MobEffects.ABSORBTION) {
+			this.meta.setAbsorption(4 * level);
+			updateMetadata();
+		} else if(type == MobEffects.z) {
+			this.getAttribute(Attribute.GENERIC_LUCK).addModifier(
+					new AttributeModifier("potion.luck" + level, 1.0D * level, AttributeModifier.Operation.ADD_NUMBER)
+			);
+		} else if(type == MobEffects.A) {
+			this.getAttribute(Attribute.GENERIC_LUCK).addModifier(
+					new AttributeModifier("potion.unluck" + level, -1.0D * level, AttributeModifier.Operation.ADD_NUMBER)
+			);
+		}
 	}
 
 	@Override
 	public void addPotionEffect(PotionEffect effect) {
-		this.addEffect(
-				MathHelper.convertEffect(effect)
-		);
+		this.addEffect(MathHelper.convertEffect(effect));
 	}
 
 	public void addEffects(Collection<MobEffect> effects) {
-		for(MobEffect effect : effects) {
-			this.effects.put(effect.getMobEffect(), effect);
-		}
-		this.calcPotionColor(this.getEffects());
+		effects.forEach(this::addEffect);
 	}
 
 	@Override
 	public void addPotionEffects(Collection<PotionEffect> effects) {
-		for(PotionEffect effect : effects) {
-			this.effects.put(
-					MathHelper.convertEffectType(effect.getType()),
-					MathHelper.convertEffect(effect)
-			);
-		}
-		this.calcPotionColor(this.getEffects());
+		effects.forEach(this::addPotionEffect);
 	}
 
-	public void removeEffect(MobEffectList effectList) {
-		this.effects.remove(effectList);
+	public void removeEffect(MobEffectList type) {
+		MobEffect effect = this.getEffect(type);
+		byte level = (byte) (effect.getAmplifier() + 1);
+
+		this.effects.remove(type);
 		this.calcPotionColor(this.getEffects());
+
+		if(type == MobEffects.INCREASE_DAMAGE) {
+			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier("potion.damageBoost" + level);
+		} else if(type == MobEffects.WEAKNESS) {
+			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier("potion.weakness" + level);
+		} else if(type == MobEffects.FASTER_MOVEMENT) {
+			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier("potion.moveSpeed" + level);
+		} else if(type == MobEffects.SLOWER_MOVEMENT) {
+			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier("potion.moveSlowdown" + level);
+		} else if(type == MobEffects.INVISIBILITY) {
+			this.meta.setInvisibleTemp(false);
+			updateMetadata();
+		} else if(type == MobEffects.GLOWING) {
+			this.meta.setGlowingTemp(false);
+			updateMetadata();
+		} else if(type == MobEffects.HEALTH_BOOST) {
+			this.getAttribute(Attribute.GENERIC_MAX_HEALTH).removeModifier("potion.healthBoost" + level);
+		} else if(type == MobEffects.ABSORBTION) {
+			this.meta.setAbsorption(0);
+			updateMetadata();
+		} else if(type == MobEffects.z) {
+			this.getAttribute(Attribute.GENERIC_LUCK).removeModifier("potion.luck" + level);
+		} else if(type == MobEffects.A) {
+			this.getAttribute(Attribute.GENERIC_LUCK).removeModifier("potion.unluck" + level);
+		}
 	}
 
 	@Override
 	public void removePotionEffect(PotionEffectType effectType) {
-		this.effects.remove(
-				MathHelper.convertEffectType(effectType)
-		);
+		this.effects.remove(MathHelper.convertEffectType(effectType));
 	}
 
 	@Override
@@ -482,18 +553,31 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public  void damage(int amount) {
+	public  void damage(float amount) {
 		damage(amount, EntityDamageEvent.DamageCause.CUSTOM);
 	}
 
 	@Override
-	public void damage(int amount, EntityDamageEvent.DamageCause cause) {
-		if(this.noDamageTicks == 0) {
+	public void damage(float amount, EntityDamageEvent.DamageCause cause) {
+		boolean immune = (this.hasEffect(MobEffects.FIRE_RESISTANCE) && (cause == EntityDamageEvent.DamageCause.LAVA
+																	||  cause == EntityDamageEvent.DamageCause.FIRE
+																	||  cause == EntityDamageEvent.DamageCause.FIRE_TICK))
+				      || this.hasEffect(MobEffects.WATER_BREATHING) && (cause == EntityDamageEvent.DamageCause.DROWNING);
+		if(this.noDamageTicks == 0 && !immune && !this.invulnerable) {
 			NPCDamageEvent event = new NPCDamageEvent(this, amount, cause);
 			Bukkit.getPluginManager().callEvent(event);
 			if(event.isCancelled()) { return; }
 
-			this.setHealth(this.getHealth() - event.getAmount());
+			float current = this.getHealth();
+			float absorption = this.meta.getAbsorption();
+			int resistance = this.hasEffect(MobEffects.RESISTANCE) ? this.getEffect(MobEffects.RESISTANCE).getAmplifier() + 1 : 0;
+			if(resistance > 5) { resistance = 5; }
+			float damage = event.getAmount();
+			damage = damage - damage * 0.2F * resistance;
+			absorption = absorption - damage > 0 ? absorption - damage : 0;
+			damage = damage - (absorption + this.meta.getAbsorption());
+
+			this.setHealth(current - damage);
 
 			this.noDamageTicks = 10;
 		}
@@ -522,6 +606,11 @@ public class FakePlayer implements NPC {
 	@Override
 	public void setTarget(LivingEntity target) {
 		this.target = target;
+	}
+
+	@Override
+	public void setInvulnerable(boolean invulnerable) {
+		this.invulnerable = invulnerable;
 	}
 
 	@Override
@@ -662,13 +751,12 @@ public class FakePlayer implements NPC {
 			//lava
 			if(block.getType() == Material.STATIONARY_LAVA) {
 				this.ignite(160);
-				this.damage(4, EntityDamageEvent.DamageCause.LAVA);
+				this.damage(4.0F, EntityDamageEvent.DamageCause.LAVA);
 			}
-
 			//fire(contact)
 			if(block.getType() == Material.FIRE) {
 				this.ignite(160);
-				this.damage(1, EntityDamageEvent.DamageCause.FIRE);
+				this.damage(1.0F, EntityDamageEvent.DamageCause.FIRE);
 			}
 
 			//fire(tick)
@@ -680,7 +768,7 @@ public class FakePlayer implements NPC {
 
 			if(this.fireTicks > 0) {
 				if(this.fireTicks % 20 == 0) {
-					this.damage(1, EntityDamageEvent.DamageCause.FIRE_TICK);
+					this.damage(1.0F, EntityDamageEvent.DamageCause.FIRE_TICK);
 				}
 			} else if(this.fireTicks == 0) {
 				this.extinguish();
@@ -688,7 +776,7 @@ public class FakePlayer implements NPC {
 
 			//cactus
 			if(block.getType() == Material.CACTUS) {
-				this.damage(1, EntityDamageEvent.DamageCause.CONTACT);
+				this.damage(1.0F, EntityDamageEvent.DamageCause.CONTACT);
 			}
 		});
 
@@ -699,23 +787,24 @@ public class FakePlayer implements NPC {
 			this.meta.setAir(300);
 		}
 		if(this.meta.getAir() <= -20) {
-			this.damage(2, EntityDamageEvent.DamageCause.DROWNING);
+			this.damage(2.0F, EntityDamageEvent.DamageCause.DROWNING);
 			this.meta.setAir(0);
 		}
 	}
 
 	public void tickPotions() {
+		Collection<MobEffect> effectsToProcess = this.effects.values();
+
+
 		//--duration
-		Collection<MobEffect> effectsToProcess = this.getEffects();
 		for(MobEffect effect : effectsToProcess) {
 			int duration = effect.getDuration();
 			if(duration <= 0) {
-				this.effects.remove(effect.getMobEffect());
+				this.removeEffect(effect.getMobEffect());
 			} else {
 				Reflection.getField(effect.getClass(), "duration").set(effect, duration - 1);
 			}
 		}
-		this.addEffects(effectsToProcess);
 	}
 
 	@Override
@@ -754,7 +843,7 @@ public class FakePlayer implements NPC {
 		this.meta = new FakePlayerMeta();
 		this.meta.setStatus(false, false, false, false, false, false);
 		this.meta.setSkinFlags(true, true, true, true, true, true, true);
-		this.meta.setHealth(20);
+		this.meta.setHealth(20.0F);
 		this.meta.setAir(300);
 		this.meta.setName(this.getName());
 
@@ -784,7 +873,7 @@ public class FakePlayer implements NPC {
 	public void softReset() {
 		this.meta.setAir(300);
 		this.meta.setSilent(false);
-		this.meta.setHealth(20F);
+		this.meta.setHealth(20.0F);
 
 		this.attributes.forEach((attribute, fakeAttributeInstance) -> fakeAttributeInstance.removeAllModifiers());
 
