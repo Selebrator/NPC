@@ -161,6 +161,8 @@ public interface NPC {
 
 	boolean hasPotionEffect(PotionEffectType potionEffectType);
 
+	PotionEffect getPotionEffect(PotionEffectType potionEffectType);
+
 	Collection<PotionEffect> getActivePotionEffects();
 
 	void addPotionEffect(PotionEffect potionEffect);
@@ -168,6 +170,8 @@ public interface NPC {
 	void addPotionEffects(Collection<PotionEffect> potionEffects);
 
 	void removePotionEffect(PotionEffectType potionEffectType);
+
+	void removeAllPotionEffects();
 
 	FakeAttributeInstance getAttribute(Attribute attribute);
 

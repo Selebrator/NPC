@@ -1,12 +1,6 @@
 package de.selebrator.npc;
 
-import net.minecraft.server.v1_9_R1.MobEffect;
-import net.minecraft.server.v1_9_R1.MobEffectList;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_9_R1.potion.CraftPotionEffectType;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionEffectTypeWrapper;
 import org.bukkit.util.Vector;
 
 public class MathHelper {
@@ -91,24 +85,5 @@ public class MathHelper {
 
 	public static byte setBit(byte bitMask, int bit, boolean state) {
 		return state ? (byte) (bitMask | (1 << bit)) : (byte) (bitMask & ~(1 << bit));
-	}
-
-	public static MobEffectList convertEffectType(PotionEffectType potionEffectType) {
-		if(potionEffectType instanceof PotionEffectTypeWrapper)
-			return ((CraftPotionEffectType)((PotionEffectTypeWrapper)potionEffectType).getType()).getHandle();
-		else if(potionEffectType instanceof PotionEffectType)
-			return ((CraftPotionEffectType)potionEffectType).getHandle();
-		else
-			throw new IllegalArgumentException();
-	}
-
-	public static MobEffect convertEffect(PotionEffect potionEffect) {
-		return new MobEffect(
-				convertEffectType(potionEffect.getType()),
-				potionEffect.getDuration(),
-				potionEffect.getAmplifier(),
-				potionEffect.isAmbient(),
-				potionEffect.hasParticles()
-		);
 	}
 }

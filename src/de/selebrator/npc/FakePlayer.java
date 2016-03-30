@@ -12,12 +12,8 @@ import de.selebrator.npc.event.NPCSpawnEvent;
 import de.selebrator.npc.event.NPCTeleportEvent;
 import de.selebrator.reflection.Reflection;
 import net.minecraft.server.v1_9_R1.Entity;
-import net.minecraft.server.v1_9_R1.MobEffect;
-import net.minecraft.server.v1_9_R1.MobEffectList;
-import net.minecraft.server.v1_9_R1.MobEffects;
 import net.minecraft.server.v1_9_R1.PacketPlayOutEntityMetadata;
 import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo;
-import net.minecraft.server.v1_9_R1.PotionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -58,7 +54,7 @@ public class FakePlayer implements NPC {
 	private boolean invulnerable;
 	private Location respawnLocation;
 
-	private Map<MobEffectList, MobEffect> effects = new HashMap<>();
+	private Map<PotionEffectType, PotionEffect> effects = new HashMap<>();
 	private Map<Attribute, FakeAttributeInstance> attributes = new HashMap<>();
 
 	private static final AttributeModifier MOVEMENT_SPEED_MODIFIER_SNEAKING = new AttributeModifier("Sneaking speed reduction", -0.7D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
@@ -365,86 +361,71 @@ public class FakePlayer implements NPC {
 		return this.equip;
 	}
 
-	public boolean hasEffect(MobEffectList type) {
+	@Override
+	public boolean hasPotionEffect(PotionEffectType type) {
 		return this.effects.containsKey(type);
 	}
 
 	@Override
-	public boolean hasPotionEffect(PotionEffectType effectType) {
-		return this.hasEffect(MathHelper.convertEffectType(effectType));
-	}
-
-	public MobEffect getEffect(MobEffectList type) {
+	public PotionEffect getPotionEffect(PotionEffectType type) {
 		return this.effects.get(type);
-	}
-
-	public Collection<MobEffect> getEffects() {
-		return this.effects.values();
 	}
 
 	@Override
 	public Collection<PotionEffect> getActivePotionEffects() {
-		Collection<PotionEffect> potionEffects = new ArrayList<>();
-		this.effects.values().forEach( effect ->
-				potionEffects.add(
-						new PotionEffect(
-								PotionEffectType.getByName(effect.getMobEffect().a()),
-								effect.getDuration(),
-								effect.getAmplifier(),
-								effect.isAmbient(),
-								effect.isShowParticles())
-				));
-		return potionEffects;
+		return this.effects.values();
 	}
 
-	public void addEffect(MobEffect effect) {
-		MobEffectList type = effect.getMobEffect();
-		this.effects.put(type, effect);
+	@Override
+	public void addPotionEffect(PotionEffect effect) {
+		PotionEffectType type = effect.getType();
 		if(!type.isInstant()) {
-			this.calcPotionColor(this.getEffects());
+			this.effects.put(type, effect);
+			this.setParticles(this.getActivePotionEffects());
 		}
 
 		byte level = (byte) (effect.getAmplifier() + 1);
-		if(type == MobEffects.INCREASE_DAMAGE) {
-			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(
-					new AttributeModifier("potion.damageBoost" + level, 3.0D * level, AttributeModifier.Operation.ADD_NUMBER)
-			);
-		} else if(type == MobEffects.WEAKNESS) {
-			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(
-					new AttributeModifier("potion.weakness" + level, -4.0D * level, AttributeModifier.Operation.ADD_NUMBER)
-			);
-		} else if(type == MobEffects.FASTER_MOVEMENT) {
+
+		if(type.equals(PotionEffectType.SPEED)) {
 			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(
 					new AttributeModifier("potion.moveSpeed" + level, 0.20000000298023224D * level, AttributeModifier.Operation.MULTIPLY_SCALAR_1)
 			);
-		} else if(type == MobEffects.SLOWER_MOVEMENT) {
+		} else if(type.equals(PotionEffectType.SLOW)) {
 			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(
 					new AttributeModifier("potion.moveSlowdown" + level, -0.15000000596046448D * level, AttributeModifier.Operation.MULTIPLY_SCALAR_1)
 			);
-		} else if(type == MobEffects.HEAL) {
-			this.setHealth(this.getHealth() + (4.0F * (float) Math.pow(2.0D, level - 1.0D)));
-			this.removeEffect(MobEffects.HEAL);
-		} else if(type == MobEffects.HARM) {
-			this.damage((6.0F * (float) Math.pow(2.0D, level - 1.0D)), EntityDamageEvent.DamageCause.MAGIC);
-			this.removeEffect(MobEffects.HARM);
-		} else if(type == MobEffects.INVISIBILITY) {
-			this.meta.setInvisibleTemp(true);
-			updateMetadata();
-		} else if(type == MobEffects.GLOWING) {
-			this.meta.setGlowingTemp(true);
-			updateMetadata();
-		} else if(type == MobEffects.HEALTH_BOOST) {
+		} else if(type.equals(PotionEffectType.INCREASE_DAMAGE)) {
+			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(
+					new AttributeModifier("potion.damageBoost" + level, 3.0D * level, AttributeModifier.Operation.ADD_NUMBER)
+			);
+		} else if(type.equals(PotionEffectType.WEAKNESS)) {
+			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(
+					new AttributeModifier("potion.weakness" + level, -4.0D * level, AttributeModifier.Operation.ADD_NUMBER)
+			);
+		} else if(type.equals(PotionEffectType.HEALTH_BOOST)) {
 			this.getAttribute(Attribute.GENERIC_MAX_HEALTH).addModifier(
 					new AttributeModifier("potion.healthBoost" + level, 4.0D * level, AttributeModifier.Operation.ADD_NUMBER)
 			);
-		} else if(type == MobEffects.ABSORBTION) {
+		} else if(type.equals(PotionEffectType.ABSORPTION)) {
 			this.meta.setAbsorption(4 * level);
 			updateMetadata();
-		} else if(type == MobEffects.z) {
+		} else if(type.equals(PotionEffectType.HEAL)) {
+			this.setHealth(this.getHealth() + (4.0F * (float) Math.pow(2.0D, level - 1.0D)));
+			this.removePotionEffect(PotionEffectType.HEAL);
+		} else if(type.equals(PotionEffectType.HARM)) {
+			this.damage((6.0F * (float) Math.pow(2.0D, level - 1.0D)), EntityDamageEvent.DamageCause.MAGIC);
+			this.removePotionEffect(PotionEffectType.HARM);
+		} else if(type.equals(PotionEffectType.INVISIBILITY)) {
+			this.meta.setInvisibleTemp(true);
+			updateMetadata();
+		} else if(type.equals(PotionEffectType.GLOWING)) {
+			this.meta.setGlowingTemp(true);
+			updateMetadata();
+		} else if(type.equals(PotionEffectType.LUCK)) {
 			this.getAttribute(Attribute.GENERIC_LUCK).addModifier(
 					new AttributeModifier("potion.luck" + level, 1.0D * level, AttributeModifier.Operation.ADD_NUMBER)
 			);
-		} else if(type == MobEffects.A) {
+		} else if(type.equals(PotionEffectType.UNLUCK)) {
 			this.getAttribute(Attribute.GENERIC_LUCK).addModifier(
 					new AttributeModifier("potion.unluck" + level, -1.0D * level, AttributeModifier.Operation.ADD_NUMBER)
 			);
@@ -452,55 +433,47 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public void addPotionEffect(PotionEffect effect) {
-		this.addEffect(MathHelper.convertEffect(effect));
-	}
-
-	public void addEffects(Collection<MobEffect> effects) {
-		effects.forEach(this::addEffect);
-	}
-
-	@Override
 	public void addPotionEffects(Collection<PotionEffect> effects) {
 		effects.forEach(this::addPotionEffect);
 	}
 
-	public void removeEffect(MobEffectList type) {
-		MobEffect effect = this.getEffect(type);
+	@Override
+	public void removePotionEffect(PotionEffectType type) {
+		PotionEffect effect = this.getPotionEffect(type);
 		byte level = (byte) (effect.getAmplifier() + 1);
 
 		this.effects.remove(type);
-		this.calcPotionColor(this.getEffects());
+		this.setParticles(this.getActivePotionEffects());
 
-		if(type == MobEffects.INCREASE_DAMAGE) {
-			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier("potion.damageBoost" + level);
-		} else if(type == MobEffects.WEAKNESS) {
-			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier("potion.weakness" + level);
-		} else if(type == MobEffects.FASTER_MOVEMENT) {
+		if(type.equals(PotionEffectType.SPEED)) {
 			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier("potion.moveSpeed" + level);
-		} else if(type == MobEffects.SLOWER_MOVEMENT) {
+		} else if(type.equals(PotionEffectType.SLOW)) {
 			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier("potion.moveSlowdown" + level);
-		} else if(type == MobEffects.INVISIBILITY) {
-			this.meta.setInvisibleTemp(false);
-			updateMetadata();
-		} else if(type == MobEffects.GLOWING) {
-			this.meta.setGlowingTemp(false);
-			updateMetadata();
-		} else if(type == MobEffects.HEALTH_BOOST) {
+		} else if(type.equals(PotionEffectType.INCREASE_DAMAGE)) {
+			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier("potion.damageBoost" + level);
+		} else if(type.equals(PotionEffectType.WEAKNESS)) {
+			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier("potion.weakness" + level);
+		} else if(type.equals(PotionEffectType.HEALTH_BOOST)) {
 			this.getAttribute(Attribute.GENERIC_MAX_HEALTH).removeModifier("potion.healthBoost" + level);
-		} else if(type == MobEffects.ABSORBTION) {
+		} else if(type.equals(PotionEffectType.ABSORPTION)) {
 			this.meta.setAbsorption(0);
 			updateMetadata();
-		} else if(type == MobEffects.z) {
+		} else if(type.equals(PotionEffectType.INVISIBILITY)) {
+			this.meta.setInvisibleTemp(false);
+			updateMetadata();
+		} else if(type.equals(PotionEffectType.GLOWING)) {
+			this.meta.setGlowingTemp(false);
+			updateMetadata();
+		} else if(type.equals(PotionEffectType.LUCK)) {
 			this.getAttribute(Attribute.GENERIC_LUCK).removeModifier("potion.luck" + level);
-		} else if(type == MobEffects.A) {
+		} else if(type.equals(PotionEffectType.UNLUCK)) {
 			this.getAttribute(Attribute.GENERIC_LUCK).removeModifier("potion.unluck" + level);
 		}
 	}
 
 	@Override
-	public void removePotionEffect(PotionEffectType effectType) {
-		this.effects.remove(MathHelper.convertEffectType(effectType));
+	public void removeAllPotionEffects() {
+		this.effects = new HashMap<>();
 	}
 
 	@Override
@@ -559,10 +532,10 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void damage(float amount, EntityDamageEvent.DamageCause cause) {
-		boolean immune = (this.hasEffect(MobEffects.FIRE_RESISTANCE) && (cause == EntityDamageEvent.DamageCause.LAVA
+		boolean immune = (this.hasPotionEffect(PotionEffectType.FIRE_RESISTANCE) && (cause == EntityDamageEvent.DamageCause.LAVA
 																	||  cause == EntityDamageEvent.DamageCause.FIRE
 																	||  cause == EntityDamageEvent.DamageCause.FIRE_TICK))
-				      || this.hasEffect(MobEffects.WATER_BREATHING) && (cause == EntityDamageEvent.DamageCause.DROWNING);
+				      || this.hasPotionEffect(PotionEffectType.WATER_BREATHING) && (cause == EntityDamageEvent.DamageCause.DROWNING);
 		if(this.noDamageTicks == 0 && !immune && !this.invulnerable) {
 			NPCDamageEvent event = new NPCDamageEvent(this, amount, cause);
 			Bukkit.getPluginManager().callEvent(event);
@@ -570,7 +543,7 @@ public class FakePlayer implements NPC {
 
 			float current = this.getHealth();
 			float absorption = this.meta.getAbsorption();
-			int resistance = this.hasEffect(MobEffects.RESISTANCE) ? this.getEffect(MobEffects.RESISTANCE).getAmplifier() + 1 : 0;
+			int resistance = this.hasPotionEffect(PotionEffectType.DAMAGE_RESISTANCE) ? this.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE).getAmplifier() + 1 : 0;
 			if(resistance > 5) { resistance = 5; }
 			float damage = event.getAmount();
 			damage = damage - damage * 0.2F * resistance;
@@ -650,15 +623,76 @@ public class FakePlayer implements NPC {
 		}
 	}
 
-	public void calcPotionColor(Collection<MobEffect> effects) {
+	public static int calcPotionColor(Collection<PotionEffect> effects) {
+		if(effects.isEmpty()) {
+			return 0;
+		} else {
+			float red = 0.0F;
+			float green = 0.0F;
+			float blue = 0.0F;
+			int totalAmplifier = 0;
+
+			for(PotionEffect effect : effects) {
+				if(effect.hasParticles()) {
+					PotionEffectType type = effect.getType();
+					System.out.println(type.getName());
+					int color = 0xffffff;
+					if(effect.getColor() != null) { color = effect.getColor().asRGB(); }
+					else if(type.equals(PotionEffectType.SPEED)) { color = 8171462; }
+					else if(type.equals(PotionEffectType.SLOW)) { color = 5926017; }
+					else if(type.equals(PotionEffectType.FAST_DIGGING)) { color = 14270531; }
+					else if(type.equals(PotionEffectType.SLOW_DIGGING)) { color = 4866583; }
+					else if(type.equals(PotionEffectType.INCREASE_DAMAGE)) { color = 9643043; }
+					else if(type.equals(PotionEffectType.HEAL)) { color = 16262179; }
+					else if(type.equals(PotionEffectType.HARM)) { color = 4393481; }
+					else if(type.equals(PotionEffectType.JUMP)) { color = 2293580; }
+					else if(type.equals(PotionEffectType.CONFUSION)) { color = 5578058; }
+					else if(type.equals(PotionEffectType.REGENERATION)) { color = 13458603; }
+					else if(type.equals(PotionEffectType.DAMAGE_RESISTANCE)) { color = 10044730; }
+					else if(type.equals(PotionEffectType.FIRE_RESISTANCE)) { color = 14981690; }
+					else if(type.equals(PotionEffectType.WATER_BREATHING)) { color = 3035801; }
+					else if(type.equals(PotionEffectType.INVISIBILITY)) { color = 8356754; }
+					else if(type.equals(PotionEffectType.BLINDNESS)) { color = 2039587; }
+					else if(type.equals(PotionEffectType.NIGHT_VISION)) { color = 2039713; }
+					else if(type.equals(PotionEffectType.HUNGER)) { color = 5797459; }
+					else if(type.equals(PotionEffectType.WEAKNESS)) { color = 4738376; }
+					else if(type.equals(PotionEffectType.POISON)) { color = 5149489; }
+					else if(type.equals(PotionEffectType.WITHER)) { color = 3484199; }
+					else if(type.equals(PotionEffectType.HEALTH_BOOST)) { color = 16284963; }
+					else if(type.equals(PotionEffectType.ABSORPTION)) { color = 2445989; }
+					else if(type.equals(PotionEffectType.SATURATION)) { color = 16262179; }
+					else if(type.equals(PotionEffectType.GLOWING)) { color = 9740385; }
+					else if(type.equals(PotionEffectType.LEVITATION)) { color = 13565951; }
+					else if(type.equals(PotionEffectType.LUCK)) { color = 3381504; }
+					else if(type.equals(PotionEffectType.UNLUCK)) { color = 12624973; }
+					int amplifier = effect.getAmplifier() + 1;
+					red   += (float) (amplifier * (color >> 16 & 255)) / 255.0F;
+					green += (float) (amplifier * (color >>  8 & 255)) / 255.0F;
+					blue  += (float) (amplifier * (color >>  0 & 255)) / 255.0F;
+					totalAmplifier += amplifier;
+				}
+			}
+
+			if(totalAmplifier == 0) {
+				return 0;
+			} else {
+				red   = red   / (float)totalAmplifier * 255.0F;
+				green = green / (float)totalAmplifier * 255.0F;
+				blue  = blue  / (float)totalAmplifier * 255.0F;
+				return (int)red << 16 | (int)green << 8 | (int)blue;
+			}
+		}
+	}
+
+	public void setParticles(Collection<PotionEffect> effects) {
 		boolean ambient = true;
-		for(MobEffect effect : effects) {
+		for(PotionEffect effect : effects) {
 			if(!effect.isAmbient()) {
 				ambient = false;
 			}
 		}
 		this.meta.setPotionAmbient(ambient);
-		this.meta.setPotionColor(effects.isEmpty() ? 0 : PotionUtil.a(effects));
+		this.meta.setPotionColor(calcPotionColor(effects));
 		updateMetadata();
 	}
 
@@ -793,14 +827,14 @@ public class FakePlayer implements NPC {
 	}
 
 	public void tickPotions() {
-		Collection<MobEffect> effectsToProcess = this.effects.values();
+		Collection<PotionEffect> effectsToProcess = this.effects.values();
 
 
 		//--duration
-		for(MobEffect effect : effectsToProcess) {
+		for(PotionEffect effect : effectsToProcess) {
 			int duration = effect.getDuration();
 			if(duration <= 0) {
-				this.removeEffect(effect.getMobEffect());
+				this.removePotionEffect(effect.getType());
 			} else {
 				Reflection.getField(effect.getClass(), "duration").set(effect, duration - 1);
 			}
