@@ -2,6 +2,7 @@ package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
 import de.selebrator.npc.attribute.FakeAttributeInstance;
+import de.selebrator.npc.event.NPCAnimationEvent;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
@@ -81,7 +82,7 @@ public interface NPC {
 
 	void teleport(Location location);
 
-	void playAnimation(EnumAnimation animation);
+	void playAnimation(NPCAnimationEvent.Animation animation);
 
 	void setEntityStatus(EnumEntityStatus status);
 

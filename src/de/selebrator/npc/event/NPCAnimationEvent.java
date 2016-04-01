@@ -1,6 +1,5 @@
 package de.selebrator.npc.event;
 
-import de.selebrator.npc.EnumAnimation;
 import de.selebrator.npc.NPC;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -8,9 +7,9 @@ import org.bukkit.event.HandlerList;
 public class NPCAnimationEvent extends NPCEvent implements Cancellable {
 	private static final HandlerList handlers = new HandlerList();
 	private boolean cancel;
-	private EnumAnimation animation;
+	private Animation animation;
 
-	public NPCAnimationEvent(NPC npc, EnumAnimation animation) {
+	public NPCAnimationEvent(NPC npc, Animation animation) {
 		super(npc);
 		this.animation = animation;
 	}
@@ -34,11 +33,32 @@ public class NPCAnimationEvent extends NPCEvent implements Cancellable {
 		this.cancel = cancel;
 	}
 
-	public EnumAnimation getAnimation() {
+	public Animation getAnimation() {
 		return animation;
 	}
 
-	public void setAnimation(EnumAnimation animation) {
+	public void setAnimation(Animation animation) {
 		this.animation = animation;
+	}
+
+	public enum Animation {
+		SWING_ARM(0),
+		TAKE_DAMAGE(1),
+		LEAVE_BED(2),
+		EAT_FOOD(3),
+		CRITICAL_EFFECT(4),
+		MAGIC_CRITICAL_EFFECT(5),
+		CROUCH(104),
+		UNCROUCH(105);
+
+		private int id;
+
+		Animation(int id) {
+			this.id = id;
+		}
+
+		public int getId() {
+			return this.id;
+		}
 	}
 }

@@ -19,14 +19,14 @@ public class Reflection {
 	public static Class<?> getClass(ServerPackage path, String name) {
 		return getClass(path.toString(), name);
 	}
-	
+
 	public static IConstructorAccessor getConstructor(Class<?> clazz, Class<?>... parameterTypes) {
-		
+
 		for(Constructor<?> constructor : clazz.getDeclaredConstructors()) {
 			if(isClassListEqual(parameterTypes, constructor.getParameterTypes())){
 				constructor.setAccessible(true);
 				return new IConstructorAccessor() {
-					
+
 					@Override
 					public Object newInstance(Object... parameters) {
 						try {
@@ -42,7 +42,7 @@ public class Reflection {
 							return null;
 						}
 					}
-					
+
 					@Override
 					public Constructor<?> getConstructor() {
 						return constructor;
@@ -56,9 +56,9 @@ public class Reflection {
 		}
 		return null;
 	}
-	
+
 	public static IMethodAccessor getMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
-		
+
 		for(Method method : clazz.getDeclaredMethods()) {
 			if(method.getName().equals(name)) {
 				if(isClassListEqual(parameterTypes, method.getParameterTypes())) {
@@ -72,7 +72,7 @@ public class Reflection {
 							} catch (IllegalAccessException e) {
 								throw new IllegalStateException("Cannot use reflection.", e);
 							} catch (InvocationTargetException e) {
-								return null; // TODO how to handle ?
+								return null;
 							} catch (IllegalArgumentException e) {
 								e.printStackTrace();
 								return null;
@@ -93,15 +93,15 @@ public class Reflection {
 		}
 		return null;
 	}
-	
+
 	public static IFieldAccessor getField(Class<?> clazz, String name) {
-		
+
 		try {
 			Field field;
 			field = clazz.getDeclaredField(name);
 			field.setAccessible(true);
 			return new IFieldAccessor() {
-				
+
 				@Override
 				public void set(Object instance, Object value) {
 					try {
@@ -112,7 +112,7 @@ public class Reflection {
 						e.printStackTrace();
 					}
 				}
-				
+
 				@Override
 				public Object get(Object instance) {
 					try {
@@ -124,7 +124,7 @@ public class Reflection {
 						return null;
 					}
 				}
-				
+
 				@Override
 				public Field getField() {
 					return field;

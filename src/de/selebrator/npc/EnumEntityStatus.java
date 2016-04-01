@@ -1,16 +1,16 @@
 package de.selebrator.npc;
 
 public enum EnumEntityStatus {
-    HURT(2),
-    DEAD(3);
-    
-    private int id;
+	HURT(2),
+	DEAD(3);
 
-    EnumEntityStatus(int id) {
-        this.id = id;
-    }
+	private byte id;
 
-    public byte getId() {
-        return (byte) this.id;
-    }
+	EnumEntityStatus(int id) {
+		this.id = (byte) id;
+	}
+
+	public byte getId() {
+		return this.id;
+	}
 }

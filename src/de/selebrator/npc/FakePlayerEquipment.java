@@ -1,5 +1,6 @@
 package de.selebrator.npc;
 
+import net.minecraft.server.v1_9_R1.EnumItemSlot;
 import org.bukkit.inventory.ItemStack;
 
 public class FakePlayerEquipment {
@@ -21,7 +22,7 @@ public class FakePlayerEquipment {
 	}
 
 	public void setMainHand(ItemStack mainHand) {
-		this.set(EnumEquipmentSlot.MAIN_HAND, mainHand);
+		this.set(EquipmentSlot.MAIN_HAND, mainHand);
 	}
 
 	// ##### OFF HAND #####
@@ -30,7 +31,7 @@ public class FakePlayerEquipment {
 	}
 
 	public void setOffHand(ItemStack offHand) {
-		this.set(EnumEquipmentSlot.OFF_HAND, offHand);
+		this.set(EquipmentSlot.OFF_HAND, offHand);
 	}
 
 	// ##### HELMET #####
@@ -39,7 +40,7 @@ public class FakePlayerEquipment {
 	}
 
 	public void setHelmet(ItemStack helmet) {
-		this.set(EnumEquipmentSlot.HELMET, helmet);
+		this.set(EquipmentSlot.HELMET, helmet);
 	}
 
 	// ##### CHESTPLATE #####
@@ -48,7 +49,7 @@ public class FakePlayerEquipment {
 	}
 
 	public void setChestplate(ItemStack chestplate) {
-		this.set(EnumEquipmentSlot.CHESTPLATE, chestplate);
+		this.set(EquipmentSlot.CHESTPLATE, chestplate);
 	}
 
 	// ##### LEGGINGS #####
@@ -57,7 +58,7 @@ public class FakePlayerEquipment {
 	}
 
 	public void setLeggings(ItemStack leggings) {
-		this.set(EnumEquipmentSlot.LEGGINGS, leggings);
+		this.set(EquipmentSlot.LEGGINGS, leggings);
 	}
 
 	// ##### BOOTS #####
@@ -66,7 +67,7 @@ public class FakePlayerEquipment {
 	}
 
 	public void setBoots(ItemStack boots) {
-		this.set(EnumEquipmentSlot.BOOTS, boots);
+		this.set(EquipmentSlot.BOOTS, boots);
 	}
 
 	// ##### ARMOR #####
@@ -86,7 +87,7 @@ public class FakePlayerEquipment {
 	}
 
 	// ##### GENERAL #####
-	public ItemStack get(EnumEquipmentSlot slot) {
+	public ItemStack get(EquipmentSlot slot) {
 		switch(slot) {
 			case MAIN_HAND:
 				return this.mainHand;
@@ -104,7 +105,7 @@ public class FakePlayerEquipment {
 		throw new IllegalArgumentException();
 	}
 
-	public void set(EnumEquipmentSlot slot, ItemStack item) {
+	public void set(EquipmentSlot slot, ItemStack item) {
 		switch(slot) {
 			case MAIN_HAND:
 				this.mainHand = item;
@@ -130,5 +131,24 @@ public class FakePlayerEquipment {
 
 	public NPC getHolder() {
 		return this.holder;
+	}
+
+	public enum EquipmentSlot {
+		MAIN_HAND(EnumItemSlot.MAINHAND),
+		OFF_HAND(EnumItemSlot.OFFHAND),
+		BOOTS(EnumItemSlot.FEET),
+		LEGGINGS(EnumItemSlot.LEGS),
+		CHESTPLATE(EnumItemSlot.CHEST),
+		HELMET(EnumItemSlot.HEAD);
+
+		private EnumItemSlot NMSSlot;
+
+		EquipmentSlot(EnumItemSlot NMSSlot) {
+			this.NMSSlot = NMSSlot;
+		}
+
+		public EnumItemSlot getNMS() {
+			return this.NMSSlot;
+		}
 	}
 }

@@ -2,7 +2,7 @@ package de.selebrator.npc.gui;
 
 import de.selebrator.fetcher.ItemBuilder;
 import de.selebrator.fetcher.LeatherArmorBuilder;
-import de.selebrator.npc.EnumEquipmentSlot;
+import de.selebrator.npc.FakePlayerEquipment;
 import de.selebrator.npc.NPC;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -23,14 +23,14 @@ public class EquipEditor implements Listener {
 
 	public EquipEditor(NPC npc, Plugin plugin) {
 		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
-		
+
 		this.npc = npc;
 	}
-	
+
 	public void open(Player player) {
 		ItemStack filler = new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 8, " ").build();
 		ItemStack marker = new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 5, " ").build();
-		
+
 		Inventory inventory = Bukkit.getServer().createInventory(null, 6 * 9, npc.getName() + " - Equip");
 
 		inventory.setItem(11, npc.getEquipment().getMainHand() == null ? new ItemBuilder(Material.STICK, 1, (short) 0, "§8Empty MainHand").build() : npc.getEquipment().getMainHand());
@@ -38,7 +38,7 @@ public class EquipEditor implements Listener {
 		inventory.setItem(14, npc.getEquipment().getChestplate() == null ? new LeatherArmorBuilder(Material.LEATHER_CHESTPLATE, 1, (short) 0, "§8No Chestplate", Color.fromBGR(76, 76, 76)).build() : npc.getEquipment().getChestplate());
 		inventory.setItem(15, npc.getEquipment().getLeggings() == null ? new LeatherArmorBuilder(Material.LEATHER_LEGGINGS, 1, (short) 0, "§8No Leggings", Color.fromBGR(76, 76, 76)).build() : npc.getEquipment().getLeggings());
 		inventory.setItem(16, npc.getEquipment().getBoots() == null ? new LeatherArmorBuilder(Material.LEATHER_BOOTS, 1, (short) 0, "§8No Boots", Color.fromBGR(76, 76, 76)).build() : npc.getEquipment().getBoots());
-		
+
 		if(selected != null) {
 			ItemStack enchant = new ItemStack(Material.ENCHANTED_BOOK, 1);
 			ItemStack clear = new ItemBuilder(Material.BARRIER, 1, (short) 0, "§cClear").build();
@@ -90,16 +90,16 @@ public class EquipEditor implements Listener {
 				inventory.setItem(42, new ItemStack(Material.valueOf("DIAMOND_" + selected), 1));
 			}
 		}
-		
+
 		for(int i = 0; i < inventory.getSize(); i++) {
 			if(inventory.getItem(i) == null)
 				inventory.setItem(i, filler);
 		}
 		inventory.setItem(12, null);
-		
+
 		player.openInventory(inventory);
 	}
-	
+
 	@EventHandler
 	public void onGUIClick(InventoryClickEvent event) {
 		Inventory inventory = event.getInventory();
@@ -129,9 +129,9 @@ public class EquipEditor implements Listener {
 				} else if(slot == 33 && selected.equals("MAIN_HAND")) {
 					subSelected = "HOE";
 				} else if(slot >= 38 && slot <=42  && item.getType() != Material.STAINED_GLASS_PANE) {
-					npc.getEquipment().set(EnumEquipmentSlot.valueOf(selected), item);
+					npc.getEquipment().set(FakePlayerEquipment.EquipmentSlot.valueOf(selected), item);
 				} else if(slot == 23 && item.getType() != Material.STAINED_GLASS_PANE) {
-					npc.getEquipment().set(EnumEquipmentSlot.valueOf(selected), null);
+					npc.getEquipment().set(FakePlayerEquipment.EquipmentSlot.valueOf(selected), null);
 				}
 				event.setCancelled(true);
 				this.open((Player) event.getWhoClicked());

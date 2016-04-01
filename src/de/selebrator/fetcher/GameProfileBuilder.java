@@ -25,7 +25,7 @@ public class GameProfileBuilder {
 	private String skinOwner;
 	private String skinValue;
 	private String skinSignature;
-	
+
 	public GameProfileBuilder(String name) {
 		name = ChatColor.translateAlternateColorCodes('&', name).substring(0, name.length() <= 16 ? name.length() : 16);
 		this.name = name;
@@ -35,30 +35,30 @@ public class GameProfileBuilder {
 		this.uuid = createUUID(name);
 		createSkin(this.uuid);
 	}
-	
+
 	public GameProfileBuilder(String name, String skinOwner) {
 		name = ChatColor.translateAlternateColorCodes('&', name).substring(0, name.length() <= 16 ? name.length() : 16);
 		this.name = name;
 		name = ChatColor.stripColor(name);
 		this.skinOwner = skinOwner;
-		
+
 		this.uuid = createUUID(name);
 		createSkin(createUUID(skinOwner));
 	}
-	
+
 	public GameProfile build() {
 		GameProfile profile = new GameProfile(getUUID(), getName());
 		if(getValue() != null && getSignature() != null)
 			profile.getProperties().put("textures", new Property("textures", getValue(), getSignature()));
 		return profile;
 	}
-	
+
 	private UUID createUUID(String name) {
 		String mojangAPI = read("https://api.mojang.com/users/profiles/minecraft/" + name);
 		try {
 			JsonElement uuidElement = new JsonParser().parse(mojangAPI);
 			JsonObject uuidObject = uuidElement.getAsJsonObject();
-			
+
 			String uuid = uuidObject.get("id").toString();
 			uuid = uuid.substring(1, uuid.length() - 1).replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5");
 			return UUID.fromString(uuid);
@@ -66,7 +66,7 @@ public class GameProfileBuilder {
 			return UUID.fromString("00000000000020000000000000000000".replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
 		}
 	}
-	
+
 	private void createSkin(UUID uuid) {
 		try {
 			String uuidString = uuid.toString().replace("-", "");
@@ -75,9 +75,9 @@ public class GameProfileBuilder {
 			JsonObject mainObject = mainElement.getAsJsonObject();
 
 			this.skinOwner = mainObject.get("name").getAsString();
-			
+
 			JsonArray properties = mainObject.getAsJsonArray("properties");
-			
+
 			JsonObject propertiesObject = properties.get(0).getAsJsonObject();
 			this.skinValue = propertiesObject.get("value").getAsString();
 			String signature = propertiesObject.get("signature").toString();
@@ -89,7 +89,7 @@ public class GameProfileBuilder {
 
 		}
 	}
-	
+
 	public String getName() {
 		return this.name;
 	}
@@ -97,15 +97,15 @@ public class GameProfileBuilder {
 	public UUID getUUID() {
 		return this.uuid;
 	}
-	
+
 	public String getValue() {
 		return this.skinValue;
 	}
-	
+
 	public String getSignature() {
 		return this.skinSignature;
 	}
-	
+
 	private String read(String domain) {
 		String result = null;
 		try {

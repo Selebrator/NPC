@@ -43,6 +43,9 @@ public class FakePlayer implements NPC {
 	public FakePlayerMeta meta;
 	public FakePlayerEquipment equip;
 
+	private Map<PotionEffectType, PotionEffect> effects = new HashMap<>();
+	private Map<Attribute, FakeAttributeInstance> attributes = new HashMap<>();
+
 	private boolean frozen;
 	private boolean living;
 	private Location location;
@@ -53,9 +56,6 @@ public class FakePlayer implements NPC {
 	private int noDamageTicks;
 	private boolean invulnerable;
 	private Location respawnLocation;
-
-	private Map<PotionEffectType, PotionEffect> effects = new HashMap<>();
-	private Map<Attribute, FakeAttributeInstance> attributes = new HashMap<>();
 
 	private static final AttributeModifier MOVEMENT_SPEED_MODIFIER_SNEAKING = new AttributeModifier("Sneaking speed reduction", -0.7D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
 	private static final AttributeModifier MOVEMENT_SPEED_MODIFIER_SPRINTING = new AttributeModifier("Sprinting speed boost", 0.30000001192092896D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
@@ -69,7 +69,29 @@ public class FakePlayer implements NPC {
 
 		this.gameProfile = gameProfile;
 
-		initialize();
+		this.meta = new FakePlayerMeta();
+		this.meta.setStatus(false, false, false, false, false, false);
+		this.meta.setSkinFlags(true, true, true, true, true, true, true);
+		this.meta.setHealth(20.0F);
+		this.meta.setAir(300);
+		this.meta.setName(this.getName());
+
+		this.equip = new FakePlayerEquipment(this);
+
+		this.effects = new HashMap<>();
+
+		this.attributes = new HashMap<>();
+		this.attributes.put(Attribute.GENERIC_MAX_HEALTH, new FakeAttributeInstance(Attribute.GENERIC_MAX_HEALTH, 20));
+		this.attributes.put(Attribute.GENERIC_FOLLOW_RANGE, new FakeAttributeInstance(Attribute.GENERIC_FOLLOW_RANGE, 32));
+		this.attributes.put(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new FakeAttributeInstance(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 0));
+		this.attributes.put(Attribute.GENERIC_MOVEMENT_SPEED, new FakeAttributeInstance(Attribute.GENERIC_MOVEMENT_SPEED, 0.699999988079071D));
+		this.attributes.put(Attribute.GENERIC_ATTACK_DAMAGE, new FakeAttributeInstance(Attribute.GENERIC_ATTACK_DAMAGE, 1));
+		this.attributes.put(Attribute.GENERIC_ARMOR, new FakeAttributeInstance(Attribute.GENERIC_ARMOR, 0));
+		this.attributes.put(Attribute.GENERIC_ATTACK_SPEED, new FakeAttributeInstance(Attribute.GENERIC_ATTACK_SPEED, 4));
+		this.attributes.put(Attribute.GENERIC_LUCK, new FakeAttributeInstance(Attribute.GENERIC_LUCK, 0));
+
+		this.nature = EnumNature.PASSIVE;
+		this.fireTicks = -20;
 	}
 
 	// ### PACKET MANIPULATION ###
@@ -89,7 +111,7 @@ public class FakePlayer implements NPC {
 		if(this.respawnLocation == null) { this.respawnLocation = location; }
 		this.living = this.meta.getHealth() > 0;
 
-		for(EnumEquipmentSlot slot : EnumEquipmentSlot.values()) {
+		for(FakePlayerEquipment.EquipmentSlot slot : FakePlayerEquipment.EquipmentSlot.values()) {
 			this.equip(slot, this.equip.get(slot));
 		}
 
@@ -213,7 +235,7 @@ public class FakePlayer implements NPC {
 		this.location = location;
 	}
 
-	public void equip(EnumEquipmentSlot slot, ItemStack item) {
+	public void equip(FakePlayerEquipment.EquipmentSlot slot, ItemStack item) {
 		NPCEquipEvent event = new NPCEquipEvent(this, slot, item);
 		Bukkit.getPluginManager().callEvent(event);
 		if(event.isCancelled()) { return; }
@@ -227,7 +249,7 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public void playAnimation(EnumAnimation anim) {
+	public void playAnimation(NPCAnimationEvent.Animation anim) {
 		NPCAnimationEvent event = new NPCAnimationEvent(this, anim);
 		Bukkit.getPluginManager().callEvent(event);
 		if(event.isCancelled()) { return; }
@@ -533,9 +555,9 @@ public class FakePlayer implements NPC {
 	@Override
 	public void damage(float amount, EntityDamageEvent.DamageCause cause) {
 		boolean immune = (this.hasPotionEffect(PotionEffectType.FIRE_RESISTANCE) && (cause == EntityDamageEvent.DamageCause.LAVA
-																	||  cause == EntityDamageEvent.DamageCause.FIRE
-																	||  cause == EntityDamageEvent.DamageCause.FIRE_TICK))
-				      || this.hasPotionEffect(PotionEffectType.WATER_BREATHING) && (cause == EntityDamageEvent.DamageCause.DROWNING);
+				||  cause == EntityDamageEvent.DamageCause.FIRE
+				||  cause == EntityDamageEvent.DamageCause.FIRE_TICK))
+				|| this.hasPotionEffect(PotionEffectType.WATER_BREATHING) && (cause == EntityDamageEvent.DamageCause.DROWNING);
 		if(this.noDamageTicks == 0 && !immune && !this.invulnerable) {
 			NPCDamageEvent event = new NPCDamageEvent(this, amount, cause);
 			Bukkit.getPluginManager().callEvent(event);
@@ -844,7 +866,7 @@ public class FakePlayer implements NPC {
 	@Override
 	public void attack(LivingEntity target) {
 		if(this.isAlive() && !target.isDead()) {
-			this.playAnimation(EnumAnimation.SWING_ARM);
+			this.playAnimation(NPCAnimationEvent.Animation.SWING_ARM);
 			target.damage(this.attributes.get(Attribute.GENERIC_ATTACK_DAMAGE).getValue());
 			Vector distance = MathHelper.calcDistanceVector(this.getLocation(), target.getLocation());
 
@@ -873,41 +895,14 @@ public class FakePlayer implements NPC {
 		}
 	}
 
-	public void initialize() {
-		this.meta = new FakePlayerMeta();
-		this.meta.setStatus(false, false, false, false, false, false);
-		this.meta.setSkinFlags(true, true, true, true, true, true, true);
-		this.meta.setHealth(20.0F);
-		this.meta.setAir(300);
-		this.meta.setName(this.getName());
-
-		this.attributes = new HashMap<>();
-		this.attributes.put(Attribute.GENERIC_MAX_HEALTH, new FakeAttributeInstance(Attribute.GENERIC_MAX_HEALTH, 20));
-		this.attributes.put(Attribute.GENERIC_FOLLOW_RANGE, new FakeAttributeInstance(Attribute.GENERIC_FOLLOW_RANGE, 32));
-		this.attributes.put(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new FakeAttributeInstance(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 0));
-		this.attributes.put(Attribute.GENERIC_MOVEMENT_SPEED, new FakeAttributeInstance(Attribute.GENERIC_MOVEMENT_SPEED, 0.699999988079071D));
-		this.attributes.put(Attribute.GENERIC_ATTACK_DAMAGE, new FakeAttributeInstance(Attribute.GENERIC_ATTACK_DAMAGE, 1));
-		this.attributes.put(Attribute.GENERIC_ARMOR, new FakeAttributeInstance(Attribute.GENERIC_ARMOR, 0));
-		this.attributes.put(Attribute.GENERIC_ATTACK_SPEED, new FakeAttributeInstance(Attribute.GENERIC_ATTACK_SPEED, 4));
-		this.attributes.put(Attribute.GENERIC_LUCK, new FakeAttributeInstance(Attribute.GENERIC_LUCK, 0));
-
-		this.frozen = false;
-		this.living = false;
-		this.location = null;
-		this.target = null;
-		this.nature = EnumNature.PASSIVE;
-		this.fireTicks = -20;
-		this.noDamageTicks = 0;
-
-		this.equip = new FakePlayerEquipment(this);
-
-		this.effects = new HashMap<>();
-	}
-
 	public void softReset() {
 		this.meta.setAir(300);
 		this.meta.setSilent(false);
 		this.meta.setHealth(20.0F);
+
+		this.equip = new FakePlayerEquipment(this);
+
+		this.effects = new HashMap<>();
 
 		this.attributes.forEach((attribute, fakeAttributeInstance) -> fakeAttributeInstance.removeAllModifiers());
 
@@ -919,9 +914,6 @@ public class FakePlayer implements NPC {
 
 		this.extinguish();
 		this.noDamageTicks = 0;
-
-		this.equip = new FakePlayerEquipment(this);
-
-		this.effects = new HashMap<>();
+		this.invulnerable = false;
 	}
 }

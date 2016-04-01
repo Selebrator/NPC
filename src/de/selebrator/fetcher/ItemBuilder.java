@@ -5,10 +5,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemBuilder {
-	
+
 	protected ItemStack item;
 	protected ItemMeta meta;
-	
+
 	protected Material type;
 	protected int amount;
 	protected short damage;
@@ -20,7 +20,7 @@ public class ItemBuilder {
 		this.damage = damage;
 		this.name = name;
 	}
-	
+
 	public ItemStack build() {
 		if(type != null) {
 			item = new ItemStack(type, amount, damage);

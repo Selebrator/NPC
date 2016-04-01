@@ -1,11 +1,11 @@
 package de.selebrator;
 
 import de.selebrator.fetcher.GameProfileBuilder;
-import de.selebrator.npc.EnumAnimation;
-import de.selebrator.npc.EnumEquipmentSlot;
 import de.selebrator.npc.EnumNature;
 import de.selebrator.npc.FakePlayer;
+import de.selebrator.npc.FakePlayerEquipment;
 import de.selebrator.npc.NPC;
+import de.selebrator.npc.event.NPCAnimationEvent;
 import de.selebrator.npc.gui.EquipEditor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,11 +23,9 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -208,7 +206,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 							new EquipEditor(npc, this).open(player);
 							return true;
 						} else if (args.length == 2) {
-							npc.getEquipment().set(EnumEquipmentSlot.valueOf(args[1].toUpperCase()), player.getInventory().getItemInMainHand());
+							npc.getEquipment().set(FakePlayerEquipment.EquipmentSlot.valueOf(args[1].toUpperCase()), player.getInventory().getItemInMainHand());
 							return true;
 						}
 						player.sendMessage("§c/npc equip [slot]");
@@ -221,7 +219,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if (npc != null) {
 						if (args.length == 2) {
-							npc.playAnimation(EnumAnimation.valueOf(args[1].toUpperCase()));
+							npc.playAnimation(NPCAnimationEvent.Animation.valueOf(args[1].toUpperCase()));
 							return true;
 						}
 						player.sendMessage("§c/npc animation <animation>");
@@ -306,8 +304,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if (npc != null) {
 						if (args.length == 1) {
-							Collection<PotionEffect> effects = player.getActivePotionEffects();
-							npc.addPotionEffects(effects);
+
 							return true;
 						}
 						player.sendMessage("§c/npc " + args[0]);
