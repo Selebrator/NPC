@@ -1,8 +1,8 @@
-package de.selebrator.npc.gui;
+package de.selebrator.gui;
 
 import de.selebrator.fetcher.ItemBuilder;
 import de.selebrator.fetcher.LeatherArmorBuilder;
-import de.selebrator.npc.FakePlayerEquipment;
+import de.selebrator.npc.inventory.FakeEquipment;
 import de.selebrator.npc.NPC;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -129,9 +129,9 @@ public class EquipEditor implements Listener {
 				} else if(slot == 33 && selected.equals("MAIN_HAND")) {
 					subSelected = "HOE";
 				} else if(slot >= 38 && slot <=42  && item.getType() != Material.STAINED_GLASS_PANE) {
-					npc.getEquipment().set(FakePlayerEquipment.EquipmentSlot.valueOf(selected), item);
+					npc.getEquipment().set(FakeEquipment.EquipmentSlot.valueOf(selected), item);
 				} else if(slot == 23 && item.getType() != Material.STAINED_GLASS_PANE) {
-					npc.getEquipment().set(FakePlayerEquipment.EquipmentSlot.valueOf(selected), null);
+					npc.getEquipment().set(FakeEquipment.EquipmentSlot.valueOf(selected), null);
 				}
 				event.setCancelled(true);
 				this.open((Player) event.getWhoClicked());

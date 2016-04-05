@@ -1,10 +1,12 @@
 package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
-import de.selebrator.npc.attribute.FakeAttributeInstance;
+import de.selebrator.npc.metadata.FakeMetadata;
 import de.selebrator.npc.event.NPCAnimationEvent;
+import de.selebrator.npc.inventory.FakeEquipment;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -92,9 +94,9 @@ public interface NPC {
 
 	int getEntityId();
 
-	FakePlayerMeta getMeta();
+	FakeMetadata getMeta();
 
-	void setMeta(FakePlayerMeta meta);
+	void setMeta(FakeMetadata meta);
 
 	String getName();
 
@@ -158,7 +160,7 @@ public interface NPC {
 
 	void setNature(EnumNature nature);
 
-	FakePlayerEquipment getEquipment();
+	FakeEquipment getEquipment();
 
 	boolean hasPotionEffect(PotionEffectType potionEffectType);
 
@@ -172,9 +174,7 @@ public interface NPC {
 
 	void removePotionEffect(PotionEffectType potionEffectType);
 
-	void removeAllPotionEffects();
-
-	FakeAttributeInstance getAttribute(Attribute attribute);
+	AttributeInstance getAttribute(Attribute attribute);
 
 	void setSneaking(boolean state);
 

@@ -83,6 +83,10 @@ public class FakeAttributeInstance implements AttributeInstance {
 		return this.modifiers;
 	}
 
+	private Collection<AttributeModifier> getModifiersByOperation(AttributeModifier.Operation operation) {
+		return this.modifiers.stream().filter(attributeModifier -> attributeModifier.getOperation() == operation).collect(Collectors.toCollection(ArrayList::new));
+	}
+
 	@Override
 	public void addModifier(AttributeModifier attributeModifier) {
 		this.modifiers.add(attributeModifier);
@@ -106,21 +110,17 @@ public class FakeAttributeInstance implements AttributeInstance {
 		this.modifiers.clear();
 	}
 
-	private Collection<AttributeModifier> byOperation(AttributeModifier.Operation operation) {
-		return this.modifiers.stream().filter(attributeModifier -> attributeModifier.getOperation() == operation).collect(Collectors.toCollection(ArrayList::new));
-	}
-
 	@Override
 	public double getValue() {
 		double x = this.base;
-		for(AttributeModifier attributeModifier : byOperation(AttributeModifier.Operation.ADD_NUMBER))
+		for(AttributeModifier attributeModifier : getModifiersByOperation(AttributeModifier.Operation.ADD_NUMBER))
 			x += attributeModifier.getAmount();
 
 		double y = x;
-		for(AttributeModifier attributeModifier : byOperation(AttributeModifier.Operation.ADD_SCALAR))
+		for(AttributeModifier attributeModifier : getModifiersByOperation(AttributeModifier.Operation.ADD_SCALAR))
 			y += x * attributeModifier.getAmount();
 
-		for(AttributeModifier attributeModifier : byOperation(AttributeModifier.Operation.MULTIPLY_SCALAR_1))
+		for(AttributeModifier attributeModifier : getModifiersByOperation(AttributeModifier.Operation.MULTIPLY_SCALAR_1))
 			y *= 1D + attributeModifier.getAmount();
 
 		return y < this.min ? this.min : (y > this.max ? max : y);

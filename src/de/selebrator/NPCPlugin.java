@@ -1,12 +1,12 @@
 package de.selebrator;
 
 import de.selebrator.fetcher.GameProfileBuilder;
+import de.selebrator.gui.EquipEditor;
 import de.selebrator.npc.EnumNature;
 import de.selebrator.npc.FakePlayer;
-import de.selebrator.npc.FakePlayerEquipment;
 import de.selebrator.npc.NPC;
 import de.selebrator.npc.event.NPCAnimationEvent;
-import de.selebrator.npc.gui.EquipEditor;
+import de.selebrator.npc.inventory.FakeEquipment;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -206,7 +206,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 							new EquipEditor(npc, this).open(player);
 							return true;
 						} else if (args.length == 2) {
-							npc.getEquipment().set(FakePlayerEquipment.EquipmentSlot.valueOf(args[1].toUpperCase()), player.getInventory().getItemInMainHand());
+							npc.getEquipment().set(FakeEquipment.EquipmentSlot.valueOf(args[1].toUpperCase()), player.getInventory().getItemInMainHand());
 							return true;
 						}
 						player.sendMessage("§c/npc equip [slot]");

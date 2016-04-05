@@ -1,9 +1,11 @@
-package de.selebrator.npc;
+package de.selebrator.npc.inventory;
 
+import de.selebrator.npc.FakePlayer;
+import de.selebrator.npc.NPC;
 import net.minecraft.server.v1_9_R1.EnumItemSlot;
 import org.bukkit.inventory.ItemStack;
 
-public class FakePlayerEquipment {
+public class FakeEquipment {
 	private FakePlayer holder;
 	private ItemStack mainHand;
 	private ItemStack offHand;
@@ -12,7 +14,7 @@ public class FakePlayerEquipment {
 	private ItemStack leggings;
 	private ItemStack boots;
 
-	public FakePlayerEquipment(FakePlayer holder) {
+	public FakeEquipment(FakePlayer holder) {
 		this.holder = holder;
 	}
 

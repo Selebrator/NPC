@@ -1,12 +1,13 @@
-package de.selebrator.npc;
+package de.selebrator.npc.metadata;
 
+import de.selebrator.npc.MathHelper;
 import de.selebrator.reflection.IMethodAccessor;
 import de.selebrator.reflection.Reflection;
 import de.selebrator.reflection.ServerPackage;
 import net.minecraft.server.v1_9_R1.DataWatcher;
 import org.bukkit.inventory.MainHand;
 
-public class FakePlayerMeta {
+public class FakeMetadata {
 
 	private DataWatcher dataWatcher;
 
@@ -16,7 +17,7 @@ public class FakePlayerMeta {
 	private boolean nameVisible;
 	private boolean silent;
 
-	private byte unknown;
+	private byte activeHand;
 	private float health;
 	private int potionColor;
 	private boolean potionAmbient;
@@ -33,7 +34,7 @@ public class FakePlayerMeta {
 
 	private static final IMethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(DataWatcher.class, "registerObject", net.minecraft.server.v1_9_R1.DataWatcherObject.class, Object.class);
 
-	public FakePlayerMeta() {
+	public FakeMetadata() {
 		this.dataWatcher = new DataWatcher(null);
 	}
 
