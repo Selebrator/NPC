@@ -2,7 +2,7 @@ package de.selebrator.npc.inventory;
 
 import de.selebrator.npc.FakePlayer;
 import de.selebrator.npc.NPC;
-import net.minecraft.server.v1_9_R1.EnumItemSlot;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 public class FakeEquipment {
@@ -24,7 +24,7 @@ public class FakeEquipment {
 	}
 
 	public void setMainHand(ItemStack mainHand) {
-		this.set(EquipmentSlot.MAIN_HAND, mainHand);
+		this.set(EquipmentSlot.HAND, mainHand);
 	}
 
 	// ##### OFF HAND #####
@@ -42,7 +42,7 @@ public class FakeEquipment {
 	}
 
 	public void setHelmet(ItemStack helmet) {
-		this.set(EquipmentSlot.HELMET, helmet);
+		this.set(EquipmentSlot.HEAD, helmet);
 	}
 
 	// ##### CHESTPLATE #####
@@ -51,7 +51,7 @@ public class FakeEquipment {
 	}
 
 	public void setChestplate(ItemStack chestplate) {
-		this.set(EquipmentSlot.CHESTPLATE, chestplate);
+		this.set(EquipmentSlot.CHEST, chestplate);
 	}
 
 	// ##### LEGGINGS #####
@@ -60,7 +60,7 @@ public class FakeEquipment {
 	}
 
 	public void setLeggings(ItemStack leggings) {
-		this.set(EquipmentSlot.LEGGINGS, leggings);
+		this.set(EquipmentSlot.LEGS, leggings);
 	}
 
 	// ##### BOOTS #####
@@ -69,7 +69,7 @@ public class FakeEquipment {
 	}
 
 	public void setBoots(ItemStack boots) {
-		this.set(EquipmentSlot.BOOTS, boots);
+		this.set(EquipmentSlot.FEET, boots);
 	}
 
 	// ##### ARMOR #####
@@ -91,17 +91,17 @@ public class FakeEquipment {
 	// ##### GENERAL #####
 	public ItemStack get(EquipmentSlot slot) {
 		switch(slot) {
-			case MAIN_HAND:
+			case HAND:
 				return this.mainHand;
 			case OFF_HAND:
 				return this.offHand;
-			case BOOTS:
+			case FEET:
 				return this.boots;
-			case LEGGINGS:
+			case LEGS:
 				return this.leggings;
-			case CHESTPLATE:
+			case CHEST:
 				return this.chestplate;
-			case HELMET:
+			case HEAD:
 				return this.helmet;
 		}
 		throw new IllegalArgumentException();
@@ -109,22 +109,22 @@ public class FakeEquipment {
 
 	public void set(EquipmentSlot slot, ItemStack item) {
 		switch(slot) {
-			case MAIN_HAND:
+			case HAND:
 				this.mainHand = item;
 				break;
 			case OFF_HAND:
 				this.offHand = item;
 				break;
-			case BOOTS:
+			case FEET:
 				this.boots = item;
 				break;
-			case LEGGINGS:
+			case LEGS:
 				this.leggings = item;
 				break;
-			case CHESTPLATE:
+			case CHEST:
 				this.chestplate = item;
 				break;
-			case HELMET:
+			case HEAD:
 				this.helmet = item;
 				break;
 		}
@@ -133,24 +133,5 @@ public class FakeEquipment {
 
 	public NPC getHolder() {
 		return this.holder;
-	}
-
-	public enum EquipmentSlot {
-		MAIN_HAND(EnumItemSlot.MAINHAND),
-		OFF_HAND(EnumItemSlot.OFFHAND),
-		BOOTS(EnumItemSlot.FEET),
-		LEGGINGS(EnumItemSlot.LEGS),
-		CHESTPLATE(EnumItemSlot.CHEST),
-		HELMET(EnumItemSlot.HEAD);
-
-		private EnumItemSlot NMSSlot;
-
-		EquipmentSlot(EnumItemSlot NMSSlot) {
-			this.NMSSlot = NMSSlot;
-		}
-
-		public EnumItemSlot getNMS() {
-			return this.NMSSlot;
-		}
 	}
 }

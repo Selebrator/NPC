@@ -1,18 +1,18 @@
 package de.selebrator.npc.event;
 
-import de.selebrator.npc.inventory.FakeEquipment;
 import de.selebrator.npc.NPC;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 public class NPCEquipEvent extends NPCEvent implements Cancellable {
 	private static final HandlerList handlers = new HandlerList();
 	private boolean cancel;
-	private FakeEquipment.EquipmentSlot slot;
+	private EquipmentSlot slot;
 	private ItemStack item;
 
-	public NPCEquipEvent(NPC npc, FakeEquipment.EquipmentSlot slot, ItemStack item) {
+	public NPCEquipEvent(NPC npc, EquipmentSlot slot, ItemStack item) {
 		super(npc);
 		this.slot = slot;
 		this.item = item;
@@ -37,11 +37,11 @@ public class NPCEquipEvent extends NPCEvent implements Cancellable {
 		this.cancel = cancel;
 	}
 
-	public FakeEquipment.EquipmentSlot getSlot() {
+	public EquipmentSlot getSlot() {
 		return slot;
 	}
 
-	public void setSlot(FakeEquipment.EquipmentSlot slot) {
+	public void setSlot(EquipmentSlot slot) {
 		this.slot = slot;
 	}
 

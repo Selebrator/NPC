@@ -2,7 +2,6 @@ package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
 import de.selebrator.fetcher.PacketFetcher;
-import de.selebrator.npc.metadata.FakeMetadata;
 import de.selebrator.npc.attribute.FakeAttributeInstance;
 import de.selebrator.npc.event.NPCAnimationEvent;
 import de.selebrator.npc.event.NPCDamageEvent;
@@ -12,8 +11,9 @@ import de.selebrator.npc.event.NPCMoveEvent;
 import de.selebrator.npc.event.NPCSpawnEvent;
 import de.selebrator.npc.event.NPCTeleportEvent;
 import de.selebrator.npc.inventory.FakeEquipment;
+import de.selebrator.npc.metadata.FakeMetadata;
 import de.selebrator.reflection.Reflection;
-import net.minecraft.server.v1_9_R1.Entity;
+import de.selebrator.reflection.ServerPackage;
 import net.minecraft.server.v1_9_R1.PacketPlayOutEntityMetadata;
 import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerInfo;
 import org.bukkit.Bukkit;
@@ -25,9 +25,11 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_9_R1.CraftEquipmentSlot;
 import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -67,8 +69,9 @@ public class FakePlayer implements NPC {
 
 
 	public FakePlayer(GameProfile gameProfile) {
-		this.entityId = (int) Reflection.getField(Entity.class, "entityCount").get(null);
-		Reflection.getField(Entity.class, "entityCount").set(null, this.entityId + 1);
+		Class<?> entityClass = Reflection.getClass(ServerPackage.NMS, "Entity");
+		this.entityId = (int) Reflection.getField(entityClass, "entityCount").get(null);
+		Reflection.getField(entityClass, "entityCount").set(null, this.entityId + 1);
 
 		this.gameProfile = gameProfile;
 
@@ -114,7 +117,7 @@ public class FakePlayer implements NPC {
 		if(this.respawnLocation == null) { this.respawnLocation = location; }
 		this.living = this.meta.getHealth() > 0;
 
-		for(FakeEquipment.EquipmentSlot slot : FakeEquipment.EquipmentSlot.values()) {
+		for(EquipmentSlot slot : EquipmentSlot.values()) {
 			this.equip(slot, this.equip.get(slot));
 		}
 
@@ -238,7 +241,7 @@ public class FakePlayer implements NPC {
 		this.location = location;
 	}
 
-	public void equip(FakeEquipment.EquipmentSlot slot, ItemStack item) {
+	public void equip(EquipmentSlot slot, ItemStack item) {
 		NPCEquipEvent event = new NPCEquipEvent(this, slot, item);
 		Bukkit.getPluginManager().callEvent(event);
 		if(event.isCancelled()) { return; }
@@ -247,20 +250,20 @@ public class FakePlayer implements NPC {
 		item = event.getItem();
 
 		PacketFetcher.broadcastPackets(
-				PacketFetcher.entityEquipment(this.entityId, slot.getNMS(), CraftItemStack.asNMSCopy(item))
+				PacketFetcher.entityEquipment(this.entityId, CraftEquipmentSlot.getNMS(slot), CraftItemStack.asNMSCopy(item))
 		);
 	}
 
 	@Override
-	public void playAnimation(NPCAnimationEvent.Animation anim) {
-		NPCAnimationEvent event = new NPCAnimationEvent(this, anim);
+	public void playAnimation(NPCAnimationEvent.Animation animation) {
+		NPCAnimationEvent event = new NPCAnimationEvent(this, animation);
 		Bukkit.getPluginManager().callEvent(event);
 		if(event.isCancelled()) { return; }
 
-		anim = event.getAnimation();
+		animation = event.getAnimation();
 
 		PacketFetcher.broadcastPackets(
-				PacketFetcher.animation(this.entityId, anim.getId())
+				PacketFetcher.animation(this.entityId, animation.getId())
 		);
 	}
 
