@@ -21,11 +21,19 @@ public class ItemBuilder {
 		this.name = name;
 	}
 
+	public ItemBuilder(Material type, String name) {
+		this(type, 1, (short) 0, name);
+	}
+
+	public ItemBuilder(Material type) {
+		this(type, null);
+	}
+
 	public ItemStack build() {
 		if(type != null) {
 			item = new ItemStack(type, amount, damage);
 			meta = item.getItemMeta();
-			meta.setDisplayName(name);
+			if(name != null) { meta.setDisplayName(name); }
 			item.setItemMeta(meta);
 			return item;
 		}

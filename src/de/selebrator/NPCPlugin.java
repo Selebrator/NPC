@@ -6,7 +6,6 @@ import de.selebrator.npc.EnumNature;
 import de.selebrator.npc.FakePlayer;
 import de.selebrator.npc.NPC;
 import de.selebrator.npc.event.NPCAnimationEvent;
-import de.selebrator.npc.inventory.FakeEquipment;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -206,7 +206,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 							new EquipEditor(npc, this).open(player);
 							return true;
 						} else if (args.length == 2) {
-							npc.getEquipment().set(FakeEquipment.EquipmentSlot.valueOf(args[1].toUpperCase()), player.getInventory().getItemInMainHand());
+							npc.getEquipment().set(EquipmentSlot.valueOf(args[1].toUpperCase()), player.getInventory().getItemInMainHand());
 							return true;
 						}
 						player.sendMessage("§c/npc equip [slot]");

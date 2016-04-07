@@ -51,13 +51,13 @@ public class NPCAnimationEvent extends NPCEvent implements Cancellable {
 		CROUCH(104),
 		UNCROUCH(105);
 
-		private int id;
+		private byte id;
 
 		Animation(int id) {
-			this.id = id;
+			this.id = (byte) id;
 		}
 
-		public int getId() {
+		public byte getId() {
 			return this.id;
 		}
 	}

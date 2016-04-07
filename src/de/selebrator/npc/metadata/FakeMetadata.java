@@ -366,13 +366,13 @@ public class FakeMetadata {
 		GLOW(6),
 		ELYTRA(7);
 
-		int id;
+		byte id;
 
 		Status(int id) {
-			this.id = id;
+			this.id = (byte) id;
 		}
 
-		public int getId() {
+		public byte getId() {
 			return id;
 		}
 	}
@@ -386,13 +386,13 @@ public class FakeMetadata {
 		RIGHT_PANTS(5),
 		HAT(6);
 
-		int id;
+		byte id;
 
 		SkinFlag(int id) {
-			this. id = id;
+			this. id = (byte) id;
 		}
 
-		public int getId() {
+		public byte getId() {
 			return id;
 		}
 	}

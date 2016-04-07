@@ -113,10 +113,10 @@ public class PacketFetcher {
 		return packet;
 	}
 
-	public static PacketPlayOutAnimation animation(int entityId, int anim) {
+	public static PacketPlayOutAnimation animation(int entityId, byte animation) {
 		PacketPlayOutAnimation packet = new PacketPlayOutAnimation();
 		Reflection.getField(packet.getClass(), "a").set(packet, entityId);
-		Reflection.getField(packet.getClass(), "b").set(packet, anim);
+		Reflection.getField(packet.getClass(), "b").set(packet, animation);
 		return packet;
 	}
 
@@ -150,7 +150,7 @@ public class PacketFetcher {
 	/**
 	 * prepare relative coordinate for packet
 	 */
-	public static int rel(double value) {
-		return (int) (4096 * value);
+	public static short rel(double value) {
+		return (short) (4096 * value);
 	}
 }
