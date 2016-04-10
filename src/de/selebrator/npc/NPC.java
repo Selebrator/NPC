@@ -134,6 +134,8 @@ public interface NPC {
 	 */
 	double getMoveSpeed();
 
+	double getEyeHeight();
+
 	double getEyeHeight(boolean ignoreSneaking);
 
 	boolean hasLocation();

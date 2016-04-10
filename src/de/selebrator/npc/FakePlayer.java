@@ -339,6 +339,11 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
+	public double getEyeHeight() {
+		return this.getEyeHeight(false);
+	}
+
+	@Override
 	public double getEyeHeight(boolean ignoreSneaking) {
 		return ignoreSneaking ? EYE_HEIGHT_STANDING : (this.meta.isSneaking() ? EYE_HEIGHT_SNEAKING : EYE_HEIGHT_STANDING);
 	}
