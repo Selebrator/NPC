@@ -15,26 +15,25 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-public class EquipEditor implements Listener {
+public class EquipGUI implements Listener {
 
 	private NPC npc;
 	private EquipmentSlot selected;
 	private String subSelected;
 
-	public EquipEditor(NPC npc, Plugin plugin) {
+	public EquipGUI(NPC npc, Plugin plugin) {
 		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 
 		this.npc = npc;
 	}
 
 	public void open(Player player) {
-		ItemStack filler = new ItemBuilder(Material.STAINED_GLASS_PANE, " ").build();
-		ItemStack marker = new ItemBuilder(Material.STAINED_GLASS_PANE, " ").build();
+		ItemStack marker = new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 5, " ").build();
 
 		Inventory inventory = Bukkit.getServer().createInventory(null, 6 * 9, npc.getName() + " - Equip");
 
-		inventory.setItem(11, npc.getEquipment().getMainHand() == null ? new ItemBuilder(Material.STICK, "§8Empty MainHand").build() : npc.getEquipment().getMainHand());
-		inventory.setItem(12, npc.getEquipment().getOffHand() == null ? new ItemBuilder(Material.PAPER, "§8Empty OffHand").build() : npc.getEquipment().getOffHand());
+		inventory.setItem(10, npc.getEquipment().getMainHand() == null ? new ItemBuilder(Material.STICK, "§8Empty MainHand").build() : npc.getEquipment().getMainHand());
+		inventory.setItem(11, npc.getEquipment().getOffHand() == null ? new ItemBuilder(Material.PAPER, "§8Empty OffHand").build() : npc.getEquipment().getOffHand());
 		inventory.setItem(13, npc.getEquipment().getHelmet() == null ? new LeatherArmorBuilder(EquipmentSlot.HEAD, "§8No Helmet", Color.fromBGR(76, 76, 76)).build() : npc.getEquipment().getHelmet());
 		inventory.setItem(14, npc.getEquipment().getChestplate() == null ? new LeatherArmorBuilder(EquipmentSlot.CHEST, "§8No Chestplate", Color.fromBGR(76, 76, 76)).build() : npc.getEquipment().getChestplate());
 		inventory.setItem(15, npc.getEquipment().getLeggings() == null ? new LeatherArmorBuilder(EquipmentSlot.LEGS, "§8No Leggings", Color.fromBGR(76, 76, 76)).build() : npc.getEquipment().getLeggings());
@@ -49,10 +48,10 @@ public class EquipEditor implements Listener {
 
 			switch(selected) {
 				case HAND:
-					inventory.setItem(2, marker);
+					inventory.setItem(1, marker);
 					break;
 				case OFF_HAND:
-					inventory.setItem(3, marker);
+					inventory.setItem(2, marker);
 					break;
 				case HEAD:
 					inventory.setItem(4, marker);
@@ -96,11 +95,6 @@ public class EquipEditor implements Listener {
 			}
 		}
 
-		for(int i = 0; i < inventory.getSize(); i++) {
-			if(inventory.getItem(i) == null)
-				inventory.setItem(i, filler);
-		}
-
 		player.openInventory(inventory);
 	}
 
@@ -111,10 +105,10 @@ public class EquipEditor implements Listener {
 			if(inventory.getName().contains(" - Equip")) {
 				int slot = event.getSlot();
 				ItemStack item = event.getCurrentItem();
-				if(slot == 11) {
+				if(slot == 10) {
 					selected = EquipmentSlot.HAND;
 					subSelected = null;
-				} else if(slot == 12) {
+				} else if(slot == 11) {
 					selected = EquipmentSlot.OFF_HAND;
 					subSelected = null;
 				} else if(slot == 13) {
@@ -135,9 +129,9 @@ public class EquipEditor implements Listener {
 					subSelected = "SPADE";
 				} else if(slot == 33 && (selected == EquipmentSlot.HAND || selected == EquipmentSlot.OFF_HAND)) {
 					subSelected = "HOE";
-				} else if(slot >= 38 && slot <=42  && item.getType() != Material.STAINED_GLASS_PANE) {
+				} else if(slot >= 38 && slot <=42  && item != null) {
 					npc.getEquipment().set(selected, item);
-				} else if(slot == 23 && item.getType() != Material.STAINED_GLASS_PANE) {
+				} else if(slot == 23 && item != null) {
 					npc.getEquipment().set(selected, null);
 				}
 				event.setCancelled(true);

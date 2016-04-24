@@ -1,7 +1,8 @@
 package de.selebrator;
 
 import de.selebrator.fetcher.GameProfileBuilder;
-import de.selebrator.gui.EquipEditor;
+import de.selebrator.gui.AnimationGUI;
+import de.selebrator.gui.EquipGUI;
 import de.selebrator.npc.EnumNature;
 import de.selebrator.npc.FakePlayer;
 import de.selebrator.npc.NPC;
@@ -102,12 +103,12 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 		if(args.length >= 1) {
 
-			switch (args[0]) {
+			switch(args[0]) {
 				case "create":
 
-					if (args.length == 2) {
+					if(args.length == 2) {
 						int id = 1;
-						while (fakePlayers.containsKey(id)) {
+						while(fakePlayers.containsKey(id)) {
 							id++;
 						}
 						String name = args[1];
@@ -121,9 +122,9 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "remove":
 
-					if (args.length == 2) {
+					if(args.length == 2) {
 						int id = Integer.parseInt(args[1]);
-						if (fakePlayers.containsKey(id)) {
+						if(fakePlayers.containsKey(id)) {
 							NPC npc = fakePlayers.get(id);
 							String name = fakePlayers.get(id).getDisplayName();
 							fakePlayers.remove(id);
@@ -140,16 +141,17 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "select":
 
-					if (args.length == 1) {
-						if (npc != null) {
-							player.sendMessage("§eSelected §r" + npc.getDisplayName());
+					if(args.length == 1) {
+						if(npc != null) {
+							player.sendMessage("§eUnselected §r" + npc.getDisplayName());
+							npc = null;
 							return true;
 						}
 						player.sendMessage("§c/npc select <ID>");
 						return true;
-					} else if (args.length == 2) {
+					} else if(args.length == 2) {
 						int id = Integer.parseInt(args[1]);
-						if (fakePlayers.containsKey(id)) {
+						if(fakePlayers.containsKey(id)) {
 							npc = fakePlayers.get(id);
 							player.sendMessage("§eSelected §r" + npc.getDisplayName() + " §ewith ID: §a" + id);
 							return true;
@@ -162,8 +164,8 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "list":
 
-					if (args.length == 1) {
-						if (!fakePlayers.isEmpty()) {
+					if(args.length == 1) {
+						if(!fakePlayers.isEmpty()) {
 							fakePlayers.forEach((id, npc) -> player.sendMessage("§e" + id + ": §r" + npc.getDisplayName()));
 							return true;
 						}
@@ -175,8 +177,8 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "spawn":
 
-					if (npc != null) {
-						if (args.length == 1) {
+					if(npc != null) {
+						if(args.length == 1) {
 							npc.spawn(player.getLocation());
 							return true;
 						}
@@ -188,8 +190,8 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "despawn":
 
-					if (npc != null) {
-						if (args.length == 1) {
+					if(npc != null) {
+						if(args.length == 1) {
 							npc.despawn();
 							return true;
 						}
@@ -201,11 +203,11 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "equip":
 
-					if (npc != null) {
+					if(npc != null) {
 						if(args.length == 1) {
-							new EquipEditor(npc, this).open(player);
+							new EquipGUI(npc, this).open(player);
 							return true;
-						} else if (args.length == 2) {
+						} else if(args.length == 2) {
 							npc.getEquipment().set(EquipmentSlot.valueOf(args[1].toUpperCase()), player.getInventory().getItemInMainHand());
 							return true;
 						}
@@ -217,12 +219,15 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "animation":
 
-					if (npc != null) {
-						if (args.length == 2) {
+					if(npc != null) {
+						if(args.length == 1) {
+							new AnimationGUI(npc, this).open(player);
+							return true;
+						} else if(args.length == 2) {
 							npc.playAnimation(NPCAnimationEvent.Animation.valueOf(args[1].toUpperCase()));
 							return true;
 						}
-						player.sendMessage("§c/npc animation <animation>");
+						player.sendMessage("§c/npc animation [animation]");
 						return true;
 					}
 					player.sendMessage("§cSelect a NPC first");
@@ -230,15 +235,15 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "health":
 
-					if (npc != null) {
-						if (args.length == 1) {
+					if(npc != null) {
+						if(args.length == 1) {
 							player.sendMessage(npc.getHealth() + "");
 							return true;
-						} else if (args.length == 2) {
+						} else if(args.length == 2) {
 							npc.setHealth(Float.parseFloat(args[1]));
 							return true;
 						}
-						player.sendMessage("§c/npc " + args[0] + " <0 - 20>");
+						player.sendMessage("§c/npc health [0 - 20]");
 						return true;
 					}
 					player.sendMessage("§cSelect a NPC first");
@@ -246,12 +251,12 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "target":
 
-					if (npc != null) {
-						if (args.length == 2) {
+					if(npc != null) {
+						if(args.length == 2) {
 							npc.setTarget(Bukkit.getPlayer(args[1]));
 							return true;
 						}
-						player.sendMessage("§c/npc " + args[0] + " <player>");
+						player.sendMessage("§c/npc target <player>");
 						return true;
 					}
 					player.sendMessage("§cSelect a NPC first");
@@ -259,29 +264,29 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "update":
 
-					if (npc != null) {
-						if (args.length == 2) {
+					if(npc != null) {
+						if(args.length == 2) {
 							npc.updateGameProfile(new GameProfileBuilder(args[1]).build());
 							return true;
-						} else if (args.length == 3) {
+						} else if(args.length == 3) {
 							npc.updateGameProfile(new GameProfileBuilder(args[1], args[2]).build());
 							return true;
 						}
-						player.sendMessage("§c/npc " + args[0] + " <name> [skinowner]");
+						player.sendMessage("§c/npc update <name> [skinowner]");
 						return true;
 					}
 					player.sendMessage("§cSelect a NPC first");
 					return true;
 
-				case "tp":
+				case "~tp":
 
-					if (npc != null) {
-						if (args.length == 4) {
+					if(npc != null) {
+						if(args.length == 4) {
 							Location location = npc.getLocation().clone().add(Double.valueOf(args[1]), Double.valueOf(args[2]), Double.valueOf(args[3]));
 							npc.teleport(location);
 							return true;
 						}
-						player.sendMessage("§c/npc " + args[0]);
+						player.sendMessage("§c/npc ~tp <x> <y> <z>");
 						return true;
 					}
 					player.sendMessage("§cSelect a NPC first");
@@ -289,8 +294,8 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "freeze":
 
-					if (npc != null) {
-						if (args.length == 1) {
+					if(npc != null) {
+						if(args.length == 1) {
 							npc.freeze(!npc.isFrozen());
 							return true;
 						}
@@ -302,8 +307,8 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "test":
 
-					if (npc != null) {
-						if (args.length == 1) {
+					if(npc != null) {
+						if(args.length == 1) {
 
 							return true;
 						}
@@ -322,13 +327,16 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 							"§a/npc list §7- list all NPCs with their ID",
 							"§a/npc spawn §7- spawn the NPC",
 							"§a/npc despawn §7- despawn the NPC",
-							"§a/npc equip <slot> §7- equip the NPC with your held item",
-							"§a/npc animation <animation> §7- make the NPC move",
-							"§a/npc health <0 - 20> §7- set the NPCs health",
+							"§a/npc equip [slot] §7- equip the NPC with your held item",
+							"§a/npc animation [animation] §7- make the NPC move",
+							"§a/npc health [0 - 20] §7- set the NPCs health",
 							"§a/npc target <player> §7- make the NPC constantly look at his target",
-							"§a/npc update <name> [skinowner] §7- change the NPCs appearance"};
+							"§a/npc update <name> [skinowner] §7- change the NPCs appearance",
+							"§a/npc ~tp <x> <y> <z> §7- relative teleport",
+							"§a/npc freeze §7- toggle freeze"};
 
-					for (String line : commands)
+
+					for(String line : commands)
 						player.sendMessage(line);
 					return true;
 			}

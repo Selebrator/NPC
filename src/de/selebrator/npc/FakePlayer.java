@@ -365,7 +365,7 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public Location getEyeLocation() {
-		return this.hasLocation() ? this.location.clone().add(0, this.getEyeHeight(false), 0) : null;
+		return this.hasLocation() ? this.location.clone().add(0, this.getEyeHeight(), 0) : null;
 
 	}
 
@@ -747,8 +747,8 @@ public class FakePlayer implements NPC {
 		double z = (block.getZ() + 0.5) - this.location.getZ();
 
 		return ((-0.8D < x && x < -0.2D) || (-0.2D < x && x < 0.2D) || (0.2 < x && x < 0.8D))
-				&& (-1 < y && y < (0.2D + this.getEyeHeight(false)))
-				&& ((-0.8D < z && z < -0.2D) || (-0.2D < z && z < 0.2D) || (0.2 < z && z < 0.8D));
+			&& (-1 < y && y < (0.2D + this.getEyeHeight()))
+			&& ((-0.8D < z && z < -0.2D) || (-0.2D < z && z < 0.2D) || (0.2 < z && z < 0.8D));
 	}
 
 	@Override
