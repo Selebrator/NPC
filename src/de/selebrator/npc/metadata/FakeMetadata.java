@@ -4,7 +4,7 @@ import de.selebrator.npc.MathHelper;
 import de.selebrator.reflection.IMethodAccessor;
 import de.selebrator.reflection.Reflection;
 import de.selebrator.reflection.ServerPackage;
-import net.minecraft.server.v1_9_R1.DataWatcher;
+import net.minecraft.server.v1_9_R2.DataWatcher;
 import org.bukkit.inventory.MainHand;
 
 public class FakeMetadata {
@@ -32,7 +32,7 @@ public class FakeMetadata {
 	private boolean defaultGlowing;
 
 
-	private static final IMethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(DataWatcher.class, "registerObject", net.minecraft.server.v1_9_R1.DataWatcherObject.class, Object.class);
+	private static final IMethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(DataWatcher.class, "registerObject", net.minecraft.server.v1_9_R2.DataWatcherObject.class, Object.class);
 
 	public FakeMetadata() {
 		this.dataWatcher = new DataWatcher(null);
@@ -328,13 +328,13 @@ public class FakeMetadata {
 	}
 
 	public enum DataWatcherObject {
-		ENTITY_STATUS_BITMASK_00("Entity", "ax"),
-		ENTITY_AIR_01("Entity", "ay"),
-		ENTITY_NAME_02("Entity", "az"),
-		ENTITY_NAME_VISIBLE_03("Entity", "aA"),
-		ENTITY_SILENT_04("Entity", "aB"),
+		ENTITY_STATUS_BITMASK_00("Entity", "ay"),
+		ENTITY_AIR_01("Entity", "az"),
+		ENTITY_NAME_02("Entity", "aA"),
+		ENTITY_NAME_VISIBLE_03("Entity", "aB"),
+		ENTITY_SILENT_04("Entity", "aC"),
 
-		LIVING_UNKNOWN_05("EntityLiving", "as"),
+		LIVING_UNKNOWN_05("EntityLiving", "at"),
 		LIVING_HEAlTH_06("EntityLiving", "HEALTH"),
 		LIVING_POTION_COLOR_07("EntityLiving", "f"),
 		LIVING_POTION_AMBIENT_08("EntityLiving", "g"),
@@ -342,8 +342,8 @@ public class FakeMetadata {
 
 		HUMAN_ABSORPTION_10("EntityHuman", "a"),
 		HUMAN_SCORE_11("EntityHuman", "b"),
-		HUMAN_SKIN_BITBASK_12("EntityHuman", "bp"),
-		HUMAN_MAINHAND_13("EntityHuman", "bq");
+		HUMAN_SKIN_BITBASK_12("EntityHuman", "bq"),
+		HUMAN_MAINHAND_13("EntityHuman", "br");
 
 		private Object object;
 
