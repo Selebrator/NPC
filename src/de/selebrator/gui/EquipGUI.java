@@ -15,16 +15,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-public class EquipGUI implements Listener {
+public class EquipGUI extends GUI implements Listener {
 
-	private NPC npc;
 	private EquipmentSlot selected;
 	private String subSelected;
 
 	public EquipGUI(NPC npc, Plugin plugin) {
-		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
-
-		this.npc = npc;
+		super(npc, plugin);
 	}
 
 	public void open(Player player) {

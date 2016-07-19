@@ -70,8 +70,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 				}
 				event.getPlayer().sendMessage("§cSelect a NPC first");
 			}
-		}
-		if(item != null && item.getType() == Material.EMERALD) {
+		} else if(item != null && item.getType() == Material.EMERALD) {
 			if(event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 				if(npc != null) {
 					npc.respawn(event.getClickedBlock().getLocation().add(0.5, 1, 0.5));

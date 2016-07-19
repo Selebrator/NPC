@@ -4,7 +4,7 @@ import de.selebrator.npc.MathHelper;
 import de.selebrator.reflection.IMethodAccessor;
 import de.selebrator.reflection.Reflection;
 import de.selebrator.reflection.ServerPackage;
-import net.minecraft.server.v1_9_R2.DataWatcher;
+import net.minecraft.server.v1_10_R1.DataWatcher;
 import org.bukkit.inventory.MainHand;
 
 public class FakeMetadata {
@@ -16,8 +16,9 @@ public class FakeMetadata {
 	private String name;
 	private boolean nameVisible;
 	private boolean silent;
+	private boolean noGravity;
 
-	private byte activeHand;
+//	private byte activeHand;
 	private float health;
 	private int potionColor;
 	private boolean potionAmbient;
@@ -31,8 +32,7 @@ public class FakeMetadata {
 	private boolean defaultInvisible;
 	private boolean defaultGlowing;
 
-
-	private static final IMethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(DataWatcher.class, "registerObject", net.minecraft.server.v1_9_R2.DataWatcherObject.class, Object.class);
+	private static final IMethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(DataWatcher.class, "registerObject", Reflection.getClass(ServerPackage.NMS, "DataWatcherObject"), Object.class);
 
 	public FakeMetadata() {
 		this.dataWatcher = new DataWatcher(null);
@@ -173,13 +173,24 @@ public class FakeMetadata {
 		this.silent = silent;
 	}
 
+	// ##### NO GRAVITY #####
+
+	public boolean hasGravity() {
+		return !this.noGravity;
+	}
+
+	public void setGravity(boolean gravity) {
+		this.set(DataWatcherObject.ENTITY_NO_GRAVITY_05, !gravity);
+		this.noGravity = !gravity;
+	}
+
 	// ##### HEALTH #####
 	public float getHealth() {
 		return this.health;
 	}
 
 	public void setHealth(float health) {
-		this.set(DataWatcherObject.LIVING_HEAlTH_06, health);
+		this.set(DataWatcherObject.LIVING_HEAlTH_07, health);
 		this.health = health;
 	}
 
@@ -189,7 +200,7 @@ public class FakeMetadata {
 	}
 
 	public void setPotionColor(int potionColor) {
-		this.set(DataWatcherObject.LIVING_POTION_COLOR_07, potionColor);
+		this.set(DataWatcherObject.LIVING_POTION_COLOR_08, potionColor);
 		this.potionColor = potionColor;
 	}
 
@@ -199,7 +210,7 @@ public class FakeMetadata {
 	}
 
 	public void setPotionAmbient(boolean potionAmbient) {
-		this.set(DataWatcherObject.LIVING_POTION_AMBIENT_08, potionAmbient);
+		this.set(DataWatcherObject.LIVING_POTION_AMBIENT_09, potionAmbient);
 		this.potionAmbient = potionAmbient;
 	}
 
@@ -209,7 +220,7 @@ public class FakeMetadata {
 	}
 
 	public void setArrows(int arrows) {
-		this.set(DataWatcherObject.LIVING_ARROWS_09, arrows);
+		this.set(DataWatcherObject.LIVING_ARROWS_10, arrows);
 		this.arrows = arrows;
 	}
 
@@ -219,7 +230,7 @@ public class FakeMetadata {
 	}
 
 	public void setAbsorption(float absorption) {
-		this.set(DataWatcherObject.HUMAN_ABSORPTION_10, absorption);
+		this.set(DataWatcherObject.HUMAN_ABSORPTION_11, absorption);
 		this.absorption = absorption > 0 ? absorption : 0;
 	}
 
@@ -229,7 +240,7 @@ public class FakeMetadata {
 	}
 
 	public void setScore(int score) {
-		this.set(DataWatcherObject.HUMAN_SCORE_11, score);
+		this.set(DataWatcherObject.HUMAN_SCORE_12, score);
 		this.score = score;
 	}
 
@@ -266,37 +277,37 @@ public class FakeMetadata {
 	// ### SETTER ###
 	public void enableCape(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.CAPE.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
 	}
 
 	public void enableJacket(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.JACKET.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
 	}
 
 	public void enableLeftArm(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.LEFT_SLEEVE.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
 	}
 
 	public void enableRightArm(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.RIGHT_SLEEVE.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
 	}
 
 	public void enableLeftLeg(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.LEFT_PANTS.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
 	}
 
 	public void enableRightLeg(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.RIGHT_PANTS.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
 	}
 
 	public void enableHat(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.HAT.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
 	}
 
 	public void setSkinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
@@ -307,7 +318,7 @@ public class FakeMetadata {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.LEFT_PANTS.getId(), leftLeg);
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.RIGHT_PANTS.getId(), rightLeg);
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.HAT.getId(), hat);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_12, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
 	}
 
 	// ##### MAIN_HAND #####
@@ -318,38 +329,39 @@ public class FakeMetadata {
 	public void setMainHand(MainHand mainHand) {
 		switch(mainHand) {
 			case LEFT:
-				this.set(DataWatcherObject.HUMAN_MAINHAND_13, 0);
+				this.set(DataWatcherObject.HUMAN_MAINHAND_14, 0);
 				break;
 			case RIGHT:
-				this.set(DataWatcherObject.HUMAN_MAINHAND_13, 1);
+				this.set(DataWatcherObject.HUMAN_MAINHAND_14, 1);
 				break;
 		}
 		this.mainHand = mainHand;
 	}
 
 	public enum DataWatcherObject {
-		ENTITY_STATUS_BITMASK_00("Entity", "ay"),
+		ENTITY_STATUS_BITMASK_00("Entity", "aa"),
 		ENTITY_AIR_01("Entity", "az"),
 		ENTITY_NAME_02("Entity", "aA"),
 		ENTITY_NAME_VISIBLE_03("Entity", "aB"),
 		ENTITY_SILENT_04("Entity", "aC"),
+		ENTITY_NO_GRAVITY_05("Entity", "aD"),
 
-		LIVING_UNKNOWN_05("EntityLiving", "at"),
-		LIVING_HEAlTH_06("EntityLiving", "HEALTH"),
-		LIVING_POTION_COLOR_07("EntityLiving", "f"),
-		LIVING_POTION_AMBIENT_08("EntityLiving", "g"),
-		LIVING_ARROWS_09("EntityLiving", "h"),
+		LIVING_ACTIVE_HAND_06("EntityLiving", "au"),
+		LIVING_HEAlTH_07("EntityLiving", "HEALTH"),
+		LIVING_POTION_COLOR_08("EntityLiving", "f"),
+		LIVING_POTION_AMBIENT_09("EntityLiving", "g"),
+		LIVING_ARROWS_10("EntityLiving", "h"),
 
-		HUMAN_ABSORPTION_10("EntityHuman", "a"),
-		HUMAN_SCORE_11("EntityHuman", "b"),
-		HUMAN_SKIN_BITBASK_12("EntityHuman", "bq"),
-		HUMAN_MAINHAND_13("EntityHuman", "br");
+		HUMAN_ABSORPTION_11("EntityHuman", "a"),
+		HUMAN_SCORE_12("EntityHuman", "b"),
+		HUMAN_SKIN_BITBASK_13("EntityHuman", "br"),
+		HUMAN_MAINHAND_14("EntityHuman", "bs");
 
 		private Object object;
 
-		DataWatcherObject(String owner, String field) {
-			Class<?> ownerClazz = Reflection.getClass(ServerPackage.NMS, owner);
-			this.object = Reflection.getField(ownerClazz, field).get(null);
+		DataWatcherObject(String parent, String field) {
+			Class<?> parentClazz = Reflection.getClass(ServerPackage.NMS, parent);
+			this.object = Reflection.getField(parentClazz, field).get(null);
 		}
 
 		public Object getObject() {

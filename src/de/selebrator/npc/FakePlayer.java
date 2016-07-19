@@ -14,8 +14,6 @@ import de.selebrator.npc.inventory.FakeEquipment;
 import de.selebrator.npc.metadata.FakeMetadata;
 import de.selebrator.reflection.Reflection;
 import de.selebrator.reflection.ServerPackage;
-import net.minecraft.server.v1_9_R2.PacketPlayOutEntityMetadata;
-import net.minecraft.server.v1_9_R2.PacketPlayOutPlayerInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -25,8 +23,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_9_R2.CraftEquipmentSlot;
-import org.bukkit.craftbukkit.v1_9_R2.inventory.CraftItemStack;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -78,6 +74,7 @@ public class FakePlayer implements NPC {
 		this.meta = new FakeMetadata();
 		this.meta.setStatus(false, false, false, false, false, false);
 		this.meta.setSkinFlags(true, true, true, true, true, true, true);
+		this.meta.setGravity(false);
 		this.meta.setHealth(20.0F);
 		this.meta.setAir(300);
 		this.meta.setName(this.getName());
@@ -109,7 +106,7 @@ public class FakePlayer implements NPC {
 		if(event.isCancelled()) { return; }
 
 		PacketFetcher.broadcastPackets(
-				PacketFetcher.playerInfo(this.gameProfile, PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER),
+				PacketFetcher.playerInfo(this.gameProfile, "ADD_PLAYER"),
 				PacketFetcher.namedEntitySpawn(this.entityId, this.gameProfile, location, this.meta.getDataWatcher())
 		);
 
@@ -139,7 +136,7 @@ public class FakePlayer implements NPC {
 		if(event.isCancelled()) { return; }
 
 		PacketFetcher.broadcastPackets(
-				PacketFetcher.playerInfo(this.gameProfile, PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER),
+				PacketFetcher.playerInfo(this.gameProfile, "REMOVE_PLAYER"),
 				PacketFetcher.entityDestroy(this.entityId)
 		);
 
@@ -250,7 +247,7 @@ public class FakePlayer implements NPC {
 		item = event.getItem();
 
 		PacketFetcher.broadcastPackets(
-				PacketFetcher.entityEquipment(this.entityId, CraftEquipmentSlot.getNMS(slot), CraftItemStack.asNMSCopy(item))
+				PacketFetcher.entityEquipment(this.entityId, slot, item)
 		);
 	}
 
@@ -276,7 +273,9 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void updateMetadata() {
-		PacketFetcher.broadcastPackets(new PacketPlayOutEntityMetadata(this.entityId, this.meta.getDataWatcher(), true));
+		PacketFetcher.broadcastPackets(
+				PacketFetcher.entityMetadata(this.entityId, this.meta.getDataWatcher())
+		);
 	}
 
 
@@ -874,7 +873,7 @@ public class FakePlayer implements NPC {
 	@Override
 	public void attack(LivingEntity target) {
 		if(this.isAlive() && !target.isDead()) {
-			this.playAnimation(NPCAnimationEvent.Animation.SWING_ARM);
+			this.playAnimation(NPCAnimationEvent.Animation.SWING_MAINHAND);
 			target.damage(this.attributes.get(Attribute.GENERIC_ATTACK_DAMAGE).getValue());
 			Vector distance = MathHelper.calcDistanceVector(this.getLocation(), target.getLocation());
 

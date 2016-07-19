@@ -3,7 +3,6 @@ package de.selebrator.gui;
 import de.selebrator.fetcher.ItemBuilder;
 import de.selebrator.npc.NPC;
 import de.selebrator.npc.event.NPCAnimationEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,32 +12,22 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-public class AnimationGUI implements Listener {
-
-	private NPC npc;
+public class AnimationGUI extends GUI implements Listener {
 
 	public AnimationGUI(NPC npc, Plugin plugin) {
-		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
-
-		this.npc = npc;
-
-		if(NPCAnimationEvent.Animation.values().length != 8) {
-			throw new UnsupportedClassVersionError(this.getClass().getSimpleName() + "is out of date");
-		}
+		super(npc, plugin);
 	}
 
 	public void open(Player player) {
-		Inventory inventory = Bukkit.getServer().createInventory(null, 9, npc.getName() + " - Animation");
+		NPCAnimationEvent.Animation[] set = NPCAnimationEvent.Animation.values();
+		Inventory inventory = getSmartInventory(set.length, npc.getName() + " - Animation");
+		int[][] pattern = getSmartPattern(set.length);
 
-		inventory.setItem(0, new ItemBuilder(Material.INK_SACK, 1, (short) 10, NPCAnimationEvent.Animation.values()[0].name()).build());
-		inventory.setItem(1, new ItemBuilder(Material.INK_SACK, 1, (short) 10, NPCAnimationEvent.Animation.values()[1].name()).build());
-		inventory.setItem(2, new ItemBuilder(Material.INK_SACK, 1, (short)  8, NPCAnimationEvent.Animation.values()[2].name()).build());
-		inventory.setItem(3, new ItemBuilder(Material.INK_SACK, 1, (short) 10, NPCAnimationEvent.Animation.values()[3].name()).build());
-		inventory.setItem(5, new ItemBuilder(Material.INK_SACK, 1, (short) 10, NPCAnimationEvent.Animation.values()[4].name()).build());
-		inventory.setItem(6, new ItemBuilder(Material.INK_SACK, 1, (short) 10, NPCAnimationEvent.Animation.values()[5].name()).build());
-		inventory.setItem(7, new ItemBuilder(Material.INK_SACK, 1, (short)  8, NPCAnimationEvent.Animation.values()[6].name()).build());
-		inventory.setItem(8, new ItemBuilder(Material.INK_SACK, 1, (short)  8, NPCAnimationEvent.Animation.values()[7].name()).build());
-
+		for(int line = 0; line < pattern.length; line++) {
+			for(int i = 0; i < pattern[line].length; i++) {
+				inventory.setItem((9 * line) + pattern[line][i], new ItemBuilder(Material.INK_SACK, 1, (short) 10, set[(9 * line) + i].name()).build());
+			}
+		}
 		player.openInventory(inventory);
 	}
 

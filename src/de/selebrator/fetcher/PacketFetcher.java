@@ -2,25 +2,28 @@ package de.selebrator.fetcher;
 
 import com.mojang.authlib.GameProfile;
 import de.selebrator.reflection.Reflection;
-import net.minecraft.server.v1_9_R2.ChatComponentText;
-import net.minecraft.server.v1_9_R2.DataWatcher;
-import net.minecraft.server.v1_9_R2.EnumItemSlot;
-import net.minecraft.server.v1_9_R2.ItemStack;
-import net.minecraft.server.v1_9_R2.Packet;
-import net.minecraft.server.v1_9_R2.PacketPlayOutAnimation;
-import net.minecraft.server.v1_9_R2.PacketPlayOutEntity;
-import net.minecraft.server.v1_9_R2.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_9_R2.PacketPlayOutEntityEquipment;
-import net.minecraft.server.v1_9_R2.PacketPlayOutEntityHeadRotation;
-import net.minecraft.server.v1_9_R2.PacketPlayOutEntityStatus;
-import net.minecraft.server.v1_9_R2.PacketPlayOutEntityTeleport;
-import net.minecraft.server.v1_9_R2.PacketPlayOutNamedEntitySpawn;
-import net.minecraft.server.v1_9_R2.PacketPlayOutPlayerInfo;
-import net.minecraft.server.v1_9_R2.WorldSettings;
+import net.minecraft.server.v1_10_R1.ChatComponentText;
+import net.minecraft.server.v1_10_R1.DataWatcher;
+import net.minecraft.server.v1_10_R1.EnumGamemode;
+import net.minecraft.server.v1_10_R1.Packet;
+import net.minecraft.server.v1_10_R1.PacketPlayOutAnimation;
+import net.minecraft.server.v1_10_R1.PacketPlayOutEntity;
+import net.minecraft.server.v1_10_R1.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_10_R1.PacketPlayOutEntityEquipment;
+import net.minecraft.server.v1_10_R1.PacketPlayOutEntityHeadRotation;
+import net.minecraft.server.v1_10_R1.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_10_R1.PacketPlayOutEntityStatus;
+import net.minecraft.server.v1_10_R1.PacketPlayOutEntityTeleport;
+import net.minecraft.server.v1_10_R1.PacketPlayOutNamedEntitySpawn;
+import net.minecraft.server.v1_10_R1.PacketPlayOutPlayerInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_10_R1.CraftEquipmentSlot;
+import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_10_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 
@@ -44,11 +47,11 @@ public class PacketFetcher {
 		return packet;
 	}
 
-	public static PacketPlayOutPlayerInfo playerInfo(GameProfile gameProfile, PacketPlayOutPlayerInfo.EnumPlayerInfoAction action) {
+	public static PacketPlayOutPlayerInfo playerInfo(GameProfile gameProfile, String action) {
 		PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo();
-		Reflection.getField(packet.getClass(), "a").set(packet, action);
+		Reflection.getField(packet.getClass(), "a").set(packet, PacketPlayOutPlayerInfo.EnumPlayerInfoAction.valueOf(action.toUpperCase()));
 		Reflection.getField(packet.getClass(), "b").set(packet, Arrays.asList(
-				packet.new PlayerInfoData(gameProfile, 0, WorldSettings.EnumGamemode.NOT_SET, new ChatComponentText(gameProfile.getName()))));
+				packet.new PlayerInfoData(gameProfile, 0, EnumGamemode.NOT_SET, new ChatComponentText(gameProfile.getName()))));
 		return packet;
 	}
 
@@ -105,11 +108,11 @@ public class PacketFetcher {
 		return packet;
 	}
 
-	public static PacketPlayOutEntityEquipment entityEquipment(int entityId, EnumItemSlot slot, ItemStack item) {
+	public static PacketPlayOutEntityEquipment entityEquipment(int entityId, EquipmentSlot slot, ItemStack item) {
 		PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment();
 		Reflection.getField(packet.getClass(), "a").set(packet, entityId);
-		Reflection.getField(packet.getClass(), "b").set(packet, slot);
-		Reflection.getField(packet.getClass(), "c").set(packet, item); //itemStack
+		Reflection.getField(packet.getClass(), "b").set(packet, CraftEquipmentSlot.getNMS(slot));
+		Reflection.getField(packet.getClass(), "c").set(packet, CraftItemStack.asNMSCopy(item));
 		return packet;
 	}
 
@@ -124,6 +127,13 @@ public class PacketFetcher {
 		PacketPlayOutEntityStatus packet = new PacketPlayOutEntityStatus();
 		Reflection.getField(packet.getClass(), "a").set(packet, entityId);
 		Reflection.getField(packet.getClass(), "b").set(packet, status);
+		return packet;
+	}
+
+	public static PacketPlayOutEntityMetadata entityMetadata(int entityId, DataWatcher dataWatcher) {
+		PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata();
+		Reflection.getField(packet.getClass(), "a").set(packet, entityId);
+		Reflection.getField(packet.getClass(), "b").set(packet, dataWatcher.c());
 		return packet;
 	}
 
