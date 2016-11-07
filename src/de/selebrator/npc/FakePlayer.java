@@ -670,6 +670,35 @@ public class FakePlayer implements NPC {
 		if(effects.isEmpty()) {
 			return 0;
 		} else {
+			HashMap<PotionEffectType, Integer> potionColors = new HashMap<>();
+			potionColors.put(PotionEffectType.SPEED, 				0x7cafc6);
+			potionColors.put(PotionEffectType.SLOW, 				0x5a6c81);
+			potionColors.put(PotionEffectType.FAST_DIGGING, 		0xd9c043);
+			potionColors.put(PotionEffectType.SLOW_DIGGING,			0x4a4217);
+			potionColors.put(PotionEffectType.INCREASE_DAMAGE, 		0x932423);
+			potionColors.put(PotionEffectType.HEAL, 				0xf82423);
+			potionColors.put(PotionEffectType.HARM, 				0x430a09);
+			potionColors.put(PotionEffectType.JUMP, 				0x22ff4c);
+			potionColors.put(PotionEffectType.CONFUSION, 			0x551d4a);
+			potionColors.put(PotionEffectType.REGENERATION, 		0xcd5cab);
+			potionColors.put(PotionEffectType.DAMAGE_RESISTANCE, 	0x99453a);
+			potionColors.put(PotionEffectType.FIRE_RESISTANCE, 		0xe49a3a);
+			potionColors.put(PotionEffectType.WATER_BREATHING, 		0x2e5299);
+			potionColors.put(PotionEffectType.INVISIBILITY, 		0x7f8392);
+			potionColors.put(PotionEffectType.BLINDNESS, 			0x1f1f23);
+			potionColors.put(PotionEffectType.NIGHT_VISION, 		0x1f1fa1);
+			potionColors.put(PotionEffectType.HUNGER, 				0x587653);
+			potionColors.put(PotionEffectType.WEAKNESS, 			0x484d48);
+			potionColors.put(PotionEffectType.POISON, 				0x4e9331);
+			potionColors.put(PotionEffectType.WITHER, 				0x352a27);
+			potionColors.put(PotionEffectType.HEALTH_BOOST, 		0xf87d23);
+			potionColors.put(PotionEffectType.ABSORPTION, 			0x2552a5);
+			potionColors.put(PotionEffectType.SATURATION, 			0xf82423);
+			potionColors.put(PotionEffectType.GLOWING, 				0x94a061);
+			potionColors.put(PotionEffectType.LEVITATION, 			0xceffff);
+			potionColors.put(PotionEffectType.LUCK, 				0x339900);
+			potionColors.put(PotionEffectType.UNLUCK, 				0xc0a44d);
+
 			float red = 0.0F;
 			float green = 0.0F;
 			float blue = 0.0F;
@@ -679,35 +708,7 @@ public class FakePlayer implements NPC {
 				if(effect.hasParticles()) {
 					PotionEffectType type = effect.getType();
 					System.out.println(type.getName());
-					int color = 0xffffff;
-					if(effect.getColor() != null) { color = effect.getColor().asRGB(); }
-					else if(type.equals(PotionEffectType.SPEED)) { color = 8171462; }
-					else if(type.equals(PotionEffectType.SLOW)) { color = 5926017; }
-					else if(type.equals(PotionEffectType.FAST_DIGGING)) { color = 14270531; }
-					else if(type.equals(PotionEffectType.SLOW_DIGGING)) { color = 4866583; }
-					else if(type.equals(PotionEffectType.INCREASE_DAMAGE)) { color = 9643043; }
-					else if(type.equals(PotionEffectType.HEAL)) { color = 16262179; }
-					else if(type.equals(PotionEffectType.HARM)) { color = 4393481; }
-					else if(type.equals(PotionEffectType.JUMP)) { color = 2293580; }
-					else if(type.equals(PotionEffectType.CONFUSION)) { color = 5578058; }
-					else if(type.equals(PotionEffectType.REGENERATION)) { color = 13458603; }
-					else if(type.equals(PotionEffectType.DAMAGE_RESISTANCE)) { color = 10044730; }
-					else if(type.equals(PotionEffectType.FIRE_RESISTANCE)) { color = 14981690; }
-					else if(type.equals(PotionEffectType.WATER_BREATHING)) { color = 3035801; }
-					else if(type.equals(PotionEffectType.INVISIBILITY)) { color = 8356754; }
-					else if(type.equals(PotionEffectType.BLINDNESS)) { color = 2039587; }
-					else if(type.equals(PotionEffectType.NIGHT_VISION)) { color = 2039713; }
-					else if(type.equals(PotionEffectType.HUNGER)) { color = 5797459; }
-					else if(type.equals(PotionEffectType.WEAKNESS)) { color = 4738376; }
-					else if(type.equals(PotionEffectType.POISON)) { color = 5149489; }
-					else if(type.equals(PotionEffectType.WITHER)) { color = 3484199; }
-					else if(type.equals(PotionEffectType.HEALTH_BOOST)) { color = 16284963; }
-					else if(type.equals(PotionEffectType.ABSORPTION)) { color = 2445989; }
-					else if(type.equals(PotionEffectType.SATURATION)) { color = 16262179; }
-					else if(type.equals(PotionEffectType.GLOWING)) { color = 9740385; }
-					else if(type.equals(PotionEffectType.LEVITATION)) { color = 13565951; }
-					else if(type.equals(PotionEffectType.LUCK)) { color = 3381504; }
-					else if(type.equals(PotionEffectType.UNLUCK)) { color = 12624973; }
+					int color = effect.getColor() != null ? effect.getColor().asRGB() : potionColors.get(effect.getType());
 					int amplifier = effect.getAmplifier() + 1;
 					red   += (float) (amplifier * (color >> 16 & 255)) / 255.0F;
 					green += (float) (amplifier * (color >>  8 & 255)) / 255.0F;
