@@ -3,6 +3,7 @@ package de.selebrator.gui;
 import de.selebrator.fetcher.ItemBuilder;
 import de.selebrator.npc.NPC;
 import de.selebrator.npc.event.NPCAnimationEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,12 +21,15 @@ public class AnimationGUI extends GUI implements Listener {
 
 	public void open(Player player) {
 		NPCAnimationEvent.Animation[] set = NPCAnimationEvent.Animation.values();
-		Inventory inventory = getSmartInventory(set.length, npc.getName() + " - Animation");
-		int[][] pattern = getSmartPattern(set.length);
+		Inventory inventory = Bukkit.getServer().createInventory(null, getInventorySize(set.length), npc.getName() + " - Animation");
+		int item = 0;
 
-		for(int line = 0; line < pattern.length; line++) {
-			for(int i = 0; i < pattern[line].length; i++) {
-				inventory.setItem((9 * line) + pattern[line][i], new ItemBuilder(Material.INK_SACK, 1, (short) 10, set[(9 * line) + i].name()).build());
+		for(int row = 0; row < inventory.getSize() / 9; row++) {
+			boolean[] pattern = getPattern(set.length - (9 * row));
+			for(int cell = 0; cell < pattern.length; cell++) {
+				if(pattern[cell]) {
+					inventory.setItem((9 * row) + cell, new ItemBuilder(Material.INK_SACK, 1, (short) 10, set[item++].name()).build());
+				}
 			}
 		}
 		player.openInventory(inventory);
