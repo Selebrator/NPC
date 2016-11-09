@@ -131,6 +131,16 @@ public class FakeEquipment {
 		holder.equip(slot, item);
 	}
 
+	public void clear(EquipmentSlot slot) {
+		set(slot, null);
+	}
+
+	public void clear() {
+		for(EquipmentSlot slot : EquipmentSlot.values()) {
+			this.set(slot, null);
+		}
+	}
+
 	public NPC getHolder() {
 		return this.holder;
 	}

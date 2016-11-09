@@ -19,6 +19,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
@@ -537,10 +538,7 @@ public class FakePlayer implements NPC {
 			health = (float) this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue();
 		}
 		if(health == 0) {
-			this.setEntityStatus(EnumEntityStatus.DEAD);
-			this.fireTicks = -20;
-			playSound(Sound.ENTITY_GENERIC_DEATH);
-			this.living = false;
+			this.die();
 		} else if(this.getHealth() > health) {
 			this.setEntityStatus(EnumEntityStatus.HURT);
 			playSound(Sound.ENTITY_GENERIC_HURT);
@@ -659,6 +657,26 @@ public class FakePlayer implements NPC {
 	}
 
 	// ### LIVE ###
+
+	private void die() {
+		this.dropEquip();
+		this.setEntityStatus(EnumEntityStatus.DEAD);
+		playSound(Sound.ENTITY_GENERIC_DEATH);
+		this.fireTicks = -20;
+		this.living = false;
+	}
+
+	private void dropEquip() {
+		World world = this.location.getWorld();
+		for(EquipmentSlot slot : EquipmentSlot.values()) {
+			this.equip(slot, null);
+			ItemStack item = this.equip.get(slot);
+			if(item != null) {
+				world.dropItemNaturally(this.location, item);
+			}
+		}
+		this.equip.clear();
+	}
 
 	private void playSound(Sound sound) {
 		if(!this.meta.isSilent()) {
