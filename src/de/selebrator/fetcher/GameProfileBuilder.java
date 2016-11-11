@@ -27,13 +27,7 @@ public class GameProfileBuilder {
 	private String skinSignature;
 
 	public GameProfileBuilder(String name) {
-		name = ChatColor.translateAlternateColorCodes('&', name).substring(0, name.length() <= 16 ? name.length() : 16);
-		this.name = name;
-		name = ChatColor.stripColor(name);
-		this.skinOwner = name;
-
-		this.uuid = createUUID(name);
-		createSkin(this.uuid);
+		this(name, name);
 	}
 
 	public GameProfileBuilder(String name, String skinOwner) {
