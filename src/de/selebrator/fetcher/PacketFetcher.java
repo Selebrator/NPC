@@ -2,25 +2,25 @@ package de.selebrator.fetcher;
 
 import com.mojang.authlib.GameProfile;
 import de.selebrator.reflection.Reflection;
-import net.minecraft.server.v1_10_R1.ChatComponentText;
-import net.minecraft.server.v1_10_R1.DataWatcher;
-import net.minecraft.server.v1_10_R1.EnumGamemode;
-import net.minecraft.server.v1_10_R1.Packet;
-import net.minecraft.server.v1_10_R1.PacketPlayOutAnimation;
-import net.minecraft.server.v1_10_R1.PacketPlayOutEntity;
-import net.minecraft.server.v1_10_R1.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_10_R1.PacketPlayOutEntityEquipment;
-import net.minecraft.server.v1_10_R1.PacketPlayOutEntityHeadRotation;
-import net.minecraft.server.v1_10_R1.PacketPlayOutEntityMetadata;
-import net.minecraft.server.v1_10_R1.PacketPlayOutEntityStatus;
-import net.minecraft.server.v1_10_R1.PacketPlayOutEntityTeleport;
-import net.minecraft.server.v1_10_R1.PacketPlayOutNamedEntitySpawn;
-import net.minecraft.server.v1_10_R1.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_11_R1.ChatComponentText;
+import net.minecraft.server.v1_11_R1.DataWatcher;
+import net.minecraft.server.v1_11_R1.EnumGamemode;
+import net.minecraft.server.v1_11_R1.Packet;
+import net.minecraft.server.v1_11_R1.PacketPlayOutAnimation;
+import net.minecraft.server.v1_11_R1.PacketPlayOutEntity;
+import net.minecraft.server.v1_11_R1.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_11_R1.PacketPlayOutEntityEquipment;
+import net.minecraft.server.v1_11_R1.PacketPlayOutEntityHeadRotation;
+import net.minecraft.server.v1_11_R1.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_11_R1.PacketPlayOutEntityStatus;
+import net.minecraft.server.v1_11_R1.PacketPlayOutEntityTeleport;
+import net.minecraft.server.v1_11_R1.PacketPlayOutNamedEntitySpawn;
+import net.minecraft.server.v1_11_R1.PacketPlayOutPlayerInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_10_R1.CraftEquipmentSlot;
-import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_10_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_11_R1.CraftEquipmentSlot;
+import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -104,7 +104,7 @@ public class PacketFetcher {
 		Reflection.getField(packet.getClass(), "d").set(packet, location.getZ());
 		Reflection.getField(packet.getClass(), "e").set(packet, angle(location.getYaw()));
 		Reflection.getField(packet.getClass(), "f").set(packet, angle(location.getPitch()));
-		Reflection.getField(packet.getClass(), "g").set(packet, false);		//onGround
+		Reflection.getField(packet.getClass(), "g").set(packet, true);		//onGround
 		return packet;
 	}
 

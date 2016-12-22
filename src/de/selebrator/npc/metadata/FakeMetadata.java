@@ -4,7 +4,7 @@ import de.selebrator.npc.MathHelper;
 import de.selebrator.reflection.IMethodAccessor;
 import de.selebrator.reflection.Reflection;
 import de.selebrator.reflection.ServerPackage;
-import net.minecraft.server.v1_10_R1.DataWatcher;
+import net.minecraft.server.v1_11_R1.DataWatcher;
 import org.bukkit.inventory.MainHand;
 
 public class FakeMetadata {
@@ -174,7 +174,6 @@ public class FakeMetadata {
 	}
 
 	// ##### NO GRAVITY #####
-
 	public boolean hasGravity() {
 		return !this.noGravity;
 	}
@@ -339,23 +338,23 @@ public class FakeMetadata {
 	}
 
 	public enum DataWatcherObject {
-		ENTITY_STATUS_BITMASK_00("Entity", "aa"),
+		ENTITY_STATUS_BITMASK_00("Entity", "Z"),
 		ENTITY_AIR_01("Entity", "az"),
 		ENTITY_NAME_02("Entity", "aA"),
 		ENTITY_NAME_VISIBLE_03("Entity", "aB"),
 		ENTITY_SILENT_04("Entity", "aC"),
 		ENTITY_NO_GRAVITY_05("Entity", "aD"),
 
-		LIVING_ACTIVE_HAND_06("EntityLiving", "au"),
+		LIVING_ACTIVE_HAND_06("EntityLiving", "at"),
 		LIVING_HEAlTH_07("EntityLiving", "HEALTH"),
-		LIVING_POTION_COLOR_08("EntityLiving", "f"),
-		LIVING_POTION_AMBIENT_09("EntityLiving", "g"),
-		LIVING_ARROWS_10("EntityLiving", "h"),
+		LIVING_POTION_COLOR_08("EntityLiving", "g"),
+		LIVING_POTION_AMBIENT_09("EntityLiving", "h"),
+		LIVING_ARROWS_10("EntityLiving", "bq"),
 
 		HUMAN_ABSORPTION_11("EntityHuman", "a"),
 		HUMAN_SCORE_12("EntityHuman", "b"),
-		HUMAN_SKIN_BITBASK_13("EntityHuman", "br"),
-		HUMAN_MAINHAND_14("EntityHuman", "bs");
+		HUMAN_SKIN_BITBASK_13("EntityHuman", "bq"),
+		HUMAN_MAINHAND_14("EntityHuman", "br");
 
 		private Object object;
 
@@ -373,7 +372,6 @@ public class FakeMetadata {
 		FIRE(0),
 		SNEAK(1),
 		SPRINT(3),
-		USE(4),
 		INVISIBLE(5),
 		GLOW(6),
 		ELYTRA(7);
