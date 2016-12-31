@@ -7,6 +7,7 @@ import de.selebrator.npc.EnumNature;
 import de.selebrator.npc.FakePlayer;
 import de.selebrator.npc.NPC;
 import de.selebrator.npc.event.NPCAnimationEvent;
+import de.selebrator.reflection.ServerPackage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,11 +33,19 @@ import java.util.Map;
 
 public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
+	public static final String VERSION = "v1_11_R1";
+
 	private Map<Integer, NPC> fakePlayers = new HashMap<>();
 	private NPC npc;
 
 	@Override
 	public void onEnable() {
+		if(!(ServerPackage.getVersion().equals(VERSION))) {
+			this.getLogger().info("Server version: " + ServerPackage.getVersion() + ", Required version: " + VERSION);
+			Bukkit.getPluginManager().disablePlugin(this);
+			return;
+		}
+
 		Bukkit.getPluginManager().registerEvents(this, this);
 		getCommand("npc").setExecutor(this);
 
