@@ -13,7 +13,6 @@ import de.selebrator.npc.event.NPCTeleportEvent;
 import de.selebrator.npc.inventory.FakeEquipment;
 import de.selebrator.npc.metadata.FakeMetadata;
 import de.selebrator.reflection.Reflection;
-import de.selebrator.reflection.ServerPackage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -66,9 +65,9 @@ public class FakePlayer implements NPC {
 
 
 	public FakePlayer(GameProfile gameProfile) {
-		Class<?> entityClass = Reflection.getClass(ServerPackage.NMS, "Entity");
+		Class<?> entityClass = Reflection.getMinecraftClass("Entity");
 		this.entityId = (int) Reflection.getField(entityClass, "entityCount").get(null);
-		Reflection.getField(entityClass, "entityCount").set(null, this.entityId + 1);
+		Reflection.getField(entityClass, int.class, "entityCount").set(null, this.entityId + 1);
 
 		this.gameProfile = gameProfile;
 
@@ -882,7 +881,7 @@ public class FakePlayer implements NPC {
 			if(duration <= 0) {
 				this.removePotionEffect(effect.getType());
 			} else {
-				Reflection.getField(effect.getClass(), "duration").set(effect, duration - 1);
+				Reflection.getField(effect.getClass(), int.class, "duration").set(effect, duration - 1);
 			}
 		}
 	}

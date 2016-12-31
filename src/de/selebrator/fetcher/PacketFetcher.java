@@ -27,8 +27,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 
+@SuppressWarnings("unchecked")
 public class PacketFetcher {
-	public static PacketPlayOutNamedEntitySpawn namedEntitySpawn(int entityId, GameProfile gameProfile, Location location, DataWatcher dataWatcher) {
+	public static PacketPlayOutNamedEntitySpawn namedEntitySpawn(int entityId, GameProfile gameProfile, Location location, Object dataWatcher) {
 		PacketPlayOutNamedEntitySpawn packet = new PacketPlayOutNamedEntitySpawn();
 		Reflection.getField(packet.getClass(), "a").set(packet, entityId);
 		Reflection.getField(packet.getClass(), "b").set(packet, gameProfile.getId());
@@ -130,10 +131,10 @@ public class PacketFetcher {
 		return packet;
 	}
 
-	public static PacketPlayOutEntityMetadata entityMetadata(int entityId, DataWatcher dataWatcher) {
+	public static PacketPlayOutEntityMetadata entityMetadata(int entityId, Object dataWatcher) {
 		PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata();
 		Reflection.getField(packet.getClass(), "a").set(packet, entityId);
-		Reflection.getField(packet.getClass(), "b").set(packet, dataWatcher.c());
+		Reflection.getField(packet.getClass(), "b").set(packet, ((DataWatcher) dataWatcher).c());
 		return packet;
 	}
 

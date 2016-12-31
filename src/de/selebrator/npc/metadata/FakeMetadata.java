@@ -1,15 +1,14 @@
 package de.selebrator.npc.metadata;
 
 import de.selebrator.npc.MathHelper;
-import de.selebrator.reflection.IMethodAccessor;
+import de.selebrator.reflection.ConstructorAccessor;
+import de.selebrator.reflection.MethodAccessor;
 import de.selebrator.reflection.Reflection;
-import de.selebrator.reflection.ServerPackage;
-import net.minecraft.server.v1_11_R1.DataWatcher;
 import org.bukkit.inventory.MainHand;
 
 public class FakeMetadata {
 
-	private DataWatcher dataWatcher;
+	private Object dataWatcher;
 
 	private byte status;
 	private int air;
@@ -32,17 +31,18 @@ public class FakeMetadata {
 	private boolean defaultInvisible;
 	private boolean defaultGlowing;
 
-	private static final IMethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(DataWatcher.class, "registerObject", Reflection.getClass(ServerPackage.NMS, "DataWatcherObject"), Object.class);
+	private static final ConstructorAccessor CONSTRUCTOR_DataWatcher = Reflection.getConstructor(Reflection.getMinecraftClass("DataWatcher"), Reflection.getMinecraftClass("Entity"));
+	private static final MethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(Reflection.getMinecraftClass("DataWatcher"), null, "registerObject", Reflection.getMinecraftClass("DataWatcherObject"), Object.class);
 
 	public FakeMetadata() {
-		this.dataWatcher = new DataWatcher(null);
+		this.dataWatcher = CONSTRUCTOR_DataWatcher.newInstance(new Object[] { null });
 	}
 
 	public void set(DataWatcherObject dataWatcherObject, Object value) {
 		METHOD_DataWatcher_registerObject.invoke(this.dataWatcher, dataWatcherObject.getObject(), value);
 	}
 
-	public DataWatcher getDataWatcher() {
+	public Object getDataWatcher() {
 		return this.dataWatcher;
 	}
 
@@ -113,6 +113,7 @@ public class FakeMetadata {
 		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 		this.defaultGlowing = state;
 	}
+
 	public void setGlowingTemp(boolean state) {
 		this.status = MathHelper.setBit(this.status, Status.GLOW.getId(), state || this.defaultGlowing);
 		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
@@ -359,7 +360,7 @@ public class FakeMetadata {
 		private Object object;
 
 		DataWatcherObject(String parent, String field) {
-			Class<?> parentClazz = Reflection.getClass(ServerPackage.NMS, parent);
+			Class<?> parentClazz = Reflection.getMinecraftClass(parent);
 			this.object = Reflection.getField(parentClazz, field).get(null);
 		}
 
