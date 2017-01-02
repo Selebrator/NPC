@@ -10,9 +10,14 @@ import java.util.Arrays;
 
 public class Reflection {
 
-	public static Class<?> getCanonicalClass(String canonicalName) {
+	/**
+	 * handle exception form native method
+	 * @param name fully qualified name of the desired class (not the canonical name)
+	 * @return class object representing the desired class
+	 */
+	public static Class<?> getClass(String name) {
 		try {
-			return Class.forName(canonicalName);
+			return Class.forName(name);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			return null;
@@ -20,7 +25,7 @@ public class Reflection {
 	}
 
 	public static Class<?> getServerClass(ServerPackage serverPackage, String name) {
-		return getCanonicalClass(serverPackage.toString() + "." + name);
+		return getClass(serverPackage.toString() + "." + name);
 	}
 
 	public static Class<?> getMinecraftClass(String name) {
@@ -29,6 +34,31 @@ public class Reflection {
 
 	public static Class<?> getCraftBukkitClass(String name) {
 		return getServerClass(ServerPackage.OBC, name);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Class<? extends Enum> getEnum(Class<?> clazz) {
+		if(clazz.isEnum())
+			return (Class<? extends Enum>) clazz;
+
+		new IllegalArgumentException(clazz.getCanonicalName() + " is not an enum.").printStackTrace();
+		return null;
+	}
+
+	public static Class<? extends Enum> getEnum(String name) {
+		return getEnum(getClass(name));
+	}
+
+	public static Class<? extends Enum> getServerEnum(ServerPackage serverPackage, String name) {
+		return getEnum(serverPackage.toString() + "." + name);
+	}
+
+	public static Class<? extends Enum> getMinecraftEnum(String name) {
+		return getServerEnum(ServerPackage.NMS, name);
+	}
+
+	public static Class<? extends Enum> getCraftBukkitEnum(String name) {
+		return getServerEnum(ServerPackage.OBC, name);
 	}
 
 	public static FieldAccessor getField(Class<?> clazz, String name) {
@@ -68,10 +98,6 @@ public class Reflection {
 			return getField(clazz.getSuperclass(), fieldType, name);
 
 		throw new IllegalArgumentException(String.format("Cannot find field %s %s.", fieldType.getSimpleName(), name));
-	}
-
-	public static MethodAccessor getMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
-		return getMethod(clazz, Object.class, name, parameterTypes);
 	}
 
 	public static <T> MethodAccessor<T> getMethod(Class<?> clazz, Class<T> returnType, String name, Class<?>... parameterTypes) {

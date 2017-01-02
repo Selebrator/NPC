@@ -31,8 +31,11 @@ public class FakeMetadata {
 	private boolean defaultInvisible;
 	private boolean defaultGlowing;
 
-	private static final ConstructorAccessor CONSTRUCTOR_DataWatcher = Reflection.getConstructor(Reflection.getMinecraftClass("DataWatcher"), Reflection.getMinecraftClass("Entity"));
-	private static final MethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(Reflection.getMinecraftClass("DataWatcher"), null, "registerObject", Reflection.getMinecraftClass("DataWatcherObject"), Object.class);
+	private static final Class<?> CLASS_DataWatcher = Reflection.getMinecraftClass("DataWatcher");
+	private static final Class<?> CLASS_Entity = Reflection.getMinecraftClass("Entity");
+	private static final Class<?> CLASS_DataWatcherObject = Reflection.getMinecraftClass("DataWatcherObject");
+	private static final ConstructorAccessor CONSTRUCTOR_DataWatcher = Reflection.getConstructor(CLASS_DataWatcher, CLASS_Entity);
+	private static final MethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(CLASS_DataWatcher, null, "registerObject", CLASS_DataWatcherObject, Object.class);
 
 	public FakeMetadata() {
 		this.dataWatcher = CONSTRUCTOR_DataWatcher.newInstance(new Object[] { null });
