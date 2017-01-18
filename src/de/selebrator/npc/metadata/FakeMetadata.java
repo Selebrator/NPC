@@ -1,9 +1,12 @@
 package de.selebrator.npc.metadata;
 
+import de.selebrator.NPCPlugin;
 import de.selebrator.npc.MathHelper;
 import de.selebrator.reflection.ConstructorAccessor;
+import de.selebrator.reflection.FieldAccessor;
 import de.selebrator.reflection.MethodAccessor;
 import de.selebrator.reflection.Reflection;
+import de.selebrator.reflection.ServerPackage;
 import org.bukkit.inventory.MainHand;
 
 public class FakeMetadata {
@@ -342,29 +345,35 @@ public class FakeMetadata {
 	}
 
 	public enum DataWatcherObject {
-		ENTITY_STATUS_BITMASK_00("Entity", "Z"),
-		ENTITY_AIR_01("Entity", "az"),
-		ENTITY_NAME_02("Entity", "aA"),
-		ENTITY_NAME_VISIBLE_03("Entity", "aB"),
-		ENTITY_SILENT_04("Entity", "aC"),
-		ENTITY_NO_GRAVITY_05("Entity", "aD"),
+		ENTITY_STATUS_BITMASK_00("Entity", "Z", 0),
+		ENTITY_AIR_01("Entity", "az", 1),
+		ENTITY_NAME_02("Entity", "aA", 2),
+		ENTITY_NAME_VISIBLE_03("Entity", "aB", 3),
+		ENTITY_SILENT_04("Entity", "aC", 4),
+		ENTITY_NO_GRAVITY_05("Entity", "aD", 5),
 
-		LIVING_ACTIVE_HAND_06("EntityLiving", "at"),
-		LIVING_HEAlTH_07("EntityLiving", "HEALTH"),
-		LIVING_POTION_COLOR_08("EntityLiving", "g"),
-		LIVING_POTION_AMBIENT_09("EntityLiving", "h"),
-		LIVING_ARROWS_10("EntityLiving", "bq"),
+		LIVING_ACTIVE_HAND_06("EntityLiving", "at", 0),
+		LIVING_HEAlTH_07("EntityLiving", "HEALTH", 1),
+		LIVING_POTION_COLOR_08("EntityLiving", "g", 2),
+		LIVING_POTION_AMBIENT_09("EntityLiving", "h", 3),
+		LIVING_ARROWS_10("EntityLiving", "bq", 4),
 
-		HUMAN_ABSORPTION_11("EntityHuman", "a"),
-		HUMAN_SCORE_12("EntityHuman", "b"),
-		HUMAN_SKIN_BITBASK_13("EntityHuman", "bq"),
-		HUMAN_MAINHAND_14("EntityHuman", "br");
+		HUMAN_ABSORPTION_11("EntityHuman", "a", 0),
+		HUMAN_SCORE_12("EntityHuman", "b", 1),
+		HUMAN_SKIN_BITBASK_13("EntityHuman", "bq", 2),
+		HUMAN_MAINHAND_14("EntityHuman", "br", 3);
 
 		private Object object;
 
-		DataWatcherObject(String parent, String field) {
+		DataWatcherObject(String parent, String fieldName, int index) {
 			Class<?> parentClazz = Reflection.getMinecraftClass(parent);
-			this.object = Reflection.getField(parentClazz, field).get(null);
+			FieldAccessor field;
+			if(ServerPackage.getVersion().equals(NPCPlugin.VERSION))
+				field = Reflection.getField(parentClazz, fieldName);
+			else
+				field = Reflection.getField(parentClazz, CLASS_DataWatcherObject, index);
+
+			this.object = field.get(null);
 		}
 
 		public Object getObject() {

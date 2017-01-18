@@ -40,10 +40,10 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 	@Override
 	public void onEnable() {
-		if(!(ServerPackage.getVersion().equals(VERSION))) {
-			this.getLogger().info("Server version: " + ServerPackage.getVersion() + ", Required version: " + VERSION);
-			Bukkit.getPluginManager().disablePlugin(this);
-			return;
+		if(!ServerPackage.getVersion().equals(VERSION)) {
+			this.getLogger().warning("Server version: " + ServerPackage.getVersion() + ", Recommended version: " + VERSION);
+			//Bukkit.getPluginManager().disablePlugin(this);
+			//return;
 		}
 
 		Bukkit.getPluginManager().registerEvents(this, this);

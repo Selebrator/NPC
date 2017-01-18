@@ -66,9 +66,17 @@ public class Reflection {
 	}
 
 	public static <T> FieldAccessor<T> getField(Class<?> clazz, Class<T> fieldType, String name) {
+		return getField(clazz, fieldType, name, 0);
+	}
+
+	public static <T> FieldAccessor<T> getField(Class<?> clazz, Class<T> fieldType, int skip) {
+		return getField(clazz, fieldType, null, skip);
+	}
+
+	public static <T> FieldAccessor<T> getField(Class<?> clazz, Class<T> fieldType, String name, int skip) {
 		for(Field field : clazz.getDeclaredFields()) {
 			if((name == null || field.getName().equals(name))
-					&& ClassUtils.isAssignable(field.getType(), fieldType, true)) {
+					&& ClassUtils.isAssignable(field.getType(), fieldType, true) && skip-- <= 0) {
 				field.setAccessible(true);
 				return new FieldAccessor<T>() {
 					@Override
