@@ -6,8 +6,7 @@ import de.selebrator.npc.inventory.FakeEquipment;
 import de.selebrator.npc.metadata.FakeMetadata;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.Attributable;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -17,7 +16,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.Collection;
 import java.util.List;
 
-public interface NPC {
+public interface NPC extends Attributable {
 
 	void spawn(Location location);
 
@@ -179,8 +178,6 @@ public interface NPC {
 	void addPotionEffects(Collection<PotionEffect> potionEffects);
 
 	void removePotionEffect(PotionEffectType potionEffectType);
-
-	AttributeInstance getAttribute(Attribute attribute);
 
 	void setSneaking(boolean state);
 
