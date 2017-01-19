@@ -15,6 +15,7 @@ import de.selebrator.npc.metadata.FakeMetadata;
 import de.selebrator.reflection.Reflection;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -265,9 +266,16 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public void setEntityStatus(EnumEntityStatus status) {
+	public void playEntityStatus(EnumEntityStatus status) {
 		PacketFetcher.broadcastPackets(
 				PacketFetcher.entityStatus(this.entityId, status.getId())
+		);
+	}
+
+	@Override
+	public void playEffect(EntityEffect effect) {
+		PacketFetcher.broadcastPackets(
+				PacketFetcher.entityStatus(this.entityId, EnumEntityStatus.fromBukkit(effect).getId())
 		);
 	}
 
@@ -539,7 +547,7 @@ public class FakePlayer implements NPC {
 		if(health == 0) {
 			this.die();
 		} else if(this.getHealth() > health) {
-			this.setEntityStatus(EnumEntityStatus.HURT);
+			this.playEntityStatus(EnumEntityStatus.HURT);
 			playSound(Sound.ENTITY_GENERIC_HURT);
 		} else if(this.getHealth() == 0 && health > 0) {
 			if(this.hasLocation()) {
@@ -659,7 +667,7 @@ public class FakePlayer implements NPC {
 
 	private void die() {
 		this.dropEquip();
-		this.setEntityStatus(EnumEntityStatus.DEATH);
+		this.playEntityStatus(EnumEntityStatus.DEATH);
 		playSound(Sound.ENTITY_GENERIC_DEATH);
 		this.fireTicks = -20;
 		this.living = false;

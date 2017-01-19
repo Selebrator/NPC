@@ -1,9 +1,10 @@
 package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
-import de.selebrator.npc.metadata.FakeMetadata;
 import de.selebrator.npc.event.NPCAnimationEvent;
 import de.selebrator.npc.inventory.FakeEquipment;
+import de.selebrator.npc.metadata.FakeMetadata;
+import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -86,7 +87,10 @@ public interface NPC {
 
 	void playAnimation(NPCAnimationEvent.Animation animation);
 
-	void setEntityStatus(EnumEntityStatus status);
+	void playEntityStatus(EnumEntityStatus status);
+
+	/** alternative to playEntityStatus(EnumEntityStatus) for similarity to Bukkit */
+	void playEffect(EntityEffect effect);
 
 	void updateMetadata();
 

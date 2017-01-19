@@ -1,6 +1,7 @@
 package de.selebrator.npc;
 
 import de.selebrator.reflection.Reflection;
+import org.bukkit.EntityEffect;
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 
@@ -60,5 +61,38 @@ public enum EnumEntityStatus {
 
 	public boolean isExecutableBy(Entity entity) {
 		return executor.isAssignableFrom(((CraftEntity) entity).getHandle().getClass());
+	}
+
+	public static EnumEntityStatus fromBukkit(EntityEffect effect) {
+		switch(effect) {
+			case HURT:
+				return HURT;
+			case DEATH:
+				return DEATH;
+			case WOLF_SMOKE:
+				return TAME_SMOKE;
+			case WOLF_HEARTS:
+				return TAME_HEARTS;
+			case WOLF_SHAKE:
+				return  WOLF_SHAKE;
+			case SHEEP_EAT:
+				return SHEEP_EAT;
+			case IRON_GOLEM_ROSE:
+				return IRON_GOLEM_ROSE;
+			case VILLAGER_HEART:
+				return VILLAGER_HEART;
+			case VILLAGER_ANGRY:
+				return VILLAGER_ANGRY;
+			case VILLAGER_HAPPY:
+				return VILLAGER_HAPPY;
+			case WITCH_MAGIC:
+				return WITCH_MAGIC;
+			case ZOMBIE_TRANSFORM:
+				return ZOMBIE_TRANSFORM;
+			case FIREWORK_EXPLODE:
+				return FIREWORK_EXPLODE;
+			default:
+				throw new IllegalArgumentException();
+		}
 	}
 }
