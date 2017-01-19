@@ -659,7 +659,7 @@ public class FakePlayer implements NPC {
 
 	private void die() {
 		this.dropEquip();
-		this.setEntityStatus(EnumEntityStatus.DEAD);
+		this.setEntityStatus(EnumEntityStatus.DEATH);
 		playSound(Sound.ENTITY_GENERIC_DEATH);
 		this.fireTicks = -20;
 		this.living = false;
