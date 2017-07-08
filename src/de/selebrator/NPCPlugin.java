@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
-	public static final String VERSION = "v1_11_R1";
+	public static final String VERSION = "v1_12_R1";
 
 	private Map<Integer, NPC> fakePlayers = new HashMap<>();
 	private NPC npc;

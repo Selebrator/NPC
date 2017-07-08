@@ -2,7 +2,7 @@ package de.selebrator.npc;
 
 import de.selebrator.reflection.Reflection;
 import org.bukkit.EntityEffect;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;	//TODO remove version dependent import
 import org.bukkit.entity.Entity;
 
 public enum EnumEntityStatus {
@@ -11,7 +11,10 @@ public enum EnumEntityStatus {
 	MINECART_TNT_IGNITE(	 1, "MinecartTNT"),
 	HURT(					 2, "Living"),
 	DEATH(					 3, "Living"),
+	SNOWBALLPOOF(			 3, "Snowball"),
+	EGG_IRONCRACK(			 3, "Egg"),
 	IRON_GOLEM_ATTACK(		 4, "IronGolem"),
+	EVOCATION_FANGS_ATTACK(	 4, "EvokerFangs"),
 	TAME_SMOKE(				 6, "TameableAnimal"),
 	HORSE_TAME_SMOKE(		 6, "HorseAbstract"),
 	TAME_HEARTS(			 7, "TameableAnimal"),

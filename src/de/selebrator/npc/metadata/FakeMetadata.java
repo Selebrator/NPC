@@ -7,6 +7,7 @@ import de.selebrator.reflection.FieldAccessor;
 import de.selebrator.reflection.MethodAccessor;
 import de.selebrator.reflection.Reflection;
 import de.selebrator.reflection.ServerPackage;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;	//TODO remove version dependent import
 import org.bukkit.inventory.MainHand;
 
 public class FakeMetadata {
@@ -30,6 +31,8 @@ public class FakeMetadata {
 	private int score;
 	private byte skinFlags;
 	private MainHand mainHand;
+	private NBTTagCompound leftShoulder;
+	private NBTTagCompound rightShoulder;
 
 	private boolean defaultInvisible;
 	private boolean defaultGlowing;
@@ -344,24 +347,45 @@ public class FakeMetadata {
 		this.mainHand = mainHand;
 	}
 
+	// ##### SHOULDERS #####
+	public NBTTagCompound getLeftShoulder() {
+		return leftShoulder;
+	}
+
+	public void setLeftShoulder(NBTTagCompound leftShoulder) {
+		this.set(DataWatcherObject.HUMAN_LEFT_SHOULDER_15, leftShoulder);
+		this.leftShoulder = leftShoulder;
+	}
+
+	public NBTTagCompound getRightShoulder() {
+		return rightShoulder;
+	}
+
+	public void setRightShoulder(NBTTagCompound rightShoulder) {
+		this.set(DataWatcherObject.HUMAN_RIGHT_SHOULDER_16, rightShoulder);
+		this.rightShoulder = rightShoulder;
+	}
+
 	public enum DataWatcherObject {
 		ENTITY_STATUS_BITMASK_00("Entity", "Z", 0),
-		ENTITY_AIR_01("Entity", "az", 1),
-		ENTITY_NAME_02("Entity", "aA", 2),
-		ENTITY_NAME_VISIBLE_03("Entity", "aB", 3),
-		ENTITY_SILENT_04("Entity", "aC", 4),
-		ENTITY_NO_GRAVITY_05("Entity", "aD", 5),
+		ENTITY_AIR_01("Entity", "aA", 1),
+		ENTITY_NAME_02("Entity", "aB", 2),
+		ENTITY_NAME_VISIBLE_03("Entity", "aC", 3),
+		ENTITY_SILENT_04("Entity", "aD", 4),
+		ENTITY_NO_GRAVITY_05("Entity", "aE", 5),
 
 		LIVING_ACTIVE_HAND_06("EntityLiving", "at", 0),
 		LIVING_HEAlTH_07("EntityLiving", "HEALTH", 1),
 		LIVING_POTION_COLOR_08("EntityLiving", "g", 2),
 		LIVING_POTION_AMBIENT_09("EntityLiving", "h", 3),
-		LIVING_ARROWS_10("EntityLiving", "bq", 4),
+		LIVING_ARROWS_10("EntityLiving", "br", 4),
 
 		HUMAN_ABSORPTION_11("EntityHuman", "a", 0),
 		HUMAN_SCORE_12("EntityHuman", "b", 1),
-		HUMAN_SKIN_BITBASK_13("EntityHuman", "bq", 2),
-		HUMAN_MAINHAND_14("EntityHuman", "br", 3);
+		HUMAN_SKIN_BITBASK_13("EntityHuman", "br", 2),
+		HUMAN_MAINHAND_14("EntityHuman", "bs", 3),
+		HUMAN_LEFT_SHOULDER_15("EntityHuman", "bt", 4),
+		HUMAN_RIGHT_SHOULDER_16("EntityHuman", "bu", 5);
 
 		private Object object;
 
