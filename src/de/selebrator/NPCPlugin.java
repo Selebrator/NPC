@@ -31,6 +31,8 @@ import org.bukkit.util.Vector;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
@@ -42,10 +44,12 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 		@Override
 		public void run() {
-			fakePlayers.values().stream()
+			Supplier<Stream<NPC>> operableNPCs = () -> fakePlayers.values().stream()
 					.filter(Objects::nonNull)
 					.filter(NPC::isAlive)
-					.filter(npc -> !npc.isFrozen())
+					.filter(npc -> !npc.isFrozen());
+
+			operableNPCs.get()
 					.filter(NPC::hasTarget)
 					.filter(npc -> !npc.getTarget().isDead())
 					.forEach(npc -> {
@@ -62,6 +66,8 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 							npc.attack(npc.getTarget());
 						}
 					});
+
+			operableNPCs.get().forEach(NPC::tick);
 		}
 	};
 

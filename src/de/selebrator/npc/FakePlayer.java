@@ -730,13 +730,7 @@ public class FakePlayer implements NPC {
 	}
 
 	public void setParticles(Collection<PotionEffect> effects) {
-		boolean ambient = true;
-		for(PotionEffect effect : effects) {
-			if(!effect.isAmbient()) {
-				ambient = false;
-			}
-		}
-		this.meta.setPotionAmbient(ambient);
+		this.meta.setPotionAmbient(effects.stream().allMatch(PotionEffect::isAmbient));
 		this.meta.setPotionColor(calcPotionColor(effects));
 		updateMetadata();
 	}
