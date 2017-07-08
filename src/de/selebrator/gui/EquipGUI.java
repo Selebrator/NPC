@@ -98,7 +98,7 @@ public class EquipGUI extends GUI implements Listener {
 	@EventHandler
 	public void onGUIClick(InventoryClickEvent event) {
 		Inventory inventory = event.getInventory();
-		if(inventory != null  && inventory.equals(event.getView().getTopInventory()))
+		if(inventory != null && inventory.equals(event.getView().getTopInventory()))
 			if(inventory.getName().contains(" - Equip")) {
 				int slot = event.getSlot();
 				ItemStack item = event.getCurrentItem();
@@ -126,7 +126,7 @@ public class EquipGUI extends GUI implements Listener {
 					subSelected = "SPADE";
 				} else if(slot == 33 && (selected == EquipmentSlot.HAND || selected == EquipmentSlot.OFF_HAND)) {
 					subSelected = "HOE";
-				} else if(slot >= 38 && slot <=42  && item != null) {
+				} else if(slot >= 38 && slot <= 42 && item != null) {
 					npc.getEquipment().set(selected, item);
 				} else if(slot == 23 && item != null) {
 					npc.getEquipment().set(selected, null);

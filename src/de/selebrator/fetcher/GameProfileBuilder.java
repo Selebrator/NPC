@@ -78,7 +78,7 @@ public class GameProfileBuilder {
 			this.skinSignature = signature.substring(1, signature.length() - 1);
 			System.out.println("[NPC] Successfully downloaded " + this.skinOwner + "'s Skin");
 		} catch(IllegalStateException e) {
-			System.err.println("[NPC] There is no Skin for '" +  this.skinOwner + "' available. Using default Skin instead");
+			System.err.println("[NPC] There is no Skin for '" + this.skinOwner + "' available. Using default Skin instead");
 		} catch(NullPointerException e) {
 
 		}

@@ -17,7 +17,7 @@ public class LeatherArmorBuilder extends ArmorBuilder {
 		this.color = color;
 	}
 
-	public LeatherArmorBuilder(EquipmentSlot slot, String name,  Color color) {
+	public LeatherArmorBuilder(EquipmentSlot slot, String name, Color color) {
 		this(slot, 1, (short) 0, name, color);
 	}
 

@@ -12,12 +12,12 @@ public class NPCDespawnEvent extends NPCEvent implements Cancellable {
 		super(npc);
 	}
 
-	@Override
-	public HandlerList getHandlers() {
+	public static HandlerList getHandlerList() {
 		return handlers;
 	}
 
-	public static HandlerList getHandlerList() {
+	@Override
+	public HandlerList getHandlers() {
 		return handlers;
 	}
 

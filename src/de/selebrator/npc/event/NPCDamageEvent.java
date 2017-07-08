@@ -17,12 +17,12 @@ public class NPCDamageEvent extends NPCEvent implements Cancellable {
 		this.cause = cause;
 	}
 
-	@Override
-	public HandlerList getHandlers() {
+	public static HandlerList getHandlerList() {
 		return handlers;
 	}
 
-	public static HandlerList getHandlerList() {
+	@Override
+	public HandlerList getHandlers() {
 		return handlers;
 	}
 

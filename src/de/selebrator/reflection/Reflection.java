@@ -12,13 +12,14 @@ public class Reflection {
 
 	/**
 	 * handle exception form native method
+	 *
 	 * @param name fully qualified name of the desired class (not the canonical name)
 	 * @return class object representing the desired class
 	 */
 	public static Class<?> getClass(String name) {
 		try {
 			return Class.forName(name);
-		} catch (ClassNotFoundException e) {
+		} catch(ClassNotFoundException e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -108,23 +109,20 @@ public class Reflection {
 		throw new IllegalArgumentException(String.format("Cannot find field %s %s.", fieldType.getSimpleName(), name));
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> MethodAccessor<T> getMethod(Class<?> clazz, Class<T> returnType, String name, Class<?>... parameterTypes) {
 		for(Method method : clazz.getDeclaredMethods()) {
 			if((name == null || method.getName().equals(name))
 					&& (returnType == null || method.getReturnType().equals(returnType))
 					&& (Arrays.equals(method.getParameterTypes(), parameterTypes))) {
 				method.setAccessible(true);
-				return new MethodAccessor<T>() {
-					@Override
-					@SuppressWarnings("unchecked")
-					public T invoke(Object target, Object... args) {
-						try {
-							return (T) method.invoke(target, args);
-						} catch(IllegalAccessException e) {
-							throw new RuntimeException("Cannot access Reflection.", e);
-						} catch(InvocationTargetException e) {
-							throw new RuntimeException(String.format("Cannot invoke method %s (%s).", method.getName(), Arrays.asList(method.getParameterTypes())));
-						}
+				return (target, args) -> {
+					try {
+						return (T) method.invoke(target, args);
+					} catch(IllegalAccessException e) {
+						throw new RuntimeException("Cannot access Reflection.", e);
+					} catch(InvocationTargetException e) {
+						throw new RuntimeException(String.format("Cannot invoke method %s (%s).", method.getName(), Arrays.asList(method.getParameterTypes())));
 					}
 				};
 			}
@@ -137,23 +135,20 @@ public class Reflection {
 		throw new IllegalArgumentException(String.format("Cannot find method %s (%s).", name, Arrays.asList(parameterTypes)));
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> ConstructorAccessor<T> getConstructor(Class<?> clazz, Class<?>... parameterTypes) {
 		for(Constructor<?> constructor : clazz.getConstructors()) {
 			if(Arrays.equals(constructor.getParameterTypes(), parameterTypes)) {
 				constructor.setAccessible(true);
-				return  new ConstructorAccessor<T>() {
-					@Override
-					@SuppressWarnings("unchecked")
-					public T newInstance(Object... parameters) {
-						try {
-							return (T) constructor.newInstance(parameters);
-						} catch(InstantiationException e) {
-							throw new RuntimeException("Cannot initiate object.", e);
-						} catch(IllegalAccessException e) {
-							throw new RuntimeException("Cannot access Reflection.", e);
-						} catch(InvocationTargetException e) {
-							throw new RuntimeException(String.format("Cannot invoke constructor %s (%s).", constructor.getName(), Arrays.asList(constructor.getParameterTypes())));
-						}
+				return parameters -> {
+					try {
+						return (T) constructor.newInstance(parameters);
+					} catch(InstantiationException e) {
+						throw new RuntimeException("Cannot initiate object.", e);
+					} catch(IllegalAccessException e) {
+						throw new RuntimeException("Cannot access Reflection.", e);
+					} catch(InvocationTargetException e) {
+						throw new RuntimeException(String.format("Cannot invoke constructor %s (%s).", constructor.getName(), Arrays.asList(constructor.getParameterTypes())));
 					}
 				};
 			}

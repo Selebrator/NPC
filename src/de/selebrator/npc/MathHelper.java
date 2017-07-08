@@ -5,7 +5,6 @@ import org.bukkit.util.Vector;
 
 public class MathHelper {
 	/**
-	 *
 	 * @param x relative x
 	 * @param y relative y
 	 * @param z relative z
@@ -16,7 +15,6 @@ public class MathHelper {
 	}
 
 	/**
-	 *
 	 * @param x relative x
 	 * @param z relative z
 	 * @return yaw aka (theta) in degree
@@ -26,7 +24,6 @@ public class MathHelper {
 	}
 
 	/**
-	 *
 	 * @param x relative x
 	 * @param y relative y
 	 * @param z relative z
@@ -37,10 +34,9 @@ public class MathHelper {
 	}
 
 	/**
-	 *
 	 * @param distance aka (rho)
-	 * @param yaw aka (theta) in degrees
-	 * @param pitch aka (phi) in degrees
+	 * @param yaw      aka (theta) in degrees
+	 * @param pitch    aka (phi) in degrees
 	 * @return rectangular coordinates
 	 */
 	public static Vector calcDirectionVector(double distance, float yaw, float pitch) {
@@ -52,10 +48,9 @@ public class MathHelper {
 	}
 
 	/**
-	 *
-	 * @param startX current location x
-	 * @param startY current location y
-	 * @param startZ current location z
+	 * @param startX       current location x
+	 * @param startY       current location y
+	 * @param startZ       current location z
 	 * @param destinationX target location x
 	 * @param destinationY target location y
 	 * @param destinationZ target location z
@@ -70,8 +65,7 @@ public class MathHelper {
 	}
 
 	/**
-	 *
-	 * @param start current location
+	 * @param start       current location
 	 * @param destination target location
 	 * @return distance between start location and destination location
 	 */

@@ -30,6 +30,7 @@ import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
@@ -37,6 +38,32 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 	private Map<Integer, NPC> fakePlayers = new HashMap<>();
 	private NPC npc;
+	private BukkitRunnable task = new BukkitRunnable() {
+
+		@Override
+		public void run() {
+			fakePlayers.values().stream()
+					.filter(Objects::nonNull)
+					.filter(NPC::isAlive)
+					.filter(npc -> !npc.isFrozen())
+					.filter(NPC::hasTarget)
+					.filter(npc -> !npc.getTarget().isDead())
+					.forEach(npc -> {
+						Vector vNPC = new Vector(npc.getLocation().getX(), npc.getLocation().getY(), npc.getLocation().getZ());
+						Vector vTarget = new Vector(npc.getTarget().getLocation().getX(), npc.getTarget().getLocation().getY(), npc.getTarget().getLocation().getZ());
+						double distance = vNPC.distance(vTarget);
+						if(distance < npc.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).getValue()) {
+							if(distance > 3) {
+								npc.step(npc.getTarget().getLocation());
+							}
+							npc.look(npc.getTarget().getEyeLocation());
+						}
+						if(distance <= 2.5 && npc.getNature() == EnumNature.HOSTILE) {
+							npc.attack(npc.getTarget());
+						}
+					});
+		}
+	};
 
 	@Override
 	public void onEnable() {
@@ -57,14 +84,13 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 	@Override
 	public void onDisable() {
-		fakePlayers.forEach( (id, npc) -> npc.despawn());
+		fakePlayers.forEach((id, npc) -> npc.despawn());
 	}
 
 	@EventHandler
 	public void onClick(PlayerInteractEvent event) {
-		//spawn
 		ItemStack item = event.getItem();
-		if(item != null && item.getType() == Material.STICK) {
+		if(item != null && item.getType() == Material.STICK) { //spawn
 			if(event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 				if(npc != null) {
 					npc.spawn(event.getClickedBlock().getLocation().add(0.5, 1, 0.5));
@@ -79,7 +105,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 				}
 				event.getPlayer().sendMessage("§cSelect a NPC first");
 			}
-		} else if(item != null && item.getType() == Material.EMERALD) {
+		} else if(item != null && item.getType() == Material.EMERALD) { //respawn
 			if(event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 				if(npc != null) {
 					npc.respawn(event.getClickedBlock().getLocation().add(0.5, 1, 0.5));
@@ -328,7 +354,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "help":
 
-					String[] commands = {"§7----------------§8[§3NPC§8]§7----------------",
+					String[] commands = { "§7----------------§8[§3NPC§8]§7----------------",
 							"§a/npc create <name> §7- create a new NPC",
 							"§a/npc remove <ID> §7- remove a existing NPC",
 							"§a/npc select [ID] §7- select a NPC for editing",
@@ -341,8 +367,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 							"§a/npc target <player> §7- make the NPC constantly look at his target",
 							"§a/npc update <name> [skinowner] §7- change the NPCs appearance",
 							"§a/npc ~tp <x> <y> <z> §7- relative teleport",
-							"§a/npc freeze §7- toggle freeze"};
-
+							"§a/npc freeze §7- toggle freeze" };
 
 					for(String line : commands)
 						player.sendMessage(line);
@@ -352,30 +377,4 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		player.sendMessage("§a/npc help");
 		return true;
 	}
-
-	private BukkitRunnable task = new BukkitRunnable() {
-
-		@Override
-		public void run() {
-			fakePlayers.forEach( (id, npc) -> {
-				if(npc != null && npc.isAlive() && !npc.isFrozen()) {
-					if(npc.hasTarget() && !npc.getTarget().isDead()) {
-						Vector vNPC = new Vector(npc.getLocation().getX(), npc.getLocation().getY(), npc.getLocation().getZ());
-						Vector vTarget = new Vector(npc.getTarget().getLocation().getX(), npc.getTarget().getLocation().getY(), npc.getTarget().getLocation().getZ());
-						double distance = vNPC.distance(vTarget);
-						if(distance < npc.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).getValue()) {
-							if(distance > 3) {
-								npc.step(npc.getTarget().getLocation());
-							}
-							npc.look(npc.getTarget().getEyeLocation());
-						}
-						if(distance <= 2.5 && npc.getNature() == EnumNature.HOSTILE){
-							npc.attack(npc.getTarget());
-						}
-					}
-				}
-				npc.tick();
-			});
-		}
-	};
 }

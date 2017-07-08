@@ -14,12 +14,12 @@ public class NPCAnimationEvent extends NPCEvent implements Cancellable {
 		this.animation = animation;
 	}
 
-	@Override
-	public HandlerList getHandlers() {
+	public static HandlerList getHandlerList() {
 		return handlers;
 	}
 
-	public static HandlerList getHandlerList() {
+	@Override
+	public HandlerList getHandlers() {
 		return handlers;
 	}
 

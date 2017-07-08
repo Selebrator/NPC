@@ -3,23 +3,11 @@ package de.selebrator.npc;
 import com.mojang.authlib.GameProfile;
 import de.selebrator.fetcher.PacketFetcher;
 import de.selebrator.npc.attribute.FakeAttributeInstance;
-import de.selebrator.npc.event.NPCAnimationEvent;
-import de.selebrator.npc.event.NPCDamageEvent;
-import de.selebrator.npc.event.NPCDespawnEvent;
-import de.selebrator.npc.event.NPCEquipEvent;
-import de.selebrator.npc.event.NPCMoveEvent;
-import de.selebrator.npc.event.NPCSpawnEvent;
-import de.selebrator.npc.event.NPCTeleportEvent;
+import de.selebrator.npc.event.*;
 import de.selebrator.npc.inventory.FakeEquipment;
 import de.selebrator.npc.metadata.FakeMetadata;
 import de.selebrator.reflection.Reflection;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.EntityEffect;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
@@ -32,13 +20,15 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class FakePlayer implements NPC {
+
+	private static final AttributeModifier MOVEMENT_SPEED_MODIFIER_SNEAKING = new AttributeModifier("Sneaking speed reduction", -0.7D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+	private static final AttributeModifier MOVEMENT_SPEED_MODIFIER_SPRINTING = new AttributeModifier("Sprinting speed boost", 0.30000001192092896D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+	private static final double EYE_HEIGHT_STANDING = 1.62D;
+	private static final double EYE_HEIGHT_SNEAKING = 1.2D;
 
 	private final int entityId;
 	public GameProfile gameProfile;
@@ -58,11 +48,6 @@ public class FakePlayer implements NPC {
 	private int noDamageTicks;
 	private boolean invulnerable;
 	private Location respawnLocation;
-
-	private static final AttributeModifier MOVEMENT_SPEED_MODIFIER_SNEAKING = new AttributeModifier("Sneaking speed reduction", -0.7D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
-	private static final AttributeModifier MOVEMENT_SPEED_MODIFIER_SPRINTING = new AttributeModifier("Sprinting speed boost", 0.30000001192092896D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
-	private static final double EYE_HEIGHT_STANDING = 1.62D;
-	private static final double EYE_HEIGHT_SNEAKING = 1.2D;
 
 
 	public FakePlayer(GameProfile gameProfile) {
@@ -99,6 +84,66 @@ public class FakePlayer implements NPC {
 	}
 
 	// ### PACKET MANIPULATION ###
+
+	public static int calcPotionColor(Collection<PotionEffect> effects) {
+		if(effects.isEmpty()) {
+			return 0;
+		} else {
+			HashMap<PotionEffectType, Integer> potionColors = new HashMap<>();
+			potionColors.put(PotionEffectType.SPEED, 0x7cafc6);
+			potionColors.put(PotionEffectType.SLOW, 0x5a6c81);
+			potionColors.put(PotionEffectType.FAST_DIGGING, 0xd9c043);
+			potionColors.put(PotionEffectType.SLOW_DIGGING, 0x4a4217);
+			potionColors.put(PotionEffectType.INCREASE_DAMAGE, 0x932423);
+			potionColors.put(PotionEffectType.HEAL, 0xf82423);
+			potionColors.put(PotionEffectType.HARM, 0x430a09);
+			potionColors.put(PotionEffectType.JUMP, 0x22ff4c);
+			potionColors.put(PotionEffectType.CONFUSION, 0x551d4a);
+			potionColors.put(PotionEffectType.REGENERATION, 0xcd5cab);
+			potionColors.put(PotionEffectType.DAMAGE_RESISTANCE, 0x99453a);
+			potionColors.put(PotionEffectType.FIRE_RESISTANCE, 0xe49a3a);
+			potionColors.put(PotionEffectType.WATER_BREATHING, 0x2e5299);
+			potionColors.put(PotionEffectType.INVISIBILITY, 0x7f8392);
+			potionColors.put(PotionEffectType.BLINDNESS, 0x1f1f23);
+			potionColors.put(PotionEffectType.NIGHT_VISION, 0x1f1fa1);
+			potionColors.put(PotionEffectType.HUNGER, 0x587653);
+			potionColors.put(PotionEffectType.WEAKNESS, 0x484d48);
+			potionColors.put(PotionEffectType.POISON, 0x4e9331);
+			potionColors.put(PotionEffectType.WITHER, 0x352a27);
+			potionColors.put(PotionEffectType.HEALTH_BOOST, 0xf87d23);
+			potionColors.put(PotionEffectType.ABSORPTION, 0x2552a5);
+			potionColors.put(PotionEffectType.SATURATION, 0xf82423);
+			potionColors.put(PotionEffectType.GLOWING, 0x94a061);
+			potionColors.put(PotionEffectType.LEVITATION, 0xceffff);
+			potionColors.put(PotionEffectType.LUCK, 0x339900);
+			potionColors.put(PotionEffectType.UNLUCK, 0xc0a44d);
+
+			float red = 0.0F;
+			float green = 0.0F;
+			float blue = 0.0F;
+			int totalAmplifier = 0;
+
+			for(PotionEffect effect : effects) {
+				if(effect.hasParticles()) {
+					int color = effect.getColor() != null ? effect.getColor().asRGB() : potionColors.get(effect.getType());
+					int amplifier = effect.getAmplifier() + 1;
+					red += (float) (amplifier * (color >> 16 & 255)) / 255.0F;
+					green += (float) (amplifier * (color >> 8 & 255)) / 255.0F;
+					blue += (float) (amplifier * (color & 255)) / 255.0F;
+					totalAmplifier += amplifier;
+				}
+			}
+
+			if(totalAmplifier == 0) {
+				return 0;
+			} else {
+				red = red / (float) totalAmplifier * 255.0F;
+				green = green / (float) totalAmplifier * 255.0F;
+				blue = blue / (float) totalAmplifier * 255.0F;
+				return (int) red << 16 | (int) green << 8 | (int) blue;
+			}
+		}
+	}
 
 	@Override
 	public void spawn(Location location) {
@@ -286,10 +331,6 @@ public class FakePlayer implements NPC {
 		);
 	}
 
-
-
-	// ### GETTER ###
-
 	@Override
 	public int getEntityId() {
 		return this.entityId;
@@ -298,6 +339,12 @@ public class FakePlayer implements NPC {
 	@Override
 	public FakeMetadata getMeta() {
 		return this.meta;
+	}
+
+	@Override
+	public void setMeta(FakeMetadata meta) {
+		this.meta = meta;
+		this.updateMetadata();
 	}
 
 	@Override
@@ -326,8 +373,33 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
+	public void setHealth(float health) {
+		if(health > this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue()) {
+			health = (float) this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue();
+		}
+		if(health == 0) {
+			this.die();
+		} else if(this.getHealth() > health) {
+			this.playEntityStatus(EnumEntityStatus.HURT);
+			playSound(Sound.ENTITY_GENERIC_HURT);
+		} else if(this.getHealth() == 0 && health > 0) {
+			if(this.hasLocation()) {
+				this.meta.setHealth(health);
+				this.spawn(this.location);
+				return;
+			}
+		}
+		this.meta.setHealth(health);
+	}
+
+	@Override
 	public int getNoDamageTicks() {
-		return  this.noDamageTicks;
+		return this.noDamageTicks;
+	}
+
+	@Override
+	public void setNoDamageTicks(int noDamageTicks) {
+		this.noDamageTicks = noDamageTicks;
 	}
 
 	@Override
@@ -336,8 +408,18 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
+	public void setRemainingAir(int air) {
+		this.meta.setAir(air);
+	}
+
+	@Override
 	public int getFireTicks() {
 		return this.fireTicks;
+	}
+
+	@Override
+	public void setFireTicks(int fireTicks) {
+		this.fireTicks = fireTicks;
 	}
 
 	@Override
@@ -346,13 +428,13 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public double getEyeHeight() {
-		return this.getEyeHeight(false);
+	public double getEyeHeight(boolean ignoreSneaking) {
+		return ignoreSneaking ? EYE_HEIGHT_STANDING : (this.meta.isSneaking() ? EYE_HEIGHT_SNEAKING : EYE_HEIGHT_STANDING);
 	}
 
 	@Override
-	public double getEyeHeight(boolean ignoreSneaking) {
-		return ignoreSneaking ? EYE_HEIGHT_STANDING : (this.meta.isSneaking() ? EYE_HEIGHT_SNEAKING : EYE_HEIGHT_STANDING);
+	public double getEyeHeight() {
+		return this.getEyeHeight(false);
 	}
 
 	@Override
@@ -368,6 +450,11 @@ public class FakePlayer implements NPC {
 	@Override
 	public Location getRespawnLocation() {
 		return this.respawnLocation;
+	}
+
+	@Override
+	public void setRespawnLocation(Location location) {
+		this.respawnLocation = location;
 	}
 
 	@Override
@@ -387,13 +474,30 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
+	public void setTarget(LivingEntity target) {
+		this.target = target;
+	}
+
+	@Override
 	public boolean isInvulnerable() {
 		return this.invulnerable;
 	}
 
 	@Override
+	public void setInvulnerable(boolean invulnerable) {
+		this.invulnerable = invulnerable;
+	}
+
+	// ### SETTER ###
+
+	@Override
 	public EnumNature getNature() {
 		return this.nature;
+	}
+
+	@Override
+	public void setNature(EnumNature nature) {
+		this.nature = nature;
 	}
 
 	@Override
@@ -518,8 +622,6 @@ public class FakePlayer implements NPC {
 		return this.attributes.get(attribute);
 	}
 
-	// ### SETTER ###
-
 	@Override
 	public void updateGameProfile(GameProfile gameProfile) {
 		this.gameProfile = gameProfile;
@@ -529,46 +631,20 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public void setMeta(FakeMetadata meta) {
-		this.meta = meta;
-		this.updateMetadata();
-	}
-
-	@Override
 	public void freeze(boolean frozen) {
 		this.frozen = frozen;
 	}
 
 	@Override
-	public void setHealth(float health) {
-		if(health > this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue()) {
-			health = (float) this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue();
-		}
-		if(health == 0) {
-			this.die();
-		} else if(this.getHealth() > health) {
-			this.playEntityStatus(EnumEntityStatus.HURT);
-			playSound(Sound.ENTITY_GENERIC_HURT);
-		} else if(this.getHealth() == 0 && health > 0) {
-			if(this.hasLocation()) {
-				this.meta.setHealth(health);
-				this.spawn(this.location);
-				return;
-			}
-		}
-		this.meta.setHealth(health);
-	}
-
-	@Override
-	public  void damage(float amount) {
+	public void damage(float amount) {
 		damage(amount, EntityDamageEvent.DamageCause.CUSTOM);
 	}
 
 	@Override
 	public void damage(float amount, EntityDamageEvent.DamageCause cause) {
 		boolean immune = (this.hasPotionEffect(PotionEffectType.FIRE_RESISTANCE) && (cause == EntityDamageEvent.DamageCause.LAVA
-				||  cause == EntityDamageEvent.DamageCause.FIRE
-				||  cause == EntityDamageEvent.DamageCause.FIRE_TICK))
+				|| cause == EntityDamageEvent.DamageCause.FIRE
+				|| cause == EntityDamageEvent.DamageCause.FIRE_TICK))
 				|| this.hasPotionEffect(PotionEffectType.WATER_BREATHING) && (cause == EntityDamageEvent.DamageCause.DROWNING);
 		if(this.noDamageTicks == 0 && !immune && !this.invulnerable) {
 			NPCDamageEvent event = new NPCDamageEvent(this, amount, cause);
@@ -591,48 +667,12 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public void setNoDamageTicks(int noDamageTicks) {
-		this.noDamageTicks = noDamageTicks;
-	}
-
-	@Override
-	public void setRemainingAir(int air) {
-		this.meta.setAir(air);
-	}
-
-	@Override
-	public void setFireTicks(int fireTicks) {
-		this.fireTicks = fireTicks;
-	}
-
-	@Override
-	public void setRespawnLocation(Location location) {
-		this.respawnLocation = location;
-	}
-
-	@Override
-	public void setTarget(LivingEntity target) {
-		this.target = target;
-	}
-
-	@Override
-	public void setInvulnerable(boolean invulnerable) {
-		this.invulnerable = invulnerable;
-	}
-
-	@Override
-	public void setNature(EnumNature nature) {
-		this.nature = nature;
-	}
-
-	@Override
 	public void setSneaking(boolean state) {
 		this.meta.setSneaking(state);
 		if(state) {
 			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(MOVEMENT_SPEED_MODIFIER_SNEAKING);
 			this.meta.setSprinting(false);
-		}
-		else
+		} else
 			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(MOVEMENT_SPEED_MODIFIER_SNEAKING);
 		updateMetadata();
 	}
@@ -663,8 +703,6 @@ public class FakePlayer implements NPC {
 		updateMetadata();
 	}
 
-	// ### LIVE ###
-
 	private void die() {
 		this.dropEquip();
 		this.playEntityStatus(EnumEntityStatus.DEATH);
@@ -691,66 +729,6 @@ public class FakePlayer implements NPC {
 		}
 	}
 
-	public static int calcPotionColor(Collection<PotionEffect> effects) {
-		if(effects.isEmpty()) {
-			return 0;
-		} else {
-			HashMap<PotionEffectType, Integer> potionColors = new HashMap<>();
-			potionColors.put(PotionEffectType.SPEED, 				0x7cafc6);
-			potionColors.put(PotionEffectType.SLOW, 				0x5a6c81);
-			potionColors.put(PotionEffectType.FAST_DIGGING, 		0xd9c043);
-			potionColors.put(PotionEffectType.SLOW_DIGGING,			0x4a4217);
-			potionColors.put(PotionEffectType.INCREASE_DAMAGE, 		0x932423);
-			potionColors.put(PotionEffectType.HEAL, 				0xf82423);
-			potionColors.put(PotionEffectType.HARM, 				0x430a09);
-			potionColors.put(PotionEffectType.JUMP, 				0x22ff4c);
-			potionColors.put(PotionEffectType.CONFUSION, 			0x551d4a);
-			potionColors.put(PotionEffectType.REGENERATION, 		0xcd5cab);
-			potionColors.put(PotionEffectType.DAMAGE_RESISTANCE, 	0x99453a);
-			potionColors.put(PotionEffectType.FIRE_RESISTANCE, 		0xe49a3a);
-			potionColors.put(PotionEffectType.WATER_BREATHING, 		0x2e5299);
-			potionColors.put(PotionEffectType.INVISIBILITY, 		0x7f8392);
-			potionColors.put(PotionEffectType.BLINDNESS, 			0x1f1f23);
-			potionColors.put(PotionEffectType.NIGHT_VISION, 		0x1f1fa1);
-			potionColors.put(PotionEffectType.HUNGER, 				0x587653);
-			potionColors.put(PotionEffectType.WEAKNESS, 			0x484d48);
-			potionColors.put(PotionEffectType.POISON, 				0x4e9331);
-			potionColors.put(PotionEffectType.WITHER, 				0x352a27);
-			potionColors.put(PotionEffectType.HEALTH_BOOST, 		0xf87d23);
-			potionColors.put(PotionEffectType.ABSORPTION, 			0x2552a5);
-			potionColors.put(PotionEffectType.SATURATION, 			0xf82423);
-			potionColors.put(PotionEffectType.GLOWING, 				0x94a061);
-			potionColors.put(PotionEffectType.LEVITATION, 			0xceffff);
-			potionColors.put(PotionEffectType.LUCK, 				0x339900);
-			potionColors.put(PotionEffectType.UNLUCK, 				0xc0a44d);
-
-			float red = 0.0F;
-			float green = 0.0F;
-			float blue = 0.0F;
-			int totalAmplifier = 0;
-
-			for(PotionEffect effect : effects) {
-				if(effect.hasParticles()) {
-					int color = effect.getColor() != null ? effect.getColor().asRGB() : potionColors.get(effect.getType());
-					int amplifier = effect.getAmplifier() + 1;
-					red   += (float) (amplifier * (color >> 16 & 255)) / 255.0F;
-					green += (float) (amplifier * (color >>  8 & 255)) / 255.0F;
-					blue  += (float) (amplifier * (color >>  0 & 255)) / 255.0F;
-					totalAmplifier += amplifier;
-				}
-			}
-
-			if(totalAmplifier == 0) {
-				return 0;
-			} else {
-				red   = red   / (float)totalAmplifier * 255.0F;
-				green = green / (float)totalAmplifier * 255.0F;
-				blue  = blue  / (float)totalAmplifier * 255.0F;
-				return (int)red << 16 | (int)green << 8 | (int)blue;
-			}
-		}
-	}
-
 	public void setParticles(Collection<PotionEffect> effects) {
 		boolean ambient = true;
 		for(PotionEffect effect : effects) {
@@ -770,71 +748,34 @@ public class FakePlayer implements NPC {
 		double z = (block.getZ() + 0.5) - this.location.getZ();
 
 		return ((-0.8D < x && x < -0.2D) || (-0.2D < x && x < 0.2D) || (0.2 < x && x < 0.8D))
-			&& (-1 < y && y < (0.2D + this.getEyeHeight()))
-			&& ((-0.8D < z && z < -0.2D) || (-0.2D < z && z < 0.2D) || (0.2 < z && z < 0.8D));
+				&& (-1 < y && y < (0.2D + this.getEyeHeight()))
+				&& ((-0.8D < z && z < -0.2D) || (-0.2D < z && z < 0.2D) || (0.2 < z && z < 0.8D));
 	}
 
 	@Override
 	public List<Block> getTouchedBlocks() {
-		List<Block> surrounding = getSurroundingBlocks();
-		List<Block> touched = new ArrayList<>();
-		surrounding.forEach( (block) -> {
-			if(this.touches(block)) {
-				touched.add(block);
-			}
-		});
-		return touched;
+		return getSurroundingBlocks().stream()
+				.filter(this::touches)
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<Block> getSurroundingBlocks() {
 		List<Block> blocks = new ArrayList<>();
 		Block block = this.location.getBlock();
-		blocks.add(block.getRelative(-1, -1, -1));
-		blocks.add(block.getRelative(-1, -1, 0));
-		blocks.add(block.getRelative(-1, -1, 1));
-		blocks.add(block.getRelative(0, -1, -1));
-		blocks.add(block.getRelative(0, -1, 0));
-		blocks.add(block.getRelative(0, -1, 1));
-		blocks.add(block.getRelative(1, -1, -1));
-		blocks.add(block.getRelative(1, -1, 0));
-		blocks.add(block.getRelative(1, -1, 1));
 
-		blocks.add(block.getRelative(-1, 0, -1));
-		blocks.add(block.getRelative(-1, 0, 0));
-		blocks.add(block.getRelative(-1, 0, 1));
-		blocks.add(block.getRelative(0, 0, -1));
-		blocks.add(block.getRelative(0, 0, 0));
-		blocks.add(block.getRelative(0, 0, 1));
-		blocks.add(block.getRelative(1, 0, -1));
-		blocks.add(block.getRelative(1, 0, 0));
-		blocks.add(block.getRelative(1, 0, 1));
-
-		blocks.add(block.getRelative(-1, 1, -1));
-		blocks.add(block.getRelative(-1, 1, 0));
-		blocks.add(block.getRelative(-1, 1, 1));
-		blocks.add(block.getRelative(0, 1, -1));
-		blocks.add(block.getRelative(0, 1, 0));
-		blocks.add(block.getRelative(0, 1, 1));
-		blocks.add(block.getRelative(1, 1, -1));
-		blocks.add(block.getRelative(1, 1, 0));
-		blocks.add(block.getRelative(1, 1, 1));
-
-		blocks.add(block.getRelative(-1, 2, -1));
-		blocks.add(block.getRelative(-1, 2, 0));
-		blocks.add(block.getRelative(-1, 2, 1));
-		blocks.add(block.getRelative(0, 2, -1));
-		blocks.add(block.getRelative(0, 2, 0));
-		blocks.add(block.getRelative(0, 2, 1));
-		blocks.add(block.getRelative(1, 2, -1));
-		blocks.add(block.getRelative(1, 2, 0));
-		blocks.add(block.getRelative(1, 2, 1));
-
+		for(int y = -1; y <= 2; y++) {
+			for(int x = -1; x <= 1; x++) {
+				for(int z = -1; z <= 1; z++) {
+					blocks.add(block.getRelative(x, y, z));
+				}
+			}
+		}
 		return blocks;
 	}
 
 	public void applyAmbientDamage() {
-		this.getTouchedBlocks().forEach( (block) -> {
+		this.getTouchedBlocks().forEach((block) -> {
 			//lava
 			if(block.getType() == Material.STATIONARY_LAVA) {
 				this.ignite(160);

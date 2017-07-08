@@ -75,19 +75,13 @@ public class FakeEquipment {
 	// ##### ARMOR #####
 
 	/**
-	 *
 	 * @return armor contents in order boots, legging, chestplate, helmet
 	 */
 	public ItemStack[] getArmor() {
 		return new ItemStack[] { this.boots, this.leggings, this.chestplate, this.helmet };
 	}
 
-	public void setArmor(ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots) {
-		setArmor(new ItemStack[] { boots, leggings, chestplate, helmet });
-	}
-
 	/**
-	 *
 	 * @param armor armor contents in order boots, legging, chestplate, helmet
 	 */
 	public void setArmor(ItemStack[] armor) {
@@ -95,6 +89,10 @@ public class FakeEquipment {
 		this.set(EquipmentSlot.LEGS, armor.length >= 2 ? armor[1] : null);
 		this.set(EquipmentSlot.CHEST, armor.length >= 3 ? armor[2] : null);
 		this.set(EquipmentSlot.HEAD, armor.length >= 4 ? armor[3] : null);
+	}
+
+	public void setArmor(ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots) {
+		setArmor(new ItemStack[] { boots, leggings, chestplate, helmet });
 	}
 
 	// ##### GENERAL #####

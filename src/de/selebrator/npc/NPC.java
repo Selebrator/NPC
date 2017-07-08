@@ -26,13 +26,15 @@ public interface NPC extends Attributable {
 
 	/**
 	 * Look in the given direction
-	 * @param yaw absolute yaw in degrees
+	 *
+	 * @param yaw   absolute yaw in degrees
 	 * @param pitch absolute pitch in degrees
 	 */
 	void look(float yaw, float pitch);
 
 	/**
 	 * Look at the given ~position
+	 *
 	 * @param x relative x
 	 * @param y relative y
 	 * @param z relative z
@@ -41,6 +43,7 @@ public interface NPC extends Attributable {
 
 	/**
 	 * Look at the given location
+	 *
 	 * @param location absolute target location
 	 */
 	void look(Location location);
@@ -48,6 +51,7 @@ public interface NPC extends Attributable {
 	/**
 	 * Move to the given ~position
 	 * x, y AND z MUST BE SMALLER THAN 8
+	 *
 	 * @param x relative x
 	 * @param y relative y
 	 * @param z relative z
@@ -57,19 +61,22 @@ public interface NPC extends Attributable {
 	/**
 	 * Move to the given location
 	 * CANT BE FARTHER AWAY THAN 8 BLOCKS IN ANY DIRECTION
+	 *
 	 * @param location absolute target location
 	 */
 	void move(Location location);
 
 	/**
 	 * Make a step in the given direction
-	 * @param yaw absolute yaw in degrees
+	 *
+	 * @param yaw   absolute yaw in degrees
 	 * @param pitch absolute yaw in degrees
 	 */
 	void step(float yaw, float pitch);
 
 	/**
 	 * Make a step towards the given ~position
+	 *
 	 * @param x relative x
 	 * @param y relative y
 	 * @param z relative z
@@ -78,6 +85,7 @@ public interface NPC extends Attributable {
 
 	/**
 	 * Make a step towards the given location
+	 *
 	 * @param location absolute target location
 	 */
 	void step(Location location);
@@ -88,7 +96,9 @@ public interface NPC extends Attributable {
 
 	void playEntityStatus(EnumEntityStatus status);
 
-	/** alternative to playEntityStatus(EnumEntityStatus) for similarity to Bukkit */
+	/**
+	 * alternative to playEntityStatus(EnumEntityStatus) for similarity to Bukkit
+	 */
 	void playEffect(EntityEffect effect);
 
 	void updateMetadata();
@@ -132,7 +142,6 @@ public interface NPC extends Attributable {
 	void setFireTicks(int fireTicks);
 
 	/**
-	 *
 	 * @return movespeed in blocks/second
 	 */
 	double getMoveSpeed();

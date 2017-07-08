@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 
 public class FakeAttributeInstance implements AttributeInstance {
 	private final Attribute attribute;
-	private double base;
 	private final double min;
 	private final double max;
 	private final double defaultValue;
+	private double base;
 	private Collection<AttributeModifier> modifiers = new ArrayList<>();
 
 	public FakeAttributeInstance(Attribute attribute) {

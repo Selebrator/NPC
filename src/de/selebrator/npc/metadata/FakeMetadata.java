@@ -2,31 +2,35 @@ package de.selebrator.npc.metadata;
 
 import de.selebrator.NPCPlugin;
 import de.selebrator.npc.MathHelper;
-import de.selebrator.reflection.ConstructorAccessor;
-import de.selebrator.reflection.FieldAccessor;
-import de.selebrator.reflection.MethodAccessor;
-import de.selebrator.reflection.Reflection;
-import de.selebrator.reflection.ServerPackage;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;	//TODO remove version dependent import
+import de.selebrator.reflection.*;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import org.bukkit.inventory.MainHand;
+
+//TODO remove version dependent import
 
 public class FakeMetadata {
 
+	private static final Class CLASS_DataWatcher = Reflection.getMinecraftClass("DataWatcher");
+	private static final Class CLASS_Entity = Reflection.getMinecraftClass("Entity");
+	private static final Class<?> CLASS_DataWatcherObject = Reflection.getMinecraftClass("DataWatcherObject");
+	private static final ConstructorAccessor CONSTRUCTOR_DataWatcher = Reflection.getConstructor(CLASS_DataWatcher, CLASS_Entity);
+	private static final MethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(CLASS_DataWatcher, null, "registerObject", CLASS_DataWatcherObject, Object.class);
 	private Object dataWatcher;
 
+	//Entity
 	private byte status;
 	private int air;
 	private String name;
 	private boolean nameVisible;
 	private boolean silent;
 	private boolean noGravity;
-
-//	private byte activeHand;
+	//Living
+	private byte activeHand;
 	private float health;
 	private int potionColor;
 	private boolean potionAmbient;
 	private int arrows;
-
+	//Human
 	private float absorption;
 	private int score;
 	private byte skinFlags;
@@ -37,63 +41,30 @@ public class FakeMetadata {
 	private boolean defaultInvisible;
 	private boolean defaultGlowing;
 
-	private static final Class<?> CLASS_DataWatcher = Reflection.getMinecraftClass("DataWatcher");
-	private static final Class<?> CLASS_Entity = Reflection.getMinecraftClass("Entity");
-	private static final Class<?> CLASS_DataWatcherObject = Reflection.getMinecraftClass("DataWatcherObject");
-	private static final ConstructorAccessor CONSTRUCTOR_DataWatcher = Reflection.getConstructor(CLASS_DataWatcher, CLASS_Entity);
-	private static final MethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(CLASS_DataWatcher, null, "registerObject", CLASS_DataWatcherObject, Object.class);
-
 	public FakeMetadata() {
 		this.dataWatcher = CONSTRUCTOR_DataWatcher.newInstance(new Object[] { null });
-	}
-
-	public void set(DataWatcherObject dataWatcherObject, Object value) {
-		METHOD_DataWatcher_registerObject.invoke(this.dataWatcher, dataWatcherObject.getObject(), value);
 	}
 
 	public Object getDataWatcher() {
 		return this.dataWatcher;
 	}
 
-
 	// ##### STATUS #####
-	// ### GETTER ###
 	public boolean isOnFire() {
 		return MathHelper.getBit(this.status, Status.FIRE.getId());
 	}
 
-	public boolean isSneaking() {
-		return MathHelper.getBit(this.status, Status.SNEAK.getId());
-	}
-
-	public boolean isSprinting() {
-		return MathHelper.getBit(this.status, Status.SPRINT.getId());
-	}
-
-	public boolean isInvisible() {
-		return MathHelper.getBit(this.status, Status.INVISIBLE.getId());
-	}
-
-	public boolean isDefaultInvisible() {
-		return this.defaultInvisible;
-	}
-
-	public boolean isGlowing() {
-		return MathHelper.getBit(this.status, Status.GLOW.getId());
-	}
-
-	public boolean isDefaultGlowing() {
-		return this.defaultGlowing;
-	}
-
-	public boolean isElytraUsed() {
-		return MathHelper.getBit(this.status, Status.ELYTRA.getId());
-	}
-
-	// ### SETTER ###
 	public void setOnFire(boolean state) {
 		this.status = MathHelper.setBit(this.status, Status.FIRE.getId(), state);
 		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+	}
+
+	public void set(DataWatcherObject dataWatcherObject, Object value) {
+		METHOD_DataWatcher_registerObject.invoke(this.dataWatcher, dataWatcherObject.getObject(), value);
+	}
+
+	public boolean isSneaking() {
+		return MathHelper.getBit(this.status, Status.SNEAK.getId());
 	}
 
 	public void setSneaking(boolean state) {
@@ -101,9 +72,17 @@ public class FakeMetadata {
 		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
 	}
 
+	public boolean isSprinting() {
+		return MathHelper.getBit(this.status, Status.SPRINT.getId());
+	}
+
 	public void setSprinting(boolean state) {
 		this.status = MathHelper.setBit(this.status, Status.SPRINT.getId(), state);
 		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+	}
+
+	public boolean isInvisible() {
+		return MathHelper.getBit(this.status, Status.INVISIBLE.getId());
 	}
 
 	public void setInvisible(boolean state) {
@@ -112,9 +91,17 @@ public class FakeMetadata {
 		this.defaultInvisible = state;
 	}
 
+	public boolean isDefaultInvisible() {
+		return this.defaultInvisible;
+	}
+
 	public void setInvisibleTemp(boolean state) {
 		this.status = MathHelper.setBit(this.status, Status.INVISIBLE.getId(), state || this.defaultInvisible);
 		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+	}
+
+	public boolean isGlowing() {
+		return MathHelper.getBit(this.status, Status.GLOW.getId());
 	}
 
 	public void setGlowing(boolean state) {
@@ -123,9 +110,17 @@ public class FakeMetadata {
 		this.defaultGlowing = state;
 	}
 
+	public boolean isDefaultGlowing() {
+		return this.defaultGlowing;
+	}
+
 	public void setGlowingTemp(boolean state) {
 		this.status = MathHelper.setBit(this.status, Status.GLOW.getId(), state || this.defaultGlowing);
 		this.set(DataWatcherObject.ENTITY_STATUS_BITMASK_00, this.status);
+	}
+
+	public boolean isElytraUsed() {
+		return MathHelper.getBit(this.status, Status.ELYTRA.getId());
 	}
 
 	public void useElytra(boolean state) {
@@ -254,39 +249,17 @@ public class FakeMetadata {
 	}
 
 	// ##### SKIN_FLAGS #####
-	// ### GETTER ###
 	public boolean isCapeEnabled() {
 		return MathHelper.getBit(this.skinFlags, SkinFlag.CAPE.getId());
 	}
 
-	public boolean isJacketEnabled() {
-		return MathHelper.getBit(this.skinFlags, SkinFlag.JACKET.getId());
-	}
-
-	public boolean isLeftArmEnabled() {
-		return MathHelper.getBit(this.skinFlags, SkinFlag.LEFT_SLEEVE.getId());
-	}
-
-	public boolean isRightArmEnabled() {
-		return MathHelper.getBit(this.skinFlags, SkinFlag.RIGHT_SLEEVE.getId());
-	}
-
-	public boolean isLeftLegEnabled() {
-		return MathHelper.getBit(this.skinFlags, SkinFlag.LEFT_PANTS.getId());
-	}
-
-	public boolean isRightLegEnabled() {
-		return MathHelper.getBit(this.skinFlags, SkinFlag.RIGHT_PANTS.getId());
-	}
-
-	public boolean isHatEnabled() {
-		return MathHelper.getBit(this.skinFlags, SkinFlag.HAT.getId());
-	}
-
-	// ### SETTER ###
 	public void enableCape(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.CAPE.getId(), state);
 		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
+	}
+
+	public boolean isJacketEnabled() {
+		return MathHelper.getBit(this.skinFlags, SkinFlag.JACKET.getId());
 	}
 
 	public void enableJacket(boolean state) {
@@ -294,9 +267,17 @@ public class FakeMetadata {
 		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
 	}
 
+	public boolean isLeftArmEnabled() {
+		return MathHelper.getBit(this.skinFlags, SkinFlag.LEFT_SLEEVE.getId());
+	}
+
 	public void enableLeftArm(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.LEFT_SLEEVE.getId(), state);
 		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
+	}
+
+	public boolean isRightArmEnabled() {
+		return MathHelper.getBit(this.skinFlags, SkinFlag.RIGHT_SLEEVE.getId());
 	}
 
 	public void enableRightArm(boolean state) {
@@ -304,14 +285,26 @@ public class FakeMetadata {
 		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
 	}
 
+	public boolean isLeftLegEnabled() {
+		return MathHelper.getBit(this.skinFlags, SkinFlag.LEFT_PANTS.getId());
+	}
+
 	public void enableLeftLeg(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.LEFT_PANTS.getId(), state);
 		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
 	}
 
+	public boolean isRightLegEnabled() {
+		return MathHelper.getBit(this.skinFlags, SkinFlag.RIGHT_PANTS.getId());
+	}
+
 	public void enableRightLeg(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.RIGHT_PANTS.getId(), state);
 		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
+	}
+
+	public boolean isHatEnabled() {
+		return MathHelper.getBit(this.skinFlags, SkinFlag.HAT.getId());
 	}
 
 	public void enableHat(boolean state) {
@@ -436,7 +429,7 @@ public class FakeMetadata {
 		byte id;
 
 		SkinFlag(int id) {
-			this. id = (byte) id;
+			this.id = (byte) id;
 		}
 
 		public byte getId() {
