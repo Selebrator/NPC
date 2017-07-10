@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 	public static final String VERSION = "v1_12_R1";
+	public static final boolean STABLE = ServerPackage.getVersion().equals(VERSION);
 
 	private Map<Integer, NPC> fakePlayers = new HashMap<>();
 	private NPC npc;
@@ -73,7 +74,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 	@Override
 	public void onEnable() {
-		if(!ServerPackage.getVersion().equals(VERSION)) {
+		if(!STABLE) {
 			this.getLogger().warning("Server version: " + ServerPackage.getVersion() + ", Recommended version: " + VERSION);
 			//Bukkit.getPluginManager().disablePlugin(this);
 			//return;

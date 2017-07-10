@@ -2,7 +2,10 @@ package de.selebrator.npc.metadata;
 
 import de.selebrator.NPCPlugin;
 import de.selebrator.npc.MathHelper;
-import de.selebrator.reflection.*;
+import de.selebrator.reflection.ConstructorAccessor;
+import de.selebrator.reflection.FieldAccessor;
+import de.selebrator.reflection.MethodAccessor;
+import de.selebrator.reflection.Reflection;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import org.bukkit.inventory.MainHand;
 
@@ -359,6 +362,10 @@ public class FakeMetadata {
 		this.rightShoulder = rightShoulder;
 	}
 
+	/**
+	 * <a href="http://wiki.vg/Entities">Reference</a>
+	 */
+	//TODO should be updated on each minor version
 	public enum DataWatcherObject {
 		ENTITY_STATUS_BITMASK_00("Entity", "Z", 0),
 		ENTITY_AIR_01("Entity", "aA", 1),
@@ -385,7 +392,7 @@ public class FakeMetadata {
 		DataWatcherObject(String parent, String fieldName, int index) {
 			Class<?> parentClazz = Reflection.getMinecraftClass(parent);
 			FieldAccessor field;
-			if(ServerPackage.getVersion().equals(NPCPlugin.VERSION))
+			if(NPCPlugin.STABLE)
 				field = Reflection.getField(parentClazz, fieldName);
 			else
 				field = Reflection.getField(parentClazz, CLASS_DataWatcherObject, index);

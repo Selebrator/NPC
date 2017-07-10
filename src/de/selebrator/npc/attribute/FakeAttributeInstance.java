@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+/**
+ * <a href="http://minecraft.gamepedia.com/Attribute#Modifiers">Reference</a>
+ */
 public class FakeAttributeInstance implements AttributeInstance {
 	private final Attribute attribute;
 	private final double min;

@@ -7,6 +7,10 @@ import org.bukkit.entity.Entity;
 
 //TODO remove version dependent import
 
+/**
+ * <a href="http://wiki.vg/Entities">Reference</a>
+ */
+//TODO may require manual updating on each major version
 public enum EnumEntityStatus {
 	TIPPED_ARROW_PARTICLE(0, "TippedArrow"),
 	RABBIT_JUMP(1, "Rabbit"),
