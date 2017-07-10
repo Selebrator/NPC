@@ -258,7 +258,7 @@ public class FakeMetadata {
 
 	public void enableCape(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.CAPE.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITMASK_13, this.skinFlags);
 	}
 
 	public boolean isJacketEnabled() {
@@ -267,7 +267,7 @@ public class FakeMetadata {
 
 	public void enableJacket(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.JACKET.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITMASK_13, this.skinFlags);
 	}
 
 	public boolean isLeftArmEnabled() {
@@ -276,7 +276,7 @@ public class FakeMetadata {
 
 	public void enableLeftArm(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.LEFT_SLEEVE.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITMASK_13, this.skinFlags);
 	}
 
 	public boolean isRightArmEnabled() {
@@ -285,7 +285,7 @@ public class FakeMetadata {
 
 	public void enableRightArm(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.RIGHT_SLEEVE.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITMASK_13, this.skinFlags);
 	}
 
 	public boolean isLeftLegEnabled() {
@@ -294,7 +294,7 @@ public class FakeMetadata {
 
 	public void enableLeftLeg(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.LEFT_PANTS.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITMASK_13, this.skinFlags);
 	}
 
 	public boolean isRightLegEnabled() {
@@ -303,7 +303,7 @@ public class FakeMetadata {
 
 	public void enableRightLeg(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.RIGHT_PANTS.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITMASK_13, this.skinFlags);
 	}
 
 	public boolean isHatEnabled() {
@@ -312,7 +312,7 @@ public class FakeMetadata {
 
 	public void enableHat(boolean state) {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.HAT.getId(), state);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITMASK_13, this.skinFlags);
 	}
 
 	public void setSkinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
@@ -323,7 +323,7 @@ public class FakeMetadata {
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.LEFT_PANTS.getId(), leftLeg);
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.RIGHT_PANTS.getId(), rightLeg);
 		this.skinFlags = MathHelper.setBit(this.skinFlags, SkinFlag.HAT.getId(), hat);
-		this.set(DataWatcherObject.HUMAN_SKIN_BITBASK_13, this.skinFlags);
+		this.set(DataWatcherObject.HUMAN_SKIN_BITMASK_13, this.skinFlags);
 	}
 
 	// ##### MAIN_HAND #####
@@ -382,7 +382,7 @@ public class FakeMetadata {
 
 		HUMAN_ABSORPTION_11("EntityHuman", "a", 0),
 		HUMAN_SCORE_12("EntityHuman", "b", 1),
-		HUMAN_SKIN_BITBASK_13("EntityHuman", "br", 2),
+		HUMAN_SKIN_BITMASK_13("EntityHuman", "br", 2),
 		HUMAN_MAINHAND_14("EntityHuman", "bs", 3),
 		HUMAN_LEFT_SHOULDER_15("EntityHuman", "bt", 4),
 		HUMAN_RIGHT_SHOULDER_16("EntityHuman", "bu", 5);
