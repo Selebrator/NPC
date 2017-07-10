@@ -2,11 +2,8 @@ package de.selebrator.reflection;
 
 import org.apache.commons.lang.ClassUtils;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Optional;
 
 public class Reflection {
 
@@ -63,7 +60,7 @@ public class Reflection {
 	}
 
 	public static FieldAccessor getField(Class<?> clazz, String name) {
-		return getField(clazz, Object.class, name);
+		return getField(clazz, Object.class, name, 0);
 	}
 
 	public static <T> FieldAccessor<T> getField(Class<?> clazz, Class<T> fieldType, String name) {
@@ -75,85 +72,49 @@ public class Reflection {
 	}
 
 	public static <T> FieldAccessor<T> getField(Class<?> clazz, Class<T> fieldType, String name, int skip) {
-		for(Field field : clazz.getDeclaredFields()) {
-			if((name == null || field.getName().equals(name))
-					&& ClassUtils.isAssignable(field.getType(), fieldType, true) && skip-- <= 0) {
-				field.setAccessible(true);
-				return new FieldAccessor<T>() {
-					@Override
-					@SuppressWarnings("unchecked")
-					public T get(Object instance) {
-						try {
-							return (T) field.get(instance);
-						} catch(IllegalAccessException e) {
-							throw new RuntimeException("Cannot access Reflection.", e);
-						}
-					}
+		Optional<FieldAccessor<T>> fieldAccessor = Arrays.stream(clazz.getDeclaredFields())
+				.filter(field -> name == null || field.getName().equals(name))
+				.filter(field -> ClassUtils.isAssignable(field.getType(), fieldType, true))
+				.skip(skip)
+				.peek(field -> field.setAccessible(true))
+				.map(field -> (FieldAccessor<T>) () -> field)
+				.findFirst();
 
-					@Override
-					public void set(Object instance, T value) {
-						try {
-							field.set(instance, value);
-						} catch(IllegalAccessException e) {
-							throw new RuntimeException("Cannot access Reflection.", e);
-						}
-					}
-				};
-			}
-		}
-
-		//search in superclass
-		if(clazz.getSuperclass() != null)
-			return getField(clazz.getSuperclass(), fieldType, name);
-
-		throw new IllegalArgumentException(String.format("Cannot find field %s %s.", fieldType.getSimpleName(), name));
+		if(fieldAccessor.isPresent())
+			return fieldAccessor.get();
+		else if(clazz.getSuperclass() != null) //search in superclass
+			return getField(clazz.getSuperclass(), fieldType, name, 0);
+		else
+			throw new IllegalArgumentException(String.format("Cannot find field %s %s.", fieldType.getName(), name));
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T> MethodAccessor<T> getMethod(Class<?> clazz, Class<T> returnType, String name, Class<?>... parameterTypes) {
-		for(Method method : clazz.getDeclaredMethods()) {
-			if((name == null || method.getName().equals(name))
-					&& (returnType == null || method.getReturnType().equals(returnType))
-					&& (Arrays.equals(method.getParameterTypes(), parameterTypes))) {
-				method.setAccessible(true);
-				return (target, args) -> {
-					try {
-						return (T) method.invoke(target, args);
-					} catch(IllegalAccessException e) {
-						throw new RuntimeException("Cannot access Reflection.", e);
-					} catch(InvocationTargetException e) {
-						throw new RuntimeException(String.format("Cannot invoke method %s (%s).", method.getName(), Arrays.asList(method.getParameterTypes())));
-					}
-				};
-			}
-		}
+		Optional<MethodAccessor<T>> methodAccessor = Arrays.stream(clazz.getDeclaredMethods())
+				.filter(method -> name == null || method.getName().equals(name))
+				.filter(method -> returnType == null || method.getReturnType().equals(returnType))
+				.filter(method -> Arrays.equals(method.getParameterTypes(), parameterTypes))
+				.peek(method -> method.setAccessible(true))
+				.map(method -> (MethodAccessor<T>) () -> method)
+				.findFirst();
 
-		//search in superclass
-		if(clazz.getSuperclass() != null)
+		if(methodAccessor.isPresent())
+			return methodAccessor.get();
+		else if(clazz.getSuperclass() != null) //search in superclass
 			return getMethod(clazz.getSuperclass(), returnType, name, parameterTypes);
-
-		throw new IllegalArgumentException(String.format("Cannot find method %s (%s).", name, Arrays.asList(parameterTypes)));
+		else
+			throw new IllegalArgumentException(String.format("Cannot find method %s (%s).", name, Arrays.asList(parameterTypes)));
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T> ConstructorAccessor<T> getConstructor(Class<?> clazz, Class<?>... parameterTypes) {
-		for(Constructor<?> constructor : clazz.getConstructors()) {
-			if(Arrays.equals(constructor.getParameterTypes(), parameterTypes)) {
-				constructor.setAccessible(true);
-				return parameters -> {
-					try {
-						return (T) constructor.newInstance(parameters);
-					} catch(InstantiationException e) {
-						throw new RuntimeException("Cannot initiate object.", e);
-					} catch(IllegalAccessException e) {
-						throw new RuntimeException("Cannot access Reflection.", e);
-					} catch(InvocationTargetException e) {
-						throw new RuntimeException(String.format("Cannot invoke constructor %s (%s).", constructor.getName(), Arrays.asList(constructor.getParameterTypes())));
-					}
-				};
-			}
-		}
+		Optional<ConstructorAccessor<T>> constructorAccessor = Arrays.stream(clazz.getDeclaredConstructors())
+				.filter(constructor -> Arrays.equals(constructor.getParameterTypes(), parameterTypes))
+				.peek(constructor -> constructor.setAccessible(true))
+				.map(constructor -> (ConstructorAccessor<T>) () -> constructor)
+				.findFirst();
 
-		throw new IllegalArgumentException(String.format("Cannot find constructor %s (%s).", clazz.getSimpleName(), Arrays.asList(parameterTypes)));
+		if(constructorAccessor.isPresent())
+			return constructorAccessor.get();
+		else
+			throw new IllegalArgumentException(String.format("Cannot find constructor %s (%s).", clazz.getName(), Arrays.asList(parameterTypes)));
 	}
 }
