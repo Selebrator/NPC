@@ -32,12 +32,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 	public static final String VERSION = "v1_12_R1";
 	public static final boolean STABLE = ServerPackage.getVersion().equals(VERSION);
+	public static Logger logger;
 
 	private Map<Integer, NPC> fakePlayers = new HashMap<>();
 	private NPC npc;
@@ -74,8 +76,9 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 	@Override
 	public void onEnable() {
+		logger = this.getLogger();
 		if(!STABLE) {
-			this.getLogger().warning("Server version: " + ServerPackage.getVersion() + ", Recommended version: " + VERSION);
+			logger.warning("Server version: " + ServerPackage.getVersion() + ", Recommended version: " + VERSION);
 			//Bukkit.getPluginManager().disablePlugin(this);
 			//return;
 		}
@@ -83,10 +86,10 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 		Bukkit.getPluginManager().registerEvents(this, this);
 		getCommand("npc").setExecutor(this);
 
-		npc = new FakePlayer(new GameProfileBuilder("Selebrator").build());
-		fakePlayers.put(1, npc);
+		this.npc = new FakePlayer(new GameProfileBuilder("Selebrator").build());
+		this.fakePlayers.put(1, npc);
 
-		task.runTaskTimer(this, 0, 1);
+		this.task.runTaskTimer(this, 0, 1);
 	}
 
 	@Override

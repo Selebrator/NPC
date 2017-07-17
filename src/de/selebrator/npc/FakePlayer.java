@@ -1,6 +1,7 @@
 package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
+import de.selebrator.NPCPlugin;
 import de.selebrator.fetcher.PacketFetcher;
 import de.selebrator.npc.attribute.FakeAttributeInstance;
 import de.selebrator.npc.event.*;
@@ -236,7 +237,7 @@ public class FakePlayer implements NPC {
 
 			this.location.add(x, y, z);
 		} else
-			System.err.println("[NPC] Error in move input: difference cant be > 8");
+			NPCPlugin.logger.warning("Error in move input: difference cant be > 8");
 	}
 
 	@Override

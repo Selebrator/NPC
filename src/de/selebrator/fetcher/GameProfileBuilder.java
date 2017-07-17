@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import de.selebrator.NPCPlugin;
 import org.bukkit.ChatColor;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -57,7 +58,7 @@ public class GameProfileBuilder {
 			uuid = uuid.substring(1, uuid.length() - 1).replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5");
 			return UUID.fromString(uuid);
 		} catch(Exception e) {
-			return UUID.fromString("00000000000020000000000000000000".replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
+			return UUID.fromString("00000000-0000-2000-0000-000000000000");
 		}
 	}
 
@@ -76,9 +77,9 @@ public class GameProfileBuilder {
 			this.skinValue = propertiesObject.get("value").getAsString();
 			String signature = propertiesObject.get("signature").toString();
 			this.skinSignature = signature.substring(1, signature.length() - 1);
-			System.out.println("[NPC] Successfully downloaded " + this.skinOwner + "'s Skin");
+			NPCPlugin.logger.info("Successfully downloaded " + this.skinOwner + "'s Skin");
 		} catch(IllegalStateException e) {
-			System.err.println("[NPC] There is no Skin for '" + this.skinOwner + "' available. Using default Skin instead");
+			NPCPlugin.logger.warning("There is no Skin for '" + this.skinOwner + "' available. Using default Skin instead");
 		} catch(NullPointerException e) {
 
 		}
@@ -114,15 +115,15 @@ public class GameProfileBuilder {
 			}
 			result = contentBuilder.toString();
 		} catch(MalformedURLException e) {
-			System.err.println("[NPC] Unable to connect to Mojang. :(");
+			NPCPlugin.logger.warning("Unable to connect to Mojang. :(");
 		} catch(UnknownHostException e) {
-			System.err.println("[NPC] Check your internet connection");
+			NPCPlugin.logger.warning("Unable to connect to Mojang. Check your internet connection");
 		} catch(SSLHandshakeException e) {
-			System.err.println("[NPC] Check your internet access");
+			NPCPlugin.logger.warning("Unable to connect to Mojang. Check your internet access");
 		} catch(IOException e) {
 			String errorCode = e.getMessage().replace("Server returned HTTP response code: ", "").replace(" for URL: " + domain, "");
 			if(errorCode.contains("429")) {
-				System.err.println("[NPC] Unable to read Information from Mojang. Try again in 30sec.");
+				NPCPlugin.logger.warning("Unable to read Information from Mojang. Try again in 30sec.");
 			} else {
 				e.printStackTrace();
 			}
