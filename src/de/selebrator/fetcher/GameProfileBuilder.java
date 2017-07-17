@@ -77,11 +77,11 @@ public class GameProfileBuilder {
 			this.skinValue = propertiesObject.get("value").getAsString();
 			String signature = propertiesObject.get("signature").toString();
 			this.skinSignature = signature.substring(1, signature.length() - 1);
-			NPCPlugin.logger.info("Successfully downloaded " + this.skinOwner + "'s Skin");
+			NPCPlugin.logger.info("Successfully downloaded " + this.skinOwner + "'s Skin.");
 		} catch(IllegalStateException e) {
-			NPCPlugin.logger.warning("There is no Skin for '" + this.skinOwner + "' available. Using default Skin instead");
+			NPCPlugin.logger.warning("There is no Skin for '" + this.skinOwner + "' available. Using default Skin instead.");
 		} catch(NullPointerException e) {
-
+			NPCPlugin.logger.warning("Failed to receive Skin for " + uuid.toString() + ".");
 		}
 	}
 
@@ -117,9 +117,9 @@ public class GameProfileBuilder {
 		} catch(MalformedURLException e) {
 			NPCPlugin.logger.warning("Unable to connect to Mojang. :(");
 		} catch(UnknownHostException e) {
-			NPCPlugin.logger.warning("Unable to connect to Mojang. Check your internet connection");
+			NPCPlugin.logger.warning("Unable to connect to Mojang. Check your internet connection.");
 		} catch(SSLHandshakeException e) {
-			NPCPlugin.logger.warning("Unable to connect to Mojang. Check your internet access");
+			NPCPlugin.logger.warning("Unable to connect to Mojang. Check your internet access.");
 		} catch(IOException e) {
 			String errorCode = e.getMessage().replace("Server returned HTTP response code: ", "").replace(" for URL: " + domain, "");
 			if(errorCode.contains("429")) {
