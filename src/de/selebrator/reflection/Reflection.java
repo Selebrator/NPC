@@ -2,6 +2,7 @@ package de.selebrator.reflection;
 
 import org.apache.commons.lang.ClassUtils;
 
+import java.lang.reflect.AccessibleObject;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -76,7 +77,7 @@ public class Reflection {
 				.filter(field -> name == null || field.getName().equals(name))
 				.filter(field -> ClassUtils.isAssignable(field.getType(), fieldType, true))
 				.skip(skip)
-				.peek(field -> field.setAccessible(true))
+				.map(Reflection::setAccessible)
 				.map(field -> (FieldAccessor<T>) () -> field)
 				.findFirst();
 
@@ -93,7 +94,7 @@ public class Reflection {
 				.filter(method -> name == null || method.getName().equals(name))
 				.filter(method -> returnType == null || method.getReturnType().equals(returnType))
 				.filter(method -> Arrays.equals(method.getParameterTypes(), parameterTypes))
-				.peek(method -> method.setAccessible(true))
+				.map(Reflection::setAccessible)
 				.map(method -> (MethodAccessor<T>) () -> method)
 				.findFirst();
 
@@ -108,7 +109,7 @@ public class Reflection {
 	public static <T> ConstructorAccessor<T> getConstructor(Class<?> clazz, Class<?>... parameterTypes) {
 		Optional<ConstructorAccessor<T>> constructorAccessor = Arrays.stream(clazz.getDeclaredConstructors())
 				.filter(constructor -> Arrays.equals(constructor.getParameterTypes(), parameterTypes))
-				.peek(constructor -> constructor.setAccessible(true))
+				.map(Reflection::setAccessible)
 				.map(constructor -> (ConstructorAccessor<T>) () -> constructor)
 				.findFirst();
 
@@ -116,5 +117,10 @@ public class Reflection {
 			return constructorAccessor.get();
 		else
 			throw new IllegalArgumentException(String.format("Cannot find constructor %s (%s).", clazz.getName(), Arrays.asList(parameterTypes)));
+	}
+
+	private static <T extends AccessibleObject> T setAccessible(T object) {
+		object.setAccessible(true);
+		return object;
 	}
 }
