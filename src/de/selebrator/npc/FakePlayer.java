@@ -203,30 +203,15 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public void look(double x, double y, double z) {
-		float yaw = MathHelper.calcYaw(x, z);
-		float pitch = MathHelper.calcPitch(x, y, z);
-
-		look(yaw, pitch);
-	}
-
-	@Override
-	public void look(Location location) {
-		Vector distance = MathHelper.calcDistanceVector(this.getEyeLocation(), location);
-
-		look(distance.getX(), distance.getY(), distance.getZ());
-	}
-
-	@Override
-	public void move(double x, double y, double z) {
-		NPCMoveEvent event = new NPCMoveEvent(this, this.location.clone().add(x, y, z));
+	public void move(double dx, double dy, double dz) {
+		NPCMoveEvent event = new NPCMoveEvent(this, this.location.clone().add(dx, dy, dz));
 		Bukkit.getPluginManager().callEvent(event);
 		if(event.isCancelled()) { return; }
 
 		Vector distance = MathHelper.calcDistanceVector(this.location, event.getDestination());
-		x = distance.getX();
-		y = distance.getY();
-		z = distance.getZ();
+		double x = distance.getX();
+		double y = distance.getY();
+		double z = distance.getZ();
 		float yaw = MathHelper.calcYaw(x, z);
 		float pitch = MathHelper.calcPitch(x, y, z);
 
@@ -238,35 +223,6 @@ public class FakePlayer implements NPC {
 			this.location.add(x, y, z);
 		} else
 			NPCPlugin.logger.warning("Error in move input: difference cant be > 8");
-	}
-
-	@Override
-	public void move(Location location) {
-		Vector distance = MathHelper.calcDistanceVector(this.location, location);
-
-		move(distance.getX(), distance.getY(), distance.getZ());
-	}
-
-	@Override
-	public void step(float yaw, float pitch) {
-		Vector direction = MathHelper.calcDirectionVector(this.getMoveSpeed() / 20, yaw, pitch);
-
-		move(direction.getX(), direction.getY(), direction.getZ());
-	}
-
-	@Override
-	public void step(double x, double y, double z) {
-		float yaw = MathHelper.calcYaw(x, z);
-		float pitch = MathHelper.calcPitch(x, y, z);
-
-		step(yaw, pitch);
-	}
-
-	@Override
-	public void step(Location location) {
-		Vector distance = MathHelper.calcDistanceVector(this.location, location);
-
-		step(distance.getX(), distance.getY(), distance.getZ());
 	}
 
 	@Override
@@ -315,13 +271,6 @@ public class FakePlayer implements NPC {
 	public void playEntityStatus(EnumEntityStatus status) {
 		PacketFetcher.broadcastPackets(
 				PacketFetcher.entityStatus(this.entityId, status.getId())
-		);
-	}
-
-	@Override
-	public void playEffect(EntityEffect effect) {
-		PacketFetcher.broadcastPackets(
-				PacketFetcher.entityStatus(this.entityId, EnumEntityStatus.fromBukkit(effect).getId())
 		);
 	}
 
@@ -434,11 +383,6 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public double getEyeHeight() {
-		return this.getEyeHeight(false);
-	}
-
-	@Override
 	public boolean hasLocation() {
 		return this.location != null;
 	}
@@ -456,12 +400,6 @@ public class FakePlayer implements NPC {
 	@Override
 	public void setRespawnLocation(Location location) {
 		this.respawnLocation = location;
-	}
-
-	@Override
-	public Location getEyeLocation() {
-		return this.hasLocation() ? this.location.clone().add(0, this.getEyeHeight(), 0) : null;
-
 	}
 
 	@Override
@@ -634,11 +572,6 @@ public class FakePlayer implements NPC {
 	@Override
 	public void freeze(boolean frozen) {
 		this.frozen = frozen;
-	}
-
-	@Override
-	public void damage(float amount) {
-		damage(amount, EntityDamageEvent.DamageCause.CUSTOM);
 	}
 
 	@Override

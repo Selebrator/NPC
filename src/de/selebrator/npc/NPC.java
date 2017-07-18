@@ -12,6 +12,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import java.util.Collection;
 import java.util.List;
@@ -35,28 +36,37 @@ public interface NPC extends Attributable {
 	/**
 	 * Look at the given ~position
 	 *
-	 * @param x relative x
-	 * @param y relative y
-	 * @param z relative z
+	 * @param dx relative x
+	 * @param dy relative y
+	 * @param dz relative z
 	 */
-	void look(double x, double y, double z);
+	default void look(double dx, double dy, double dz) {
+		float yaw = MathHelper.calcYaw(dx, dz);
+		float pitch = MathHelper.calcPitch(dx, dy, dz);
+
+		this.look(yaw, pitch);
+	}
 
 	/**
 	 * Look at the given location
 	 *
 	 * @param location absolute target location
 	 */
-	void look(Location location);
+	default void look(Location location) {
+		Vector distance = MathHelper.calcDistanceVector(this.getEyeLocation(), location);
+
+		this.look(distance.getX(), distance.getY(), distance.getZ());
+	}
 
 	/**
 	 * Move to the given ~position
 	 * x, y AND z MUST BE SMALLER THAN 8
 	 *
-	 * @param x relative x
-	 * @param y relative y
-	 * @param z relative z
+	 * @param dx relative x
+	 * @param dy relative y
+	 * @param dz relative z
 	 */
-	void move(double x, double y, double z);
+	void move(double dx, double dy, double dz);
 
 	/**
 	 * Move to the given location
@@ -64,7 +74,11 @@ public interface NPC extends Attributable {
 	 *
 	 * @param location absolute target location
 	 */
-	void move(Location location);
+	default void move(Location location) {
+		Vector distance = MathHelper.calcDistanceVector(this.getLocation(), location);
+
+		this.move(distance.getX(), distance.getY(), distance.getZ());
+	}
 
 	/**
 	 * Make a step in the given direction
@@ -72,23 +86,36 @@ public interface NPC extends Attributable {
 	 * @param yaw   absolute yaw in degrees
 	 * @param pitch absolute yaw in degrees
 	 */
-	void step(float yaw, float pitch);
+	default void step(float yaw, float pitch) {
+		Vector direction = MathHelper.calcDirectionVector(this.getMoveSpeed() / 20, yaw, pitch);
+
+		this.move(direction.getX(), direction.getY(), direction.getZ());
+	}
 
 	/**
 	 * Make a step towards the given ~position
 	 *
-	 * @param x relative x
-	 * @param y relative y
-	 * @param z relative z
+	 * @param dx relative x
+	 * @param dy relative y
+	 * @param dz relative z
 	 */
-	void step(double x, double y, double z);
+	default void step(double dx, double dy, double dz) {
+		float yaw = MathHelper.calcYaw(dx, dz);
+		float pitch = MathHelper.calcPitch(dx, dy, dz);
+
+		this.step(yaw, pitch);
+	}
 
 	/**
 	 * Make a step towards the given location
 	 *
 	 * @param location absolute target location
 	 */
-	void step(Location location);
+	default void step(Location location) {
+		Vector distance = MathHelper.calcDistanceVector(this.getLocation(), location);
+
+		this.step(distance.getX(), distance.getY(), distance.getZ());
+	}
 
 	void teleport(Location location);
 
@@ -99,7 +126,9 @@ public interface NPC extends Attributable {
 	/**
 	 * alternative to playEntityStatus(EnumEntityStatus) for similarity to Bukkit
 	 */
-	void playEffect(EntityEffect effect);
+	default void playEffect(EntityEffect effect) {
+		this.playEntityStatus(EnumEntityStatus.fromBukkit(effect));
+	}
 
 	void updateMetadata();
 
@@ -125,7 +154,9 @@ public interface NPC extends Attributable {
 
 	void setHealth(float health);
 
-	void damage(float amount);
+	default void damage(float amount) {
+		this.damage(amount, EntityDamageEvent.DamageCause.CUSTOM);
+	}
 
 	void damage(float amount, EntityDamageEvent.DamageCause cause);
 
@@ -146,7 +177,9 @@ public interface NPC extends Attributable {
 	 */
 	double getMoveSpeed();
 
-	double getEyeHeight();
+	default double getEyeHeight() {
+		return this.getEyeHeight(false);
+	}
 
 	double getEyeHeight(boolean ignoreSneaking);
 
@@ -154,7 +187,9 @@ public interface NPC extends Attributable {
 
 	Location getLocation();
 
-	Location getEyeLocation();
+	default Location getEyeLocation() {
+		return this.hasLocation() ? this.getLocation().clone().add(0, this.getEyeHeight(false), 0) : null;
+	}
 
 	Location getRespawnLocation();
 
