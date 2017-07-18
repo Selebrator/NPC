@@ -84,8 +84,6 @@ public class FakePlayer implements NPC {
 		this.fireTicks = -20;
 	}
 
-	// ### PACKET MANIPULATION ###
-
 	public static int calcPotionColor(Collection<PotionEffect> effects) {
 		if(effects.isEmpty()) {
 			return 0;
@@ -145,6 +143,8 @@ public class FakePlayer implements NPC {
 			}
 		}
 	}
+
+	// ### PACKET MANIPULATION ###
 
 	@Override
 	public void spawn(Location location) {

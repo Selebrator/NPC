@@ -5,32 +5,32 @@ import org.bukkit.util.Vector;
 
 public class MathHelper {
 	/**
-	 * @param x relative x
-	 * @param y relative y
-	 * @param z relative z
+	 * @param dx relative x
+	 * @param dy relative y
+	 * @param dz relative z
 	 * @return distance aka (rho)
 	 */
-	public static double calcDistance(double x, double y, double z) {
-		return Math.sqrt(x * x + y * y + z * z);
+	public static double calcDistance(double dx, double dy, double dz) {
+		return Math.sqrt(dx * dx + dy * dy + dz * dz);
 	}
 
 	/**
-	 * @param x relative x
-	 * @param z relative z
+	 * @param dx relative x
+	 * @param dz relative z
 	 * @return yaw aka (theta) in degree
 	 */
-	public static float calcYaw(double x, double z) {
-		return (float) Math.toDegrees(Math.atan2(z, x)) - 90F;
+	public static float calcYaw(double dx, double dz) {
+		return (float) Math.toDegrees(Math.atan2(dz, dx)) - 90F;
 	}
 
 	/**
-	 * @param x relative x
-	 * @param y relative y
-	 * @param z relative z
+	 * @param dx relative x
+	 * @param dy relative y
+	 * @param dz relative z
 	 * @return pitch aka (phi) in degree
 	 */
-	public static float calcPitch(double x, double y, double z) {
-		return (float) -Math.toDegrees(Math.atan2(y, Math.sqrt(x * x + z * z)));
+	public static float calcPitch(double dx, double dy, double dz) {
+		return (float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)));
 	}
 
 	/**
