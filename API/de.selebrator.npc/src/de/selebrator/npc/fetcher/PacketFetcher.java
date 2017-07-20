@@ -1,4 +1,4 @@
-package de.selebrator.fetcher;
+package de.selebrator.npc.fetcher;
 
 import com.mojang.authlib.GameProfile;
 import de.selebrator.reflection.ConstructorAccessor;

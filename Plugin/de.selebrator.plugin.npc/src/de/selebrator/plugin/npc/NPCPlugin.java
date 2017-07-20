@@ -1,12 +1,12 @@
-package de.selebrator;
+package de.selebrator.plugin.npc;
 
-import de.selebrator.fetcher.GameProfileBuilder;
-import de.selebrator.gui.AnimationGUI;
-import de.selebrator.gui.EquipGUI;
 import de.selebrator.npc.EnumNature;
-import de.selebrator.npc.FakePlayer;
 import de.selebrator.npc.NPC;
+import de.selebrator.npc.entity.FakePlayer;
 import de.selebrator.npc.event.NPCAnimationEvent;
+import de.selebrator.plugin.npc.fetcher.GameProfileBuilder;
+import de.selebrator.plugin.npc.gui.AnimationGUI;
+import de.selebrator.plugin.npc.gui.EquipGUI;
 import de.selebrator.reflection.ServerPackage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -37,8 +37,10 @@ import java.util.stream.Stream;
 
 public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
-	public static final String VERSION = "v1_12_R1";
-	public static final boolean STABLE = ServerPackage.getVersion().equals(VERSION);
+	public static final String PLUGIN_VERSION = "v1_12_R1";
+	public static final String SERVER_VERSION = ServerPackage.getVersion();
+	public static final boolean STABLE = PLUGIN_VERSION.equals(SERVER_VERSION);
+
 	public static Logger logger;
 
 	private Map<Integer, NPC> fakePlayers = new HashMap<>();
@@ -78,9 +80,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 	public void onEnable() {
 		logger = this.getLogger();
 		if(!STABLE) {
-			logger.warning("Server version: " + ServerPackage.getVersion() + ", Recommended version: " + VERSION);
-			//Bukkit.getPluginManager().disablePlugin(this);
-			//return;
+			this.getLogger().warning("Server version: " + SERVER_VERSION + ", Recommended version: " + PLUGIN_VERSION);
 		}
 
 		Bukkit.getPluginManager().registerEvents(this, this);
@@ -353,7 +353,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if(npc != null) {
 						if(args.length == 1) {
-
+							npc.move(10, 10, 10);
 							return true;
 						}
 						player.sendMessage("§c/npc " + args[0]);

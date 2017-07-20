@@ -1,4 +1,4 @@
-package de.selebrator.fetcher;
+package de.selebrator.plugin.npc.fetcher;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import de.selebrator.NPCPlugin;
+import de.selebrator.plugin.npc.NPCPlugin;
 import org.bukkit.ChatColor;
 
 import javax.net.ssl.SSLHandshakeException;

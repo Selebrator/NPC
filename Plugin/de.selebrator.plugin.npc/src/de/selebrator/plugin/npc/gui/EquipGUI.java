@@ -1,8 +1,9 @@
-package de.selebrator.gui;
+package de.selebrator.plugin.npc.gui;
 
-import de.selebrator.fetcher.ItemBuilder;
-import de.selebrator.fetcher.LeatherArmorBuilder;
 import de.selebrator.npc.NPC;
+import de.selebrator.plugin.npc.fetcher.ArmorBuilder;
+import de.selebrator.plugin.npc.fetcher.ItemBuilder;
+import de.selebrator.plugin.npc.fetcher.LeatherArmorBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -84,11 +85,11 @@ public class EquipGUI extends GUI implements Listener {
 					inventory.setItem(42, new ItemStack(Material.valueOf("DIAMOND_" + subSelected)));
 				}
 			} else if(selected == EquipmentSlot.HEAD || selected == EquipmentSlot.CHEST || selected == EquipmentSlot.LEGS || selected == EquipmentSlot.FEET) {
-				inventory.setItem(38, new de.selebrator.fetcher.ArmorBuilder(selected, Material.LEATHER).build());
-				inventory.setItem(39, new de.selebrator.fetcher.ArmorBuilder(selected, Material.GOLD_INGOT).build());
-				inventory.setItem(40, new de.selebrator.fetcher.ArmorBuilder(selected, Material.FIRE).build());
-				inventory.setItem(41, new de.selebrator.fetcher.ArmorBuilder(selected, Material.IRON_INGOT).build());
-				inventory.setItem(42, new de.selebrator.fetcher.ArmorBuilder(selected, Material.DIAMOND).build());
+				inventory.setItem(38, new ArmorBuilder(selected, Material.LEATHER).build());
+				inventory.setItem(39, new ArmorBuilder(selected, Material.GOLD_INGOT).build());
+				inventory.setItem(40, new ArmorBuilder(selected, Material.FIRE).build());
+				inventory.setItem(41, new ArmorBuilder(selected, Material.IRON_INGOT).build());
+				inventory.setItem(42, new ArmorBuilder(selected, Material.DIAMOND).build());
 			}
 		}
 

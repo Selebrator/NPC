@@ -1,8 +1,8 @@
-package de.selebrator.gui;
+package de.selebrator.plugin.npc.gui;
 
-import de.selebrator.fetcher.ItemBuilder;
 import de.selebrator.npc.NPC;
 import de.selebrator.npc.event.NPCAnimationEvent;
+import de.selebrator.plugin.npc.fetcher.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

@@ -1,4 +1,4 @@
-package de.selebrator.gui;
+package de.selebrator.plugin.npc.gui;
 
 import de.selebrator.npc.NPC;
 import org.bukkit.Bukkit;

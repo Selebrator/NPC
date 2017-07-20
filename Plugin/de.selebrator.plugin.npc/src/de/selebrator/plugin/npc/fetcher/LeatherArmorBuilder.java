@@ -1,4 +1,4 @@
-package de.selebrator.fetcher;
+package de.selebrator.plugin.npc.fetcher;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
