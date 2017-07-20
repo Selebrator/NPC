@@ -14,7 +14,6 @@ import de.selebrator.reflection.Reflection;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -29,8 +28,6 @@ import java.util.stream.Collectors;
 
 public class FakePlayer implements NPC {
 
-	private static final AttributeModifier MOVEMENT_SPEED_MODIFIER_SNEAKING = new AttributeModifier("Sneaking speed reduction", -0.7D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
-	private static final AttributeModifier MOVEMENT_SPEED_MODIFIER_SPRINTING = new AttributeModifier("Sprinting speed boost", 0.30000001192092896D, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
 	private static final double EYE_HEIGHT_STANDING = 1.62D;
 	private static final double EYE_HEIGHT_SNEAKING = 1.2D;
 
@@ -78,9 +75,11 @@ public class FakePlayer implements NPC {
 		this.attributes.put(Attribute.GENERIC_FOLLOW_RANGE, new FakeAttributeInstance(Attribute.GENERIC_FOLLOW_RANGE));
 		this.attributes.put(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new FakeAttributeInstance(Attribute.GENERIC_KNOCKBACK_RESISTANCE));
 		this.attributes.put(Attribute.GENERIC_MOVEMENT_SPEED, new FakeAttributeInstance(Attribute.GENERIC_MOVEMENT_SPEED));
+		this.attributes.put(Attribute.GENERIC_FLYING_SPEED, new FakeAttributeInstance(Attribute.GENERIC_FLYING_SPEED));
 		this.attributes.put(Attribute.GENERIC_ATTACK_DAMAGE, new FakeAttributeInstance(Attribute.GENERIC_ATTACK_DAMAGE));
-		this.attributes.put(Attribute.GENERIC_ARMOR, new FakeAttributeInstance(Attribute.GENERIC_ARMOR));
 		this.attributes.put(Attribute.GENERIC_ATTACK_SPEED, new FakeAttributeInstance(Attribute.GENERIC_ATTACK_SPEED));
+		this.attributes.put(Attribute.GENERIC_ARMOR, new FakeAttributeInstance(Attribute.GENERIC_ARMOR));
+		this.attributes.put(Attribute.GENERIC_ARMOR_TOUGHNESS, new FakeAttributeInstance(Attribute.GENERIC_ARMOR_TOUGHNESS));
 		this.attributes.put(Attribute.GENERIC_LUCK, new FakeAttributeInstance(Attribute.GENERIC_LUCK));
 
 		this.nature = EnumNature.PASSIVE;
@@ -472,30 +471,17 @@ public class FakePlayer implements NPC {
 
 		byte level = (byte) (effect.getAmplifier() + 1);
 
-		if(type.equals(PotionEffectType.SPEED)) {
-			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(
-					new AttributeModifier("potion.moveSpeed" + level, 0.20000000298023224D * level, AttributeModifier.Operation.MULTIPLY_SCALAR_1)
-			);
-		} else if(type.equals(PotionEffectType.SLOW)) {
-			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(
-					new AttributeModifier("potion.moveSlowdown" + level, -0.15000000596046448D * level, AttributeModifier.Operation.MULTIPLY_SCALAR_1)
-			);
-		} else if(type.equals(PotionEffectType.INCREASE_DAMAGE)) {
-			this.attributes.get(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(
-					new AttributeModifier("potion.damageBoost" + level, 3.0D * level, AttributeModifier.Operation.ADD_NUMBER)
-			);
-		} else if(type.equals(PotionEffectType.WEAKNESS)) {
-			this.attributes.get(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(
-					new AttributeModifier("potion.weakness" + level, -4.0D * level, AttributeModifier.Operation.ADD_NUMBER)
-			);
-		} else if(type.equals(PotionEffectType.HEALTH_BOOST)) {
-			this.attributes.get(Attribute.GENERIC_MAX_HEALTH).addModifier(
-					new AttributeModifier("potion.healthBoost" + level, 4.0D * level, AttributeModifier.Operation.ADD_NUMBER)
-			);
-		} else if(type.equals(PotionEffectType.ABSORPTION)) {
-			this.meta.setAbsorption(4 * level);
-			updateMetadata();
-		} else if(type.equals(PotionEffectType.HEAL)) {
+		if(type.equals(PotionEffectType.SPEED))
+			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.EFFECT_SPEED.apply(level));
+		else if(type.equals(PotionEffectType.SLOW))
+			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.EFFECT_SLOWNESS.apply(level));
+		else if(type.equals(PotionEffectType.FAST_DIGGING))
+			this.getAttribute(Attribute.GENERIC_ATTACK_SPEED).addModifier(FakeAttributeInstance.EFFECT_HASTE.apply(level)); //TODO Haste: he cant mine yet :(
+		else if(type.equals(PotionEffectType.SLOW_DIGGING))
+			this.getAttribute(Attribute.GENERIC_ATTACK_SPEED).addModifier(FakeAttributeInstance.EFFECT_MINING_FATIGUE.apply(level)); //TODO Mining Fatigue
+		else if(type.equals(PotionEffectType.INCREASE_DAMAGE))
+			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(FakeAttributeInstance.EFFECT_STRENGTH.apply(level));
+		else if(type.equals(PotionEffectType.HEAL)) {
 			this.setHealth(this.getHealth() + (4.0F * (float) Math.pow(2.0D, level - 1.0D)));
 			this.removePotionEffect(PotionEffectType.HEAL);
 		} else if(type.equals(PotionEffectType.HARM)) {
@@ -504,18 +490,20 @@ public class FakePlayer implements NPC {
 		} else if(type.equals(PotionEffectType.INVISIBILITY)) {
 			this.meta.setInvisibleTemp(true);
 			updateMetadata();
+		} else if(type.equals(PotionEffectType.WEAKNESS))
+			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(FakeAttributeInstance.EFFECT_WEAKNESS.apply(level));
+		else if(type.equals(PotionEffectType.HEALTH_BOOST))
+			this.getAttribute(Attribute.GENERIC_MAX_HEALTH).addModifier(FakeAttributeInstance.EFFECT_HEALTH_BOOST.apply(level));
+		else if(type.equals(PotionEffectType.ABSORPTION)) {
+			this.meta.setAbsorption(4 * level);
+			updateMetadata();
 		} else if(type.equals(PotionEffectType.GLOWING)) {
 			this.meta.setGlowingTemp(true);
 			updateMetadata();
-		} else if(type.equals(PotionEffectType.LUCK)) {
-			this.attributes.get(Attribute.GENERIC_LUCK).addModifier(
-					new AttributeModifier("potion.luck" + level, 1.0D * level, AttributeModifier.Operation.ADD_NUMBER)
-			);
-		} else if(type.equals(PotionEffectType.UNLUCK)) {
-			this.attributes.get(Attribute.GENERIC_LUCK).addModifier(
-					new AttributeModifier("potion.unluck" + level, -1.0D * level, AttributeModifier.Operation.ADD_NUMBER)
-			);
-		}
+		} else if(type.equals(PotionEffectType.LUCK))
+			this.getAttribute(Attribute.GENERIC_LUCK).addModifier(FakeAttributeInstance.EFFECT_LUCK.apply(level));
+		else if(type.equals(PotionEffectType.UNLUCK))
+			this.getAttribute(Attribute.GENERIC_LUCK).addModifier(FakeAttributeInstance.EFFECT_UNLUCK.apply(level));
 	}
 
 	@Override
@@ -532,30 +520,33 @@ public class FakePlayer implements NPC {
 			this.effects.remove(type);
 			this.setParticles(this.getActivePotionEffects());
 
-			if(type.equals(PotionEffectType.SPEED)) {
-				this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier("potion.moveSpeed" + level);
-			} else if(type.equals(PotionEffectType.SLOW)) {
-				this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier("potion.moveSlowdown" + level);
-			} else if(type.equals(PotionEffectType.INCREASE_DAMAGE)) {
-				this.attributes.get(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier("potion.damageBoost" + level);
-			} else if(type.equals(PotionEffectType.WEAKNESS)) {
-				this.attributes.get(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier("potion.weakness" + level);
-			} else if(type.equals(PotionEffectType.HEALTH_BOOST)) {
-				this.attributes.get(Attribute.GENERIC_MAX_HEALTH).removeModifier("potion.healthBoost" + level);
-			} else if(type.equals(PotionEffectType.ABSORPTION)) {
-				this.meta.setAbsorption(0);
-				updateMetadata();
-			} else if(type.equals(PotionEffectType.INVISIBILITY)) {
+			if(type.equals(PotionEffectType.SPEED))
+				this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.EFFECT_SPEED.apply(level));
+			else if(type.equals(PotionEffectType.SLOW))
+				this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.EFFECT_SLOWNESS.apply(level));
+			else if(type.equals(PotionEffectType.FAST_DIGGING))
+				this.getAttribute(Attribute.GENERIC_ATTACK_SPEED).removeModifier(FakeAttributeInstance.EFFECT_HASTE.apply(level));
+			else if(type.equals(PotionEffectType.SLOW_DIGGING))
+				this.getAttribute(Attribute.GENERIC_ATTACK_SPEED).removeModifier(FakeAttributeInstance.EFFECT_MINING_FATIGUE.apply(level));
+			else if(type.equals(PotionEffectType.INCREASE_DAMAGE))
+				this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier(FakeAttributeInstance.EFFECT_STRENGTH.apply(level));
+			else if(type.equals(PotionEffectType.INVISIBILITY)) {
 				this.meta.setInvisibleTemp(false);
+				updateMetadata();
+			} else if(type.equals(PotionEffectType.WEAKNESS))
+				this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier(FakeAttributeInstance.EFFECT_WEAKNESS.apply(level));
+			else if(type.equals(PotionEffectType.HEALTH_BOOST))
+				this.getAttribute(Attribute.GENERIC_MAX_HEALTH).removeModifier(FakeAttributeInstance.EFFECT_HEALTH_BOOST.apply(level));
+			else if(type.equals(PotionEffectType.ABSORPTION)) {
+				this.meta.setAbsorption(0);
 				updateMetadata();
 			} else if(type.equals(PotionEffectType.GLOWING)) {
 				this.meta.setGlowingTemp(false);
 				updateMetadata();
-			} else if(type.equals(PotionEffectType.LUCK)) {
-				this.attributes.get(Attribute.GENERIC_LUCK).removeModifier("potion.luck" + level);
-			} else if(type.equals(PotionEffectType.UNLUCK)) {
-				this.attributes.get(Attribute.GENERIC_LUCK).removeModifier("potion.unluck" + level);
-			}
+			} else if(type.equals(PotionEffectType.LUCK))
+				this.getAttribute(Attribute.GENERIC_LUCK).removeModifier(FakeAttributeInstance.EFFECT_LUCK.apply(level));
+			else if(type.equals(PotionEffectType.UNLUCK))
+				this.getAttribute(Attribute.GENERIC_LUCK).removeModifier(FakeAttributeInstance.EFFECT_UNLUCK.apply(level));
 		}
 	}
 
@@ -607,10 +598,10 @@ public class FakePlayer implements NPC {
 	public void setSneaking(boolean state) {
 		this.meta.setSneaking(state);
 		if(state) {
-			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(MOVEMENT_SPEED_MODIFIER_SNEAKING);
+			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.MOVEMENT_SPEED_SNEAKING);
 			this.meta.setSprinting(false);
 		} else
-			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(MOVEMENT_SPEED_MODIFIER_SNEAKING);
+			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.MOVEMENT_SPEED_SNEAKING);
 		updateMetadata();
 	}
 
@@ -618,10 +609,10 @@ public class FakePlayer implements NPC {
 	public void setSprinting(boolean state) {
 		this.meta.setSprinting(state);
 		if(state) {
-			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(MOVEMENT_SPEED_MODIFIER_SPRINTING);
+			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.MOVEMENT_SPEED_SPRINTING);
 			this.meta.setSneaking(false);
 		} else {
-			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(MOVEMENT_SPEED_MODIFIER_SPRINTING);
+			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.MOVEMENT_SPEED_SPRINTING);
 		}
 		updateMetadata();
 	}

@@ -353,7 +353,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if(npc != null) {
 						if(args.length == 1) {
-							npc.move(10, 10, 10);
+
 							return true;
 						}
 						player.sendMessage("§c/npc " + args[0]);
