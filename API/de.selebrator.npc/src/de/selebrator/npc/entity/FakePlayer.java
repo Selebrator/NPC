@@ -567,10 +567,14 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void damage(float amount, EntityDamageEvent.DamageCause cause) {
-		boolean immune = (this.hasPotionEffect(PotionEffectType.FIRE_RESISTANCE) && (cause == EntityDamageEvent.DamageCause.LAVA
-				|| cause == EntityDamageEvent.DamageCause.FIRE
-				|| cause == EntityDamageEvent.DamageCause.FIRE_TICK))
-				|| this.hasPotionEffect(PotionEffectType.WATER_BREATHING) && (cause == EntityDamageEvent.DamageCause.DROWNING);
+		boolean immune = false;
+		if(this.hasPotionEffect(PotionEffectType.FIRE_RESISTANCE)) {
+			if(cause == EntityDamageEvent.DamageCause.LAVA) immune = true;
+			if(cause == EntityDamageEvent.DamageCause.FIRE) immune = true;
+			if(cause == EntityDamageEvent.DamageCause.FIRE_TICK) immune = true;
+		} else if(this.hasPotionEffect(PotionEffectType.WATER_BREATHING))
+			if(cause == EntityDamageEvent.DamageCause.DROWNING) immune = true;
+
 		if(this.noDamageTicks == 0 && !immune && !this.invulnerable) {
 			NPCDamageEvent event = new NPCDamageEvent(this, amount, cause);
 			Bukkit.getPluginManager().callEvent(event);
