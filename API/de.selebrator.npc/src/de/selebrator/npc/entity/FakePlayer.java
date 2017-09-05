@@ -28,9 +28,6 @@ import java.util.stream.Collectors;
 
 public class FakePlayer implements NPC {
 
-	private static final double EYE_HEIGHT_STANDING = 1.62D;
-	private static final double EYE_HEIGHT_SNEAKING = 1.2D;
-
 	public static final Map<PotionEffectType, Integer> potionColors = Map.ofEntries(
 			Map.entry(PotionEffectType.SPEED, 0x7cafc6),
 			Map.entry(PotionEffectType.SLOW, 0x5a6c81),
@@ -60,7 +57,8 @@ public class FakePlayer implements NPC {
 			Map.entry(PotionEffectType.LUCK, 0x339900),
 			Map.entry(PotionEffectType.UNLUCK, 0xc0a44d)
 	);
-
+	private static final double EYE_HEIGHT_STANDING = 1.62D;
+	private static final double EYE_HEIGHT_SNEAKING = 1.2D;
 
 	private final int entityId;
 	public GameProfile gameProfile;
@@ -118,9 +116,9 @@ public class FakePlayer implements NPC {
 	}
 
 	public static int calcPotionColor(Collection<PotionEffect> effects) {
-		if(effects.isEmpty()) {
+		if(effects.isEmpty())
 			return 0;
-		} else {
+		else {
 			float red = 0.0F;
 			float green = 0.0F;
 			float blue = 0.0F;
@@ -137,9 +135,9 @@ public class FakePlayer implements NPC {
 				}
 			}
 
-			if(totalAmplifier == 0) {
+			if(totalAmplifier == 0)
 				return 0;
-			} else {
+			else {
 				red = red / (float) totalAmplifier * 255.0F;
 				green = green / (float) totalAmplifier * 255.0F;
 				blue = blue / (float) totalAmplifier * 255.0F;
@@ -154,7 +152,7 @@ public class FakePlayer implements NPC {
 	public void spawn(Location location) {
 		NPCSpawnEvent event = new NPCSpawnEvent(this);
 		Bukkit.getPluginManager().callEvent(event);
-		if(event.isCancelled()) { return; }
+		if(event.isCancelled()) return;
 
 		PacketFetcher.broadcastPackets(
 				PacketFetcher.playerInfo(this.gameProfile, "ADD_PLAYER"),
@@ -162,7 +160,8 @@ public class FakePlayer implements NPC {
 		);
 
 		this.location = location;
-		if(this.respawnLocation == null) { this.respawnLocation = location; }
+		if(this.respawnLocation == null)
+			this.respawnLocation = location;
 		this.living = this.meta.getHealth() > 0;
 
 		for(EquipmentSlot slot : EquipmentSlot.values()) {
@@ -184,7 +183,7 @@ public class FakePlayer implements NPC {
 	public void despawn() {
 		NPCDespawnEvent event = new NPCDespawnEvent(this);
 		Bukkit.getPluginManager().callEvent(event);
-		if(event.isCancelled()) { return; }
+		if(event.isCancelled()) return;
 
 		PacketFetcher.broadcastPackets(
 				PacketFetcher.playerInfo(this.gameProfile, "REMOVE_PLAYER"),
@@ -210,7 +209,7 @@ public class FakePlayer implements NPC {
 	public void move(double dx, double dy, double dz) {
 		NPCMoveEvent event = new NPCMoveEvent(this, this.location.clone().add(dx, dy, dz));
 		Bukkit.getPluginManager().callEvent(event);
-		if(event.isCancelled()) { return; }
+		if(event.isCancelled()) return;
 
 		Vector distance = MathHelper.calcDistanceVector(this.location, event.getDestination());
 		double x = distance.getX();
@@ -233,7 +232,7 @@ public class FakePlayer implements NPC {
 	public void teleport(Location location) {
 		NPCTeleportEvent event = new NPCTeleportEvent(this, location);
 		Bukkit.getPluginManager().callEvent(event);
-		if(event.isCancelled()) { return; }
+		if(event.isCancelled()) return;
 
 		location = event.getDestination();
 
@@ -248,7 +247,7 @@ public class FakePlayer implements NPC {
 	public void equip(EquipmentSlot slot, ItemStack item) {
 		NPCEquipEvent event = new NPCEquipEvent(this, slot, item);
 		Bukkit.getPluginManager().callEvent(event);
-		if(event.isCancelled()) { return; }
+		if(event.isCancelled()) return;
 
 		slot = event.getSlot();
 		item = event.getItem();
@@ -262,7 +261,7 @@ public class FakePlayer implements NPC {
 	public void playAnimation(NPCAnimationEvent.Animation animation) {
 		NPCAnimationEvent event = new NPCAnimationEvent(this, animation);
 		Bukkit.getPluginManager().callEvent(event);
-		if(event.isCancelled()) { return; }
+		if(event.isCancelled()) return;
 
 		animation = event.getAnimation();
 
@@ -328,12 +327,11 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void setHealth(float health) {
-		if(health > this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue()) {
+		if(health > this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue())
 			health = (float) this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue();
-		}
-		if(health == 0) {
+		if(health == 0)
 			this.die();
-		} else if(this.getHealth() > health) {
+		else if(this.getHealth() > health) {
 			this.playEntityStatus(EnumEntityStatus.HURT);
 			playSound(Sound.ENTITY_GENERIC_HURT);
 		} else if(this.getHealth() == 0 && health > 0) {
@@ -560,9 +558,8 @@ public class FakePlayer implements NPC {
 	@Override
 	public void updateGameProfile(GameProfile gameProfile) {
 		this.gameProfile = gameProfile;
-		if(this.living) {
+		if(this.living)
 			this.spawn(this.location);
-		}
 	}
 
 	@Override
@@ -579,12 +576,13 @@ public class FakePlayer implements NPC {
 		if(this.noDamageTicks == 0 && !immune && !this.invulnerable) {
 			NPCDamageEvent event = new NPCDamageEvent(this, amount, cause);
 			Bukkit.getPluginManager().callEvent(event);
-			if(event.isCancelled()) { return; }
+			if(event.isCancelled()) return;
 
 			float current = this.getHealth();
 			float absorption = this.meta.getAbsorption();
 			int resistance = this.hasPotionEffect(PotionEffectType.DAMAGE_RESISTANCE) ? this.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE).getAmplifier() + 1 : 0;
-			if(resistance > 5) { resistance = 5; }
+			if(resistance > 5)
+				resistance = 5;
 			float damage = event.getAmount();
 			damage = damage - damage * 0.2F * resistance;
 			absorption = absorption - damage > 0 ? absorption - damage : 0;
@@ -613,17 +611,15 @@ public class FakePlayer implements NPC {
 		if(state) {
 			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.MOVEMENT_SPEED_SPRINTING);
 			this.meta.setSneaking(false);
-		} else {
+		} else
 			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.MOVEMENT_SPEED_SPRINTING);
-		}
 		updateMetadata();
 	}
 
 	public void ignite(int fireTicks) {
 		this.meta.setOnFire(true);
-		if(this.fireTicks < fireTicks) {
+		if(this.fireTicks < fireTicks)
 			this.fireTicks = fireTicks;
-		}
 		updateMetadata();
 	}
 
@@ -646,17 +642,15 @@ public class FakePlayer implements NPC {
 		for(EquipmentSlot slot : EquipmentSlot.values()) {
 			this.equip(slot, null);
 			ItemStack item = this.equip.get(slot);
-			if(item != null) {
+			if(item != null)
 				world.dropItemNaturally(this.location, item);
-			}
 		}
 		this.equip.clear();
 	}
 
 	private void playSound(Sound sound) {
-		if(!this.meta.isSilent()) {
+		if(!this.meta.isSilent())
 			this.location.getWorld().playSound(this.location, sound, 1, 1);
-		}
 	}
 
 	public void setParticles(Collection<PotionEffect> effects) {
@@ -727,17 +721,16 @@ public class FakePlayer implements NPC {
 			}
 
 			//cactus
-			if(block.getType() == Material.CACTUS) {
+			if(block.getType() == Material.CACTUS)
 				this.damage(1.0F, EntityDamageEvent.DamageCause.CONTACT);
-			}
 		});
 
 		//drown
-		if(this.getEyeLocation().getBlock().getType() == Material.STATIONARY_WATER) {
+		if(this.getEyeLocation().getBlock().getType() == Material.STATIONARY_WATER)
 			this.meta.setAir(this.meta.getAir() - 1);
-		} else if(!this.getEyeLocation().getBlock().getType().isSolid() && !this.getEyeLocation().getBlock().isLiquid()) {
+		else if(!this.getEyeLocation().getBlock().getType().isSolid() && !this.getEyeLocation().getBlock().isLiquid())
 			this.meta.setAir(300);
-		}
+
 		if(this.meta.getAir() <= -20) {
 			this.damage(2.0F, EntityDamageEvent.DamageCause.DROWNING);
 			this.meta.setAir(0);
@@ -751,11 +744,10 @@ public class FakePlayer implements NPC {
 		//--duration
 		for(PotionEffect effect : effectsToProcess) {
 			int duration = effect.getDuration();
-			if(duration <= 0) {
+			if(duration <= 0)
 				this.removePotionEffect(effect.getType());
-			} else {
+			else
 				Reflection.getField(effect.getClass(), int.class, "duration").set(effect, duration - 1);
-			}
 		}
 	}
 
@@ -778,16 +770,14 @@ public class FakePlayer implements NPC {
 	@Override
 	public void tick() {
 		if(this.isAlive() && !this.frozen) {
-			if(this.fireTicks > 0) {
+			if(this.fireTicks > 0)
 				--this.fireTicks;
-			}
 
 			tickPotions();
 			applyAmbientDamage();
 
-			if(this.getNoDamageTicks() > 0) {
+			if(this.getNoDamageTicks() > 0)
 				--this.noDamageTicks;
-			}
 		}
 	}
 
