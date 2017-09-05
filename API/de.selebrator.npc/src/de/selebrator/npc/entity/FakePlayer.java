@@ -31,6 +31,37 @@ public class FakePlayer implements NPC {
 	private static final double EYE_HEIGHT_STANDING = 1.62D;
 	private static final double EYE_HEIGHT_SNEAKING = 1.2D;
 
+	public static final Map<PotionEffectType, Integer> potionColors = Map.ofEntries(
+			Map.entry(PotionEffectType.SPEED, 0x7cafc6),
+			Map.entry(PotionEffectType.SLOW, 0x5a6c81),
+			Map.entry(PotionEffectType.FAST_DIGGING, 0xd9c043),
+			Map.entry(PotionEffectType.SLOW_DIGGING, 0x4a4217),
+			Map.entry(PotionEffectType.INCREASE_DAMAGE, 0x932423),
+			Map.entry(PotionEffectType.HEAL, 0xf82423),
+			Map.entry(PotionEffectType.HARM, 0x430a09),
+			Map.entry(PotionEffectType.JUMP, 0x22ff4c),
+			Map.entry(PotionEffectType.CONFUSION, 0x551d4a),
+			Map.entry(PotionEffectType.REGENERATION, 0xcd5cab),
+			Map.entry(PotionEffectType.DAMAGE_RESISTANCE, 0x99453a),
+			Map.entry(PotionEffectType.FIRE_RESISTANCE, 0xe49a3a),
+			Map.entry(PotionEffectType.WATER_BREATHING, 0x2e5299),
+			Map.entry(PotionEffectType.INVISIBILITY, 0x7f8392),
+			Map.entry(PotionEffectType.BLINDNESS, 0x1f1f23),
+			Map.entry(PotionEffectType.NIGHT_VISION, 0x1f1fa1),
+			Map.entry(PotionEffectType.HUNGER, 0x587653),
+			Map.entry(PotionEffectType.WEAKNESS, 0x484d48),
+			Map.entry(PotionEffectType.POISON, 0x4e9331),
+			Map.entry(PotionEffectType.WITHER, 0x352a27),
+			Map.entry(PotionEffectType.HEALTH_BOOST, 0xf87d23),
+			Map.entry(PotionEffectType.ABSORPTION, 0x2552a5),
+			Map.entry(PotionEffectType.SATURATION, 0xf82423),
+			Map.entry(PotionEffectType.GLOWING, 0x94a061),
+			Map.entry(PotionEffectType.LEVITATION, 0xceffff),
+			Map.entry(PotionEffectType.LUCK, 0x339900),
+			Map.entry(PotionEffectType.UNLUCK, 0xc0a44d)
+	);
+
+
 	private final int entityId;
 	public GameProfile gameProfile;
 	public FakeMetadata meta;
@@ -90,35 +121,6 @@ public class FakePlayer implements NPC {
 		if(effects.isEmpty()) {
 			return 0;
 		} else {
-			HashMap<PotionEffectType, Integer> potionColors = new HashMap<>();
-			potionColors.put(PotionEffectType.SPEED, 0x7cafc6);
-			potionColors.put(PotionEffectType.SLOW, 0x5a6c81);
-			potionColors.put(PotionEffectType.FAST_DIGGING, 0xd9c043);
-			potionColors.put(PotionEffectType.SLOW_DIGGING, 0x4a4217);
-			potionColors.put(PotionEffectType.INCREASE_DAMAGE, 0x932423);
-			potionColors.put(PotionEffectType.HEAL, 0xf82423);
-			potionColors.put(PotionEffectType.HARM, 0x430a09);
-			potionColors.put(PotionEffectType.JUMP, 0x22ff4c);
-			potionColors.put(PotionEffectType.CONFUSION, 0x551d4a);
-			potionColors.put(PotionEffectType.REGENERATION, 0xcd5cab);
-			potionColors.put(PotionEffectType.DAMAGE_RESISTANCE, 0x99453a);
-			potionColors.put(PotionEffectType.FIRE_RESISTANCE, 0xe49a3a);
-			potionColors.put(PotionEffectType.WATER_BREATHING, 0x2e5299);
-			potionColors.put(PotionEffectType.INVISIBILITY, 0x7f8392);
-			potionColors.put(PotionEffectType.BLINDNESS, 0x1f1f23);
-			potionColors.put(PotionEffectType.NIGHT_VISION, 0x1f1fa1);
-			potionColors.put(PotionEffectType.HUNGER, 0x587653);
-			potionColors.put(PotionEffectType.WEAKNESS, 0x484d48);
-			potionColors.put(PotionEffectType.POISON, 0x4e9331);
-			potionColors.put(PotionEffectType.WITHER, 0x352a27);
-			potionColors.put(PotionEffectType.HEALTH_BOOST, 0xf87d23);
-			potionColors.put(PotionEffectType.ABSORPTION, 0x2552a5);
-			potionColors.put(PotionEffectType.SATURATION, 0xf82423);
-			potionColors.put(PotionEffectType.GLOWING, 0x94a061);
-			potionColors.put(PotionEffectType.LEVITATION, 0xceffff);
-			potionColors.put(PotionEffectType.LUCK, 0x339900);
-			potionColors.put(PotionEffectType.UNLUCK, 0xc0a44d);
-
 			float red = 0.0F;
 			float green = 0.0F;
 			float blue = 0.0F;
