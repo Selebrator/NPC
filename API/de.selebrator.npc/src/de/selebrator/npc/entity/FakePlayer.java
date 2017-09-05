@@ -163,9 +163,8 @@ public class FakePlayer implements NPC {
 			this.respawnLocation = location;
 		this.living = this.meta.getHealth() > 0;
 
-		for(EquipmentSlot slot : EquipmentSlot.values()) {
+		for(EquipmentSlot slot : EquipmentSlot.values())
 			this.equip(slot, this.equip.get(slot));
-		}
 
 		this.look(location.getYaw(), location.getPitch());
 	}
