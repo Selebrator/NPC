@@ -118,31 +118,30 @@ public class FakePlayer implements NPC {
 	public static int calcPotionColor(Collection<PotionEffect> effects) {
 		if(effects.isEmpty())
 			return 0;
+
+		float red = 0.0F;
+		float green = 0.0F;
+		float blue = 0.0F;
+		int totalAmplifier = 0;
+
+		for(PotionEffect effect : effects) {
+			if(effect.hasParticles()) {
+				int color = effect.getColor() != null ? effect.getColor().asRGB() : potionColors.get(effect.getType());
+				int amplifier = effect.getAmplifier() + 1;
+				red += (float) (amplifier * (color >> 16 & 255)) / 255.0F;
+				green += (float) (amplifier * (color >> 8 & 255)) / 255.0F;
+				blue += (float) (amplifier * (color & 255)) / 255.0F;
+				totalAmplifier += amplifier;
+			}
+		}
+
+		if(totalAmplifier == 0)
+			return 0;
 		else {
-			float red = 0.0F;
-			float green = 0.0F;
-			float blue = 0.0F;
-			int totalAmplifier = 0;
-
-			for(PotionEffect effect : effects) {
-				if(effect.hasParticles()) {
-					int color = effect.getColor() != null ? effect.getColor().asRGB() : potionColors.get(effect.getType());
-					int amplifier = effect.getAmplifier() + 1;
-					red += (float) (amplifier * (color >> 16 & 255)) / 255.0F;
-					green += (float) (amplifier * (color >> 8 & 255)) / 255.0F;
-					blue += (float) (amplifier * (color & 255)) / 255.0F;
-					totalAmplifier += amplifier;
-				}
-			}
-
-			if(totalAmplifier == 0)
-				return 0;
-			else {
-				red = red / (float) totalAmplifier * 255.0F;
-				green = green / (float) totalAmplifier * 255.0F;
-				blue = blue / (float) totalAmplifier * 255.0F;
-				return (int) red << 16 | (int) green << 8 | (int) blue;
-			}
+			red = red / (float) totalAmplifier * 255.0F;
+			green = green / (float) totalAmplifier * 255.0F;
+			blue = blue / (float) totalAmplifier * 255.0F;
+			return (int) red << 16 | (int) green << 8 | (int) blue;
 		}
 	}
 
