@@ -201,9 +201,13 @@ public interface NPC extends Attributable {
 
 	void setTarget(LivingEntity target);
 
+	/** @return whether or not the NPC is invulnerable in general */
 	boolean isInvulnerable();
 
 	void setInvulnerable(boolean invulnerable);
+
+	/** @return whether or not the NPC is immune to that cause */
+	boolean isInvulnerable(EntityDamageEvent.DamageCause cause);
 
 	EnumNature getNature();
 

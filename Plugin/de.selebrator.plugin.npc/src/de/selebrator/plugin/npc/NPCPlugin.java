@@ -20,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -281,7 +282,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if(npc != null) {
 						if(args.length == 1) {
-							player.sendMessage(npc.getHealth() + "");
+							player.sendMessage(npc.getHealth() + " [+ " + npc.getMeta().getAbsorption() + "]");
 							return true;
 						} else if(args.length == 2) {
 							npc.setHealth(Float.parseFloat(args[1]));
@@ -349,6 +350,45 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 					player.sendMessage("§cSelect a NPC first");
 					return true;
 
+				case "effect":
+
+					if(npc != null) {
+						if(args.length == 1) {
+							npc.addPotionEffects(player.getActivePotionEffects());
+							return true;
+						}
+						player.sendMessage("§c/npc " + args[0]);
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+
+				case "absorption":
+
+					if(npc != null) {
+						if(args.length == 2) {
+							npc.getMeta().setAbsorption(Float.parseFloat(args[1]));
+							return true;
+						}
+						player.sendMessage("§c/npc " + args[0] + " <amount>");
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+
+				case "damage":
+
+					if(npc != null) {
+						if(args.length == 2) {
+							npc.damage(Float.parseFloat(args[1]), EntityDamageEvent.DamageCause.ENTITY_ATTACK);
+							return true;
+						}
+						player.sendMessage("§c/npc " + args[0] + " <amount>");
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+
 				case "test":
 
 					if(npc != null) {
@@ -364,7 +404,8 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 				case "help":
 
-					String[] commands = { "§7----------------§8[§3NPC§8]§7----------------",
+					String[] commands = {
+							"§7----------------§8[§3NPC§8]§7----------------",
 							"§a/npc create <name> §7- create a new NPC",
 							"§a/npc remove <ID> §7- remove a existing NPC",
 							"§a/npc select [ID] §7- select a NPC for editing",
@@ -377,7 +418,8 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 							"§a/npc target <player> §7- make the NPC constantly look at his target",
 							"§a/npc update <name> [skinowner] §7- change the NPCs appearance",
 							"§a/npc ~tp <x> <y> <z> §7- relative teleport",
-							"§a/npc freeze §7- toggle freeze" };
+							"§a/npc freeze §7- toggle freeze"
+					};
 
 					for(String line : commands)
 						player.sendMessage(line);

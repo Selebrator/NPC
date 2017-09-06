@@ -325,21 +325,16 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void setHealth(float health) {
-		if(health > this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue())
-			health = (float) this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue();
+		final float before = this.getHealth();
+		health = Math.min(Math.max(0.0f, health), (float) this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue());
+		this.meta.setHealth(health);
+
 		if(health == 0)
 			this.die();
-		else if(this.getHealth() > health) {
-			this.playEntityStatus(EnumEntityStatus.HURT);
-			playSound(Sound.ENTITY_GENERIC_HURT);
-		} else if(this.getHealth() == 0 && health > 0) {
-			if(this.hasLocation()) {
-				this.meta.setHealth(health);
-				this.spawn(this.location);
-				return;
-			}
-		}
-		this.meta.setHealth(health);
+		else if(before > health)
+			this.hurt();
+		else if(before == 0 && health > 0)
+			this.revive();
 	}
 
 	@Override
@@ -428,6 +423,23 @@ public class FakePlayer implements NPC {
 	}
 
 	// ### SETTER ###
+
+	public boolean isInvulnerable(EntityDamageEvent.DamageCause cause) {
+		switch(cause) {
+			case LAVA:
+				return this.hasPotionEffect(PotionEffectType.FIRE_RESISTANCE);
+			case FIRE:
+				return this.hasPotionEffect(PotionEffectType.FIRE_RESISTANCE);
+			case FIRE_TICK:
+				return this.hasPotionEffect(PotionEffectType.FIRE_RESISTANCE);
+			case DROWNING:
+				return this.hasPotionEffect(PotionEffectType.WATER_BREATHING);
+			case VOID:
+				return false;
+			default:
+				return this.isInvulnerable();
+		}
+	}
 
 	@Override
 	public EnumNature getNature() {
@@ -567,31 +579,42 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void damage(float amount, EntityDamageEvent.DamageCause cause) {
-		boolean immune = false;
-		if(this.hasPotionEffect(PotionEffectType.FIRE_RESISTANCE)) {
-			if(cause == EntityDamageEvent.DamageCause.LAVA) immune = true;
-			if(cause == EntityDamageEvent.DamageCause.FIRE) immune = true;
-			if(cause == EntityDamageEvent.DamageCause.FIRE_TICK) immune = true;
-		} else if(this.hasPotionEffect(PotionEffectType.WATER_BREATHING))
-			if(cause == EntityDamageEvent.DamageCause.DROWNING) immune = true;
-
-		if(this.noDamageTicks == 0 && !immune && !this.invulnerable) {
+		if(this.noDamageTicks == 0 && !this.isInvulnerable(cause)) {
 			NPCDamageEvent event = new NPCDamageEvent(this, amount, cause);
 			Bukkit.getPluginManager().callEvent(event);
 			if(event.isCancelled()) return;
 
-			float current = this.getHealth();
-			float absorption = this.meta.getAbsorption();
-			int resistance = this.hasPotionEffect(PotionEffectType.DAMAGE_RESISTANCE) ? this.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE).getAmplifier() + 1 : 0;
-			if(resistance > 5)
-				resistance = 5;
+			if(this.isInvulnerable(event.getCause()))
+				return;
+
 			float damage = event.getAmount();
-			damage = damage - damage * 0.2F * resistance;
-			absorption = absorption - damage > 0 ? absorption - damage : 0;
-			damage = damage - (absorption + this.meta.getAbsorption());
 
-			this.setHealth(current - damage);
+			//heal
+			if(damage < 0.0f) {
+				this.setHealth(this.getHealth() + damage);
+				return;
+			}
 
+			//resistance
+			if(this.hasPotionEffect(PotionEffectType.DAMAGE_RESISTANCE) && event.getCause() != EntityDamageEvent.DamageCause.STARVATION && event.getCause() != EntityDamageEvent.DamageCause.VOID) {
+				int resistance = Math.min(this.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE).getAmplifier() + 1, 5);
+				damage -= damage * 0.2f * resistance;
+			}
+
+			//absorption
+			{
+				float newAbsorption = Math.max(this.meta.getAbsorption() - damage, 0.0f);
+				float absorbed = this.meta.getAbsorption() - newAbsorption;
+
+				damage -= absorbed;
+
+				if(absorbed > 0.0f)
+					this.hurt();
+
+				this.meta.setAbsorption(newAbsorption);
+			}
+
+			this.setHealth(this.getHealth() - damage);
 			this.noDamageTicks = 10;
 		}
 	}
@@ -637,6 +660,18 @@ public class FakePlayer implements NPC {
 		playSound(Sound.ENTITY_GENERIC_DEATH);
 		this.fireTicks = -20;
 		this.living = false;
+	}
+
+	private void hurt() {
+		this.playEntityStatus(EnumEntityStatus.HURT);
+		playSound(Sound.ENTITY_GENERIC_HURT);
+	}
+
+	private void revive() {
+		this.living = true;
+		if(getHealth() <= 0.0f)
+			this.setHealth((float) this.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+		this.spawn(this.location);
 	}
 
 	private void dropEquip() {
