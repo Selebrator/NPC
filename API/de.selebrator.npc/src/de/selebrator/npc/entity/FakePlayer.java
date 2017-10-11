@@ -146,8 +146,6 @@ public class FakePlayer implements NPC {
 		}
 	}
 
-	// ### PACKET MANIPULATION ###
-
 	@Override
 	public void spawn(Location location) {
 		NPCSpawnEvent event = new NPCSpawnEvent(this);
@@ -422,8 +420,6 @@ public class FakePlayer implements NPC {
 	public void setInvulnerable(boolean invulnerable) {
 		this.invulnerable = invulnerable;
 	}
-
-	// ### SETTER ###
 
 	public boolean isInvulnerable(EntityDamageEvent.DamageCause cause) {
 		switch(cause) {
