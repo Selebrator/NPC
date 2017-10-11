@@ -9,6 +9,7 @@ import de.selebrator.npc.attribute.FakeAttributeInstance;
 import de.selebrator.npc.event.*;
 import de.selebrator.npc.fetcher.PacketFetcher;
 import de.selebrator.npc.inventory.FakeEquipment;
+import de.selebrator.npc.metadata.FakeHumanMetadata;
 import de.selebrator.npc.metadata.FakeMetadata;
 import de.selebrator.reflection.Reflection;
 import org.bukkit.*;
@@ -62,7 +63,7 @@ public class FakePlayer implements NPC {
 
 	private final int entityId;
 	public GameProfile gameProfile;
-	public FakeMetadata meta;
+	public FakeHumanMetadata meta;
 	public FakeEquipment equip;
 
 	private Map<PotionEffectType, PotionEffect> effects = new HashMap<>();
@@ -87,7 +88,7 @@ public class FakePlayer implements NPC {
 
 		this.gameProfile = gameProfile;
 
-		this.meta = new FakeMetadata();
+		this.meta = new FakeHumanMetadata();
 		this.meta.setStatus(false, false, false, false, false, false);
 		this.meta.setSkinFlags(true, true, true, true, true, true, true);
 		this.meta.setGravity(false);
@@ -288,12 +289,12 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public FakeMetadata getMeta() {
+	public FakeHumanMetadata getMeta() {
 		return this.meta;
 	}
 
 	@Override
-	public void setMeta(FakeMetadata meta) {
+	public void setMeta(FakeHumanMetadata meta) {
 		this.meta = meta;
 		this.updateMetadata();
 	}

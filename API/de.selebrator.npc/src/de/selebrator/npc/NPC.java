@@ -3,6 +3,7 @@ package de.selebrator.npc;
 import com.mojang.authlib.GameProfile;
 import de.selebrator.npc.event.NPCAnimationEvent;
 import de.selebrator.npc.inventory.FakeEquipment;
+import de.selebrator.npc.metadata.FakeHumanMetadata;
 import de.selebrator.npc.metadata.FakeMetadata;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
@@ -136,9 +137,9 @@ public interface NPC extends Attributable {
 
 	int getEntityId();
 
-	FakeMetadata getMeta();
+	FakeHumanMetadata getMeta();
 
-	void setMeta(FakeMetadata meta);
+	void setMeta(FakeHumanMetadata meta);
 
 	String getName();
 
