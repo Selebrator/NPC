@@ -1,6 +1,7 @@
 package de.selebrator.npc.fetcher;
 
 import com.mojang.authlib.GameProfile;
+import de.selebrator.npc.metadata.FakeMetadata;
 import de.selebrator.reflection.*;
 import org.bukkit.*;
 import org.bukkit.entity.*;
@@ -73,7 +74,7 @@ public class PacketFetcher {
 	//Fields
 	private static final FieldAccessor FIELD_EntityPlayer_playerConnection = getField(CLASS_EntityPlayer, CLASS_PlayerConnection, "playerConnection");
 
-	public static Object namedEntitySpawn(int entityId, GameProfile gameProfile, Location location, Object dataWatcher) {
+	public static Object namedEntitySpawn(int entityId, GameProfile gameProfile, Location location, FakeMetadata metadata) {
 		Map<String, Object> fields = new HashMap<>();
 		fields.put("a", entityId);
 		fields.put("b", gameProfile.getId());
@@ -82,11 +83,11 @@ public class PacketFetcher {
 		fields.put("e", location.getZ());
 		fields.put("f", angle(location.getYaw()));
 		fields.put("g", angle(location.getPitch()));
-		fields.put("h", dataWatcher);
+		fields.put("h", metadata.getDataWatcher());
 		return packet(CONSTRUCTOR_PacketPlayOutNamedEntitySpawn, fields);
 	}
 
-	public static Object spawnEntityLiving(int entityId, UUID uuid, EntityType type, Location location, Object dataWatcher) {
+	public static Object spawnEntityLiving(int entityId, UUID uuid, EntityType type, Location location, FakeMetadata metadata) {
 		Map<String, Object> fields = new HashMap<>();
 		fields.put("a", entityId);
 		fields.put("b", uuid);
@@ -100,7 +101,7 @@ public class PacketFetcher {
 		fields.put("j", angle(location.getYaw()));
 		fields.put("k", angle(location.getPitch()));
 		fields.put("l", (byte) 0); //???
-		fields.put("m", dataWatcher);
+		fields.put("m", metadata.getDataWatcher());
 		return packet(CONSTRUCTOR_PacketPlayOutSpawnEntityLiving, fields);
 	}
 
@@ -193,10 +194,10 @@ public class PacketFetcher {
 		return packet(CONSTRUCTOR_PacketPlayOutEntityStatus, fields);
 	}
 
-	public static Object entityMetadata(int entityId, Object dataWatcher) {
+	public static Object entityMetadata(int entityId, FakeMetadata metadata) {
 		Map<String, Object> fields = new HashMap<>();
 		fields.put("a", entityId);
-		fields.put("b", METHOD_DataWatcher_c.invoke(dataWatcher));
+		fields.put("b", METHOD_DataWatcher_c.invoke(metadata.getDataWatcher()));
 		return packet(CONSTRUCTOR_PacketPlayOutEntityMetadata, fields);
 	}
 
