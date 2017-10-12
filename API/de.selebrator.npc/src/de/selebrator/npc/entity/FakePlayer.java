@@ -1,27 +1,20 @@
 package de.selebrator.npc.entity;
 
 import com.mojang.authlib.GameProfile;
-import de.selebrator.npc.EnumEntityStatus;
-import de.selebrator.npc.EnumNature;
-import de.selebrator.npc.MathHelper;
-import de.selebrator.npc.NPC;
+import de.selebrator.npc.*;
 import de.selebrator.npc.attribute.FakeAttributeInstance;
 import de.selebrator.npc.event.*;
 import de.selebrator.npc.fetcher.PacketFetcher;
 import de.selebrator.npc.inventory.FakeEquipment;
 import de.selebrator.npc.metadata.FakeHumanMetadata;
-import de.selebrator.npc.metadata.FakeMetadata;
 import de.selebrator.reflection.Reflection;
 import org.bukkit.*;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.inventory.*;
+import org.bukkit.potion.*;
 import org.bukkit.util.Vector;
 
 import java.util.*;

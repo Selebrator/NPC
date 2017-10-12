@@ -3,8 +3,7 @@ package de.selebrator.reflection;
 import org.apache.commons.lang.ClassUtils;
 
 import java.lang.reflect.AccessibleObject;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.*;
 
 public class Reflection {
 

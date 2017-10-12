@@ -1,19 +1,12 @@
 package de.selebrator.npc.fetcher;
 
 import com.mojang.authlib.GameProfile;
-import de.selebrator.reflection.ConstructorAccessor;
-import de.selebrator.reflection.FieldAccessor;
-import de.selebrator.reflection.MethodAccessor;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import de.selebrator.reflection.*;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static de.selebrator.reflection.Reflection.*;
 

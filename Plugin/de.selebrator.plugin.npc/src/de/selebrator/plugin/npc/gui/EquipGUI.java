@@ -1,19 +1,12 @@
 package de.selebrator.plugin.npc.gui;
 
 import de.selebrator.npc.NPC;
-import de.selebrator.plugin.npc.fetcher.ArmorBuilder;
-import de.selebrator.plugin.npc.fetcher.ItemBuilder;
-import de.selebrator.plugin.npc.fetcher.LeatherArmorBuilder;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Material;
+import de.selebrator.plugin.npc.fetcher.*;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 import org.bukkit.plugin.Plugin;
 
 public class EquipGUI extends GUI implements Listener {

@@ -1,10 +1,8 @@
 package de.selebrator.npc.event;
 
 import de.selebrator.npc.NPC;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.*;
+import org.bukkit.inventory.*;
 
 public class NPCEquipEvent extends NPCEvent implements Cancellable {
 	private static final HandlerList handlers = new HandlerList();

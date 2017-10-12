@@ -3,8 +3,7 @@ package de.selebrator.plugin.npc.fetcher;
 import org.bukkit.Material;
 import org.bukkit.inventory.EquipmentSlot;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ArmorBuilder extends ItemBuilder {
 

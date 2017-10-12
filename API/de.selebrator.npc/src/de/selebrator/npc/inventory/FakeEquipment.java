@@ -2,8 +2,7 @@ package de.selebrator.npc.inventory;
 
 import de.selebrator.npc.NPC;
 import de.selebrator.npc.entity.FakePlayer;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 
 public class FakeEquipment {
 	private FakePlayer holder;

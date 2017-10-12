@@ -1,9 +1,7 @@
 package de.selebrator.plugin.npc.fetcher;
 
-import org.bukkit.Color;
-import org.bukkit.Material;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.*;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 public class LeatherArmorBuilder extends ArmorBuilder {

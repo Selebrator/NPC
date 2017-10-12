@@ -1,8 +1,7 @@
 package de.selebrator.npc.event;
 
 import de.selebrator.npc.NPC;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
+import org.bukkit.event.*;
 
 public class NPCSpawnEvent extends NPCEvent implements Cancellable {
 	private static final HandlerList handlers = new HandlerList();

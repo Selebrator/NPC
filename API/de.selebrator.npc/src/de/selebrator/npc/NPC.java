@@ -4,19 +4,15 @@ import com.mojang.authlib.GameProfile;
 import de.selebrator.npc.event.NPCAnimationEvent;
 import de.selebrator.npc.inventory.FakeEquipment;
 import de.selebrator.npc.metadata.FakeHumanMetadata;
-import de.selebrator.npc.metadata.FakeMetadata;
-import org.bukkit.EntityEffect;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.*;
 import org.bukkit.util.Vector;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public interface NPC extends Attributable {
 

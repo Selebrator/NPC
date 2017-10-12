@@ -1,7 +1,6 @@
 package de.selebrator.reflection;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.*;
 import java.util.Arrays;
 
 @FunctionalInterface

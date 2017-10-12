@@ -1,8 +1,7 @@
 package de.selebrator.npc.event;
 
 import de.selebrator.npc.NPC;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
+import org.bukkit.event.*;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 public class NPCDamageEvent extends NPCEvent implements Cancellable {
