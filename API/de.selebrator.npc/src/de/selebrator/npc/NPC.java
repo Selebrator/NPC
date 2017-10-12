@@ -18,8 +18,6 @@ public interface NPC extends Attributable {
 
 	void spawn(Location location);
 
-	void respawn(Location location);
-
 	void despawn();
 
 	/**
@@ -129,7 +127,9 @@ public interface NPC extends Attributable {
 
 	void updateMetadata();
 
-	void updateGameProfile(GameProfile gameProfile);
+	GameProfile getGameProfile();
+
+	void setGameProfile(GameProfile gameProfile);
 
 	int getEntityId();
 
@@ -145,7 +145,7 @@ public interface NPC extends Attributable {
 
 	boolean isFrozen();
 
-	void freeze(boolean freeze);
+	void setFrozen(boolean frozen);
 
 	float getHealth();
 
@@ -188,10 +188,6 @@ public interface NPC extends Attributable {
 		return this.hasLocation() ? this.getLocation().clone().add(0, this.getEyeHeight(false), 0) : null;
 	}
 
-	Location getRespawnLocation();
-
-	void setRespawnLocation(Location location);
-
 	boolean hasTarget();
 
 	LivingEntity getTarget();
@@ -205,10 +201,6 @@ public interface NPC extends Attributable {
 
 	/** @return whether or not the NPC is immune to that cause */
 	boolean isInvulnerable(EntityDamageEvent.DamageCause cause);
-
-	EnumNature getNature();
-
-	void setNature(EnumNature nature);
 
 	FakeEquipment getEquipment();
 

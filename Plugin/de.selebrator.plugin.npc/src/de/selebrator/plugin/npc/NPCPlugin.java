@@ -1,6 +1,5 @@
 package de.selebrator.plugin.npc;
 
-import de.selebrator.npc.*;
 import de.selebrator.npc.NPC;
 import de.selebrator.npc.entity.FakePlayer;
 import de.selebrator.npc.event.NPCAnimationEvent;
@@ -57,9 +56,6 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 							}
 							npc.look(npc.getTarget().getEyeLocation());
 						}
-						if(distance <= 2.5 && npc.getNature() == EnumNature.HOSTILE) {
-							npc.attack(npc.getTarget());
-						}
 					});
 
 			operableNPCs.get().forEach(NPC::tick);
@@ -101,21 +97,6 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 			} else if(event.getAction() == Action.RIGHT_CLICK_AIR) {
 				if(npc != null) {
 					npc.spawn(event.getPlayer().getLocation());
-					return;
-				}
-				event.getPlayer().sendMessage("§cSelect a NPC first");
-			}
-		} else if(item != null && item.getType() == Material.EMERALD) { //respawn
-			if(event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				if(npc != null) {
-					npc.respawn(event.getClickedBlock().getLocation().add(0.5, 1, 0.5));
-					return;
-				}
-				event.getPlayer().sendMessage("§cSelect a NPC first");
-
-			} else if(event.getAction() == Action.RIGHT_CLICK_AIR) {
-				if(npc != null) {
-					npc.respawn(null);
 					return;
 				}
 				event.getPlayer().sendMessage("§cSelect a NPC first");
@@ -300,10 +281,10 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if(npc != null) {
 						if(args.length == 2) {
-							npc.updateGameProfile(new GameProfileBuilder(args[1]).build());
+							npc.setGameProfile(new GameProfileBuilder(args[1]).build());
 							return true;
 						} else if(args.length == 3) {
-							npc.updateGameProfile(new GameProfileBuilder(args[1], args[2]).build());
+							npc.setGameProfile(new GameProfileBuilder(args[1], args[2]).build());
 							return true;
 						}
 						player.sendMessage("§c/npc update <name> [skinowner]");
@@ -330,7 +311,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if(npc != null) {
 						if(args.length == 1) {
-							npc.freeze(!npc.isFrozen());
+							npc.setFrozen(!npc.isFrozen());
 							return true;
 						}
 						player.sendMessage("§c/npc " + args[0]);

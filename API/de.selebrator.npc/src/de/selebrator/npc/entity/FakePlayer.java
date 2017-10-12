@@ -2,6 +2,7 @@ package de.selebrator.npc.entity;
 
 import com.mojang.authlib.GameProfile;
 import de.selebrator.npc.*;
+import de.selebrator.npc.NPC;
 import de.selebrator.npc.attribute.FakeAttributeInstance;
 import de.selebrator.npc.event.*;
 import de.selebrator.npc.fetcher.PacketFetcher;
@@ -9,9 +10,9 @@ import de.selebrator.npc.inventory.FakeEquipment;
 import de.selebrator.npc.metadata.FakeHumanMetadata;
 import de.selebrator.reflection.Reflection;
 import org.bukkit.*;
-import org.bukkit.attribute.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.potion.*;
@@ -20,123 +21,28 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class FakePlayer implements NPC {
-
-	public static final Map<PotionEffectType, Integer> potionColors = Map.ofEntries(
-			Map.entry(PotionEffectType.SPEED, 0x7cafc6),
-			Map.entry(PotionEffectType.SLOW, 0x5a6c81),
-			Map.entry(PotionEffectType.FAST_DIGGING, 0xd9c043),
-			Map.entry(PotionEffectType.SLOW_DIGGING, 0x4a4217),
-			Map.entry(PotionEffectType.INCREASE_DAMAGE, 0x932423),
-			Map.entry(PotionEffectType.HEAL, 0xf82423),
-			Map.entry(PotionEffectType.HARM, 0x430a09),
-			Map.entry(PotionEffectType.JUMP, 0x22ff4c),
-			Map.entry(PotionEffectType.CONFUSION, 0x551d4a),
-			Map.entry(PotionEffectType.REGENERATION, 0xcd5cab),
-			Map.entry(PotionEffectType.DAMAGE_RESISTANCE, 0x99453a),
-			Map.entry(PotionEffectType.FIRE_RESISTANCE, 0xe49a3a),
-			Map.entry(PotionEffectType.WATER_BREATHING, 0x2e5299),
-			Map.entry(PotionEffectType.INVISIBILITY, 0x7f8392),
-			Map.entry(PotionEffectType.BLINDNESS, 0x1f1f23),
-			Map.entry(PotionEffectType.NIGHT_VISION, 0x1f1fa1),
-			Map.entry(PotionEffectType.HUNGER, 0x587653),
-			Map.entry(PotionEffectType.WEAKNESS, 0x484d48),
-			Map.entry(PotionEffectType.POISON, 0x4e9331),
-			Map.entry(PotionEffectType.WITHER, 0x352a27),
-			Map.entry(PotionEffectType.HEALTH_BOOST, 0xf87d23),
-			Map.entry(PotionEffectType.ABSORPTION, 0x2552a5),
-			Map.entry(PotionEffectType.SATURATION, 0xf82423),
-			Map.entry(PotionEffectType.GLOWING, 0x94a061),
-			Map.entry(PotionEffectType.LEVITATION, 0xceffff),
-			Map.entry(PotionEffectType.LUCK, 0x339900),
-			Map.entry(PotionEffectType.UNLUCK, 0xc0a44d)
-	);
+public class FakePlayer extends FakeLiving implements NPC {
 	private static final double EYE_HEIGHT_STANDING = 1.62D;
 	private static final double EYE_HEIGHT_SNEAKING = 1.2D;
-
-	private final int entityId;
-	public GameProfile gameProfile;
-	public FakeHumanMetadata meta;
-	public FakeEquipment equip;
-
-	private Map<PotionEffectType, PotionEffect> effects = new HashMap<>();
-	private Map<Attribute, FakeAttributeInstance> attributes = new HashMap<>();
-
-	private boolean frozen;
-	private boolean living;
-	private Location location;
+	private GameProfile gameProfile;
+	private FakeEquipment equip;
 	private LivingEntity target;
-	private EnumNature nature;
-
-	private int fireTicks;
-	private int noDamageTicks;
-	private boolean invulnerable;
-	private Location respawnLocation;
-
 
 	public FakePlayer(GameProfile gameProfile) {
-		Class<?> entityClass = Reflection.getMinecraftClass("Entity");
-		this.entityId = (int) Reflection.getField(entityClass, "entityCount").get(null);
-		Reflection.getField(entityClass, int.class, "entityCount").set(null, this.entityId + 1);
-
+		super(EntityType.PLAYER);
 		this.gameProfile = gameProfile;
 
-		this.meta = new FakeHumanMetadata();
-		this.meta.setStatus(false, false, false, false, false, false);
-		this.meta.setSkinFlags(true, true, true, true, true, true, true);
-		this.meta.setGravity(false);
-		this.meta.setHealth(20.0F);
-		this.meta.setAir(300);
-		this.meta.setName(this.getName());
+		this.setMeta(new FakeHumanMetadata());
+		this.getMeta().setSkinFlags(true, true, true, true, true, true, true);
+		this.getMeta().setHealth(20.0F);
+		this.getMeta().setName(this.getName());
 
-		this.equip = new FakeEquipment(this);
+		this.setEquipment(new FakeEquipment(this));
 
-		this.effects = new HashMap<>();
+		this.initAttribute(Attribute.GENERIC_ATTACK_SPEED);
+		this.initAttribute(Attribute.GENERIC_LUCK);
 
-		this.attributes = new HashMap<>();
-		this.attributes.put(Attribute.GENERIC_MAX_HEALTH, new FakeAttributeInstance(Attribute.GENERIC_MAX_HEALTH));
-		this.attributes.put(Attribute.GENERIC_FOLLOW_RANGE, new FakeAttributeInstance(Attribute.GENERIC_FOLLOW_RANGE));
-		this.attributes.put(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new FakeAttributeInstance(Attribute.GENERIC_KNOCKBACK_RESISTANCE));
-		this.attributes.put(Attribute.GENERIC_MOVEMENT_SPEED, new FakeAttributeInstance(Attribute.GENERIC_MOVEMENT_SPEED));
-		this.attributes.put(Attribute.GENERIC_FLYING_SPEED, new FakeAttributeInstance(Attribute.GENERIC_FLYING_SPEED));
-		this.attributes.put(Attribute.GENERIC_ATTACK_DAMAGE, new FakeAttributeInstance(Attribute.GENERIC_ATTACK_DAMAGE));
-		this.attributes.put(Attribute.GENERIC_ATTACK_SPEED, new FakeAttributeInstance(Attribute.GENERIC_ATTACK_SPEED));
-		this.attributes.put(Attribute.GENERIC_ARMOR, new FakeAttributeInstance(Attribute.GENERIC_ARMOR));
-		this.attributes.put(Attribute.GENERIC_ARMOR_TOUGHNESS, new FakeAttributeInstance(Attribute.GENERIC_ARMOR_TOUGHNESS));
-		this.attributes.put(Attribute.GENERIC_LUCK, new FakeAttributeInstance(Attribute.GENERIC_LUCK));
-
-		this.nature = EnumNature.PASSIVE;
-		this.fireTicks = -20;
-	}
-
-	public static int calcPotionColor(Collection<PotionEffect> effects) {
-		if(effects.isEmpty())
-			return 0;
-
-		float red = 0.0F;
-		float green = 0.0F;
-		float blue = 0.0F;
-		int totalAmplifier = 0;
-
-		for(PotionEffect effect : effects) {
-			if(effect.hasParticles()) {
-				int color = effect.getColor() != null ? effect.getColor().asRGB() : potionColors.get(effect.getType());
-				int amplifier = effect.getAmplifier() + 1;
-				red += (float) (amplifier * (color >> 16 & 255)) / 255.0F;
-				green += (float) (amplifier * (color >> 8 & 255)) / 255.0F;
-				blue += (float) (amplifier * (color & 255)) / 255.0F;
-				totalAmplifier += amplifier;
-			}
-		}
-
-		if(totalAmplifier == 0)
-			return 0;
-		else {
-			red = red / (float) totalAmplifier * 255.0F;
-			green = green / (float) totalAmplifier * 255.0F;
-			blue = blue / (float) totalAmplifier * 255.0F;
-			return (int) red << 16 | (int) green << 8 | (int) blue;
-		}
+		this.setFireTicks(-20);
 	}
 
 	@Override
@@ -145,93 +51,27 @@ public class FakePlayer implements NPC {
 		Bukkit.getPluginManager().callEvent(event);
 		if(event.isCancelled()) return;
 
+		this.setLocation(location);
+
 		PacketFetcher.broadcastPackets(
 				PacketFetcher.playerInfo(this.gameProfile, "ADD_PLAYER"),
-				PacketFetcher.namedEntitySpawn(this.entityId, this.gameProfile, location, this.meta.getDataWatcher())
+				PacketFetcher.namedEntitySpawn(this.getEntityId(), this.gameProfile, this.getLocation(), this.getMeta())
 		);
 
-		this.location = location;
-		if(this.respawnLocation == null)
-			this.respawnLocation = location;
-		this.living = this.meta.getHealth() > 0;
+		this.setLiving(this.getMeta().getHealth() > 0);
 
 		for(EquipmentSlot slot : EquipmentSlot.values())
-			this.equip(slot, this.equip.get(slot));
+			this.equip(slot, this.getEquipment().get(slot));
 
-		this.look(location.getYaw(), location.getPitch());
-	}
-
-	@Override
-	public void respawn(Location location) {
-		if(!this.isAlive()) {
-			this.softReset();
-			this.spawn(location != null ? location : this.respawnLocation);
-		}
+		this.look(this.getLocation().getYaw(), this.getLocation().getPitch());
 	}
 
 	@Override
 	public void despawn() {
-		NPCDespawnEvent event = new NPCDespawnEvent(this);
-		Bukkit.getPluginManager().callEvent(event);
-		if(event.isCancelled()) return;
-
+		super.despawn();
 		PacketFetcher.broadcastPackets(
-				PacketFetcher.playerInfo(this.gameProfile, "REMOVE_PLAYER"),
-				PacketFetcher.entityDestroy(this.entityId)
+				PacketFetcher.playerInfo(this.gameProfile, "REMOVE_PLAYER")
 		);
-
-		this.location = null;
-		this.living = false;
-	}
-
-	@Override
-	public void look(float yaw, float pitch) {
-		PacketFetcher.broadcastPackets(
-				PacketFetcher.entityLook(this.entityId, yaw, pitch), //body
-				PacketFetcher.headRotation(this.entityId, yaw) //head
-		);
-
-		this.location.setYaw(yaw);
-		this.location.setPitch(pitch);
-	}
-
-	@Override
-	public void move(double dx, double dy, double dz) {
-		NPCMoveEvent event = new NPCMoveEvent(this, this.location.clone().add(dx, dy, dz));
-		Bukkit.getPluginManager().callEvent(event);
-		if(event.isCancelled()) return;
-
-		Vector distance = MathHelper.calcDistanceVector(this.location, event.getDestination());
-		double x = distance.getX();
-		double y = distance.getY();
-		double z = distance.getZ();
-		float yaw = MathHelper.calcYaw(x, z);
-		float pitch = MathHelper.calcPitch(x, y, z);
-
-		if(Math.abs(x) < 8 && Math.abs(y) < 8 && Math.abs(z) < 8) {
-			PacketFetcher.broadcastPackets(
-					PacketFetcher.relEntityMoveLook(this.entityId, x, y, z, yaw, pitch)
-			);
-
-			this.location.add(x, y, z);
-		} else
-			System.err.println("[NPC] " + "Error in move input: difference cant be > 8");
-	}
-
-	@Override
-	public void teleport(Location location) {
-		NPCTeleportEvent event = new NPCTeleportEvent(this, location);
-		Bukkit.getPluginManager().callEvent(event);
-		if(event.isCancelled()) return;
-
-		location = event.getDestination();
-
-		PacketFetcher.broadcastPackets(
-				PacketFetcher.entityTeleport(this.entityId, location),
-				PacketFetcher.headRotation(this.entityId, location.getYaw())
-		);
-
-		this.location = location;
 	}
 
 	public void equip(EquipmentSlot slot, ItemStack item) {
@@ -243,51 +83,33 @@ public class FakePlayer implements NPC {
 		item = event.getItem();
 
 		PacketFetcher.broadcastPackets(
-				PacketFetcher.entityEquipment(this.entityId, slot, item)
+				PacketFetcher.entityEquipment(this.getEntityId(), slot, item)
 		);
-	}
-
-	@Override
-	public void playAnimation(NPCAnimationEvent.Animation animation) {
-		NPCAnimationEvent event = new NPCAnimationEvent(this, animation);
-		Bukkit.getPluginManager().callEvent(event);
-		if(event.isCancelled()) return;
-
-		animation = event.getAnimation();
-
-		PacketFetcher.broadcastPackets(
-				PacketFetcher.animation(this.entityId, animation.getId())
-		);
-	}
-
-	@Override
-	public void playEntityStatus(EnumEntityStatus status) {
-		PacketFetcher.broadcastPackets(
-				PacketFetcher.entityStatus(this.entityId, status.getId())
-		);
-	}
-
-	@Override
-	public void updateMetadata() {
-		PacketFetcher.broadcastPackets(
-				PacketFetcher.entityMetadata(this.entityId, this.meta.getDataWatcher())
-		);
-	}
-
-	@Override
-	public int getEntityId() {
-		return this.entityId;
 	}
 
 	@Override
 	public FakeHumanMetadata getMeta() {
-		return this.meta;
+		return (FakeHumanMetadata) super.getMeta();
 	}
 
 	@Override
 	public void setMeta(FakeHumanMetadata meta) {
-		this.meta = meta;
-		this.updateMetadata();
+		super.setMeta(meta);
+	}
+
+	public GameProfile getGameProfile() {
+		return this.gameProfile;
+	}
+
+	public void setGameProfile(GameProfile gameProfile) {
+		if(this.isAlive()) {
+			PacketFetcher.broadcastPackets(
+					PacketFetcher.playerInfo(this.getGameProfile(), "REMOVE_PLAYER"),
+					PacketFetcher.playerInfo(gameProfile, "ADD_PLAYER"),
+					PacketFetcher.namedEntitySpawn(this.getEntityId(), gameProfile, this.getLocation(), this.getMeta())
+			);
+		}
+		this.gameProfile = gameProfile;
 	}
 
 	@Override
@@ -301,92 +123,23 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public boolean isAlive() {
-		return this.living;
-	}
-
-	@Override
-	public boolean isFrozen() {
-		return this.frozen;
-	}
-
-	@Override
-	public float getHealth() {
-		return this.isAlive() ? this.meta.getHealth() : 0;
-	}
-
-	@Override
-	public void setHealth(float health) {
-		final float before = this.getHealth();
-		health = Math.min(Math.max(0.0f, health), (float) this.attributes.get(Attribute.GENERIC_MAX_HEALTH).getValue());
-		this.meta.setHealth(health);
-
-		if(health == 0)
-			this.die();
-		else if(before > health)
-			this.hurt();
-		else if(before == 0 && health > 0)
-			this.revive();
-	}
-
-	@Override
-	public int getNoDamageTicks() {
-		return this.noDamageTicks;
-	}
-
-	@Override
-	public void setNoDamageTicks(int noDamageTicks) {
-		this.noDamageTicks = noDamageTicks;
-	}
-
-	@Override
 	public int getRemainingAir() {
-		return this.meta.getAir();
+		return this.getMeta().getAir();
 	}
 
 	@Override
 	public void setRemainingAir(int air) {
-		this.meta.setAir(air);
-	}
-
-	@Override
-	public int getFireTicks() {
-		return this.fireTicks;
-	}
-
-	@Override
-	public void setFireTicks(int fireTicks) {
-		this.fireTicks = fireTicks;
+		this.getMeta().setAir(air);
 	}
 
 	@Override
 	public double getMoveSpeed() {
-		return this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).getValue() * 6.16714296217D;
+		return this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue() * 6.16714296217D;
 	}
 
 	@Override
 	public double getEyeHeight(boolean ignoreSneaking) {
-		return ignoreSneaking ? EYE_HEIGHT_STANDING : (this.meta.isSneaking() ? EYE_HEIGHT_SNEAKING : EYE_HEIGHT_STANDING);
-	}
-
-	@Override
-	public boolean hasLocation() {
-		return this.location != null;
-	}
-
-	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public Location getRespawnLocation() {
-		return this.respawnLocation;
-	}
-
-	@Override
-	public void setRespawnLocation(Location location) {
-		this.respawnLocation = location;
+		return ignoreSneaking ? EYE_HEIGHT_STANDING : (this.getMeta().isSneaking() ? EYE_HEIGHT_SNEAKING : EYE_HEIGHT_STANDING);
 	}
 
 	@Override
@@ -404,101 +157,27 @@ public class FakePlayer implements NPC {
 		this.target = target;
 	}
 
-	@Override
-	public boolean isInvulnerable() {
-		return this.invulnerable;
-	}
-
-	@Override
-	public void setInvulnerable(boolean invulnerable) {
-		this.invulnerable = invulnerable;
-	}
-
-	public boolean isInvulnerable(EntityDamageEvent.DamageCause cause) {
-		switch(cause) {
-			case LAVA:
-				return this.hasPotionEffect(PotionEffectType.FIRE_RESISTANCE);
-			case FIRE:
-				return this.hasPotionEffect(PotionEffectType.FIRE_RESISTANCE);
-			case FIRE_TICK:
-				return this.hasPotionEffect(PotionEffectType.FIRE_RESISTANCE);
-			case DROWNING:
-				return this.hasPotionEffect(PotionEffectType.WATER_BREATHING);
-			case VOID:
-				return false;
-			default:
-				return this.isInvulnerable();
-		}
-	}
-
-	@Override
-	public EnumNature getNature() {
-		return this.nature;
-	}
-
-	@Override
-	public void setNature(EnumNature nature) {
-		this.nature = nature;
-	}
-
-	@Override
 	public FakeEquipment getEquipment() {
 		return this.equip;
 	}
 
-	@Override
-	public boolean hasPotionEffect(PotionEffectType type) {
-		return this.effects.containsKey(type);
-	}
-
-	@Override
-	public PotionEffect getPotionEffect(PotionEffectType type) {
-		return this.effects.get(type);
-	}
-
-	@Override
-	public Collection<PotionEffect> getActivePotionEffects() {
-		return this.effects.values();
+	public void setEquipment(FakeEquipment equip) {
+		this.equip = equip;
 	}
 
 	@Override
 	public void addPotionEffect(PotionEffect effect) {
-		PotionEffectType type = effect.getType();
-		if(!type.isInstant()) {
-			this.effects.put(type, effect);
-			this.setParticles(this.getActivePotionEffects());
-		}
+		super.addPotionEffect(effect);
 
+		PotionEffectType type = effect.getType();
 		byte level = (byte) (effect.getAmplifier() + 1);
 
-		if(type.equals(PotionEffectType.SPEED))
-			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.EFFECT_SPEED.apply(level));
-		else if(type.equals(PotionEffectType.SLOW))
-			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.EFFECT_SLOWNESS.apply(level));
-		else if(type.equals(PotionEffectType.FAST_DIGGING))
+		if(type.equals(PotionEffectType.FAST_DIGGING))
 			this.getAttribute(Attribute.GENERIC_ATTACK_SPEED).addModifier(FakeAttributeInstance.EFFECT_HASTE.apply(level)); //TODO Haste: he cant mine yet :(
 		else if(type.equals(PotionEffectType.SLOW_DIGGING))
 			this.getAttribute(Attribute.GENERIC_ATTACK_SPEED).addModifier(FakeAttributeInstance.EFFECT_MINING_FATIGUE.apply(level)); //TODO Mining Fatigue
-		else if(type.equals(PotionEffectType.INCREASE_DAMAGE))
-			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(FakeAttributeInstance.EFFECT_STRENGTH.apply(level));
-		else if(type.equals(PotionEffectType.HEAL)) {
-			this.setHealth(this.getHealth() + (4.0F * (float) Math.pow(2.0D, level - 1.0D)));
-			this.removePotionEffect(PotionEffectType.HEAL);
-		} else if(type.equals(PotionEffectType.HARM)) {
-			this.damage((6.0F * (float) Math.pow(2.0D, level - 1.0D)), EntityDamageEvent.DamageCause.MAGIC);
-			this.removePotionEffect(PotionEffectType.HARM);
-		} else if(type.equals(PotionEffectType.INVISIBILITY)) {
-			this.meta.setInvisibleTemp(true);
-			updateMetadata();
-		} else if(type.equals(PotionEffectType.WEAKNESS))
-			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(FakeAttributeInstance.EFFECT_WEAKNESS.apply(level));
-		else if(type.equals(PotionEffectType.HEALTH_BOOST))
-			this.getAttribute(Attribute.GENERIC_MAX_HEALTH).addModifier(FakeAttributeInstance.EFFECT_HEALTH_BOOST.apply(level));
 		else if(type.equals(PotionEffectType.ABSORPTION)) {
-			this.meta.setAbsorption(4 * level);
-			updateMetadata();
-		} else if(type.equals(PotionEffectType.GLOWING)) {
-			this.meta.setGlowingTemp(true);
+			this.getMeta().setAbsorption(4 * level);
 			updateMetadata();
 		} else if(type.equals(PotionEffectType.LUCK))
 			this.getAttribute(Attribute.GENERIC_LUCK).addModifier(FakeAttributeInstance.EFFECT_LUCK.apply(level));
@@ -507,41 +186,18 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public void addPotionEffects(Collection<PotionEffect> effects) {
-		effects.forEach(this::addPotionEffect);
-	}
-
-	@Override
 	public void removePotionEffect(PotionEffectType type) {
+		super.removePotionEffect(type);
+
 		if(this.hasPotionEffect(type)) {
-			PotionEffect effect = this.getPotionEffect(type);
-			byte level = (byte) (effect.getAmplifier() + 1);
+			byte level = (byte) (this.getPotionEffect(type).getAmplifier() + 1);
 
-			this.effects.remove(type);
-			this.setParticles(this.getActivePotionEffects());
-
-			if(type.equals(PotionEffectType.SPEED))
-				this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.EFFECT_SPEED.apply(level));
-			else if(type.equals(PotionEffectType.SLOW))
-				this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.EFFECT_SLOWNESS.apply(level));
-			else if(type.equals(PotionEffectType.FAST_DIGGING))
+			if(type.equals(PotionEffectType.FAST_DIGGING))
 				this.getAttribute(Attribute.GENERIC_ATTACK_SPEED).removeModifier(FakeAttributeInstance.EFFECT_HASTE.apply(level));
 			else if(type.equals(PotionEffectType.SLOW_DIGGING))
 				this.getAttribute(Attribute.GENERIC_ATTACK_SPEED).removeModifier(FakeAttributeInstance.EFFECT_MINING_FATIGUE.apply(level));
-			else if(type.equals(PotionEffectType.INCREASE_DAMAGE))
-				this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier(FakeAttributeInstance.EFFECT_STRENGTH.apply(level));
-			else if(type.equals(PotionEffectType.INVISIBILITY)) {
-				this.meta.setInvisibleTemp(false);
-				updateMetadata();
-			} else if(type.equals(PotionEffectType.WEAKNESS))
-				this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier(FakeAttributeInstance.EFFECT_WEAKNESS.apply(level));
-			else if(type.equals(PotionEffectType.HEALTH_BOOST))
-				this.getAttribute(Attribute.GENERIC_MAX_HEALTH).removeModifier(FakeAttributeInstance.EFFECT_HEALTH_BOOST.apply(level));
 			else if(type.equals(PotionEffectType.ABSORPTION)) {
-				this.meta.setAbsorption(0);
-				updateMetadata();
-			} else if(type.equals(PotionEffectType.GLOWING)) {
-				this.meta.setGlowingTemp(false);
+				this.getMeta().setAbsorption(0);
 				updateMetadata();
 			} else if(type.equals(PotionEffectType.LUCK))
 				this.getAttribute(Attribute.GENERIC_LUCK).removeModifier(FakeAttributeInstance.EFFECT_LUCK.apply(level));
@@ -551,146 +207,54 @@ public class FakePlayer implements NPC {
 	}
 
 	@Override
-	public AttributeInstance getAttribute(Attribute attribute) {
-		return this.attributes.get(attribute);
-	}
-
-	@Override
-	public void updateGameProfile(GameProfile gameProfile) {
-		this.gameProfile = gameProfile;
-		if(this.living)
-			this.spawn(this.location);
-	}
-
-	@Override
-	public void freeze(boolean frozen) {
-		this.frozen = frozen;
-	}
-
-	@Override
-	public void damage(float amount, EntityDamageEvent.DamageCause cause) {
-		if(this.noDamageTicks == 0 && !this.isInvulnerable(cause)) {
-			NPCDamageEvent event = new NPCDamageEvent(this, amount, cause);
-			Bukkit.getPluginManager().callEvent(event);
-			if(event.isCancelled()) return;
-
-			if(this.isInvulnerable(event.getCause()))
-				return;
-
-			float damage = event.getAmount();
-
-			//heal
-			if(damage < 0.0f) {
-				this.setHealth(this.getHealth() + damage);
-				return;
-			}
-
-			//resistance
-			if(this.hasPotionEffect(PotionEffectType.DAMAGE_RESISTANCE) && event.getCause() != EntityDamageEvent.DamageCause.STARVATION && event.getCause() != EntityDamageEvent.DamageCause.VOID) {
-				int resistance = Math.min(this.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE).getAmplifier() + 1, 5);
-				damage -= damage * 0.2f * resistance;
-			}
-
-			//absorption
-			{
-				float newAbsorption = Math.max(this.meta.getAbsorption() - damage, 0.0f);
-				float absorbed = this.meta.getAbsorption() - newAbsorption;
-
-				damage -= absorbed;
-
-				if(absorbed > 0.0f)
-					this.hurt();
-
-				this.meta.setAbsorption(newAbsorption);
-			}
-
-			this.setHealth(this.getHealth() - damage);
-			this.noDamageTicks = 10;
-		}
-	}
-
-	@Override
 	public void setSneaking(boolean state) {
-		this.meta.setSneaking(state);
+		this.getMeta().setSneaking(state);
 		if(state) {
-			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.MOVEMENT_SPEED_SNEAKING);
-			this.meta.setSprinting(false);
+			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.MOVEMENT_SPEED_SNEAKING);
+			this.getMeta().setSprinting(false);
 		} else
-			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.MOVEMENT_SPEED_SNEAKING);
+			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.MOVEMENT_SPEED_SNEAKING);
 		updateMetadata();
 	}
 
 	@Override
 	public void setSprinting(boolean state) {
-		this.meta.setSprinting(state);
+		this.getMeta().setSprinting(state);
 		if(state) {
-			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.MOVEMENT_SPEED_SPRINTING);
-			this.meta.setSneaking(false);
+			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.MOVEMENT_SPEED_SPRINTING);
+			this.getMeta().setSneaking(false);
 		} else
-			this.attributes.get(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.MOVEMENT_SPEED_SPRINTING);
-		updateMetadata();
-	}
-
-	public void ignite(int fireTicks) {
-		this.meta.setOnFire(true);
-		if(this.fireTicks < fireTicks)
-			this.fireTicks = fireTicks;
-		updateMetadata();
-	}
-
-	public void extinguish() {
-		this.meta.setOnFire(false);
-		this.fireTicks = -20;
-		updateMetadata();
-	}
-
-	private void die() {
-		this.dropEquip();
-		this.playEntityStatus(EnumEntityStatus.DEATH);
-		playSound(Sound.ENTITY_GENERIC_DEATH);
-		this.fireTicks = -20;
-		this.living = false;
-	}
-
-	private void hurt() {
-		this.playEntityStatus(EnumEntityStatus.HURT);
-		playSound(Sound.ENTITY_GENERIC_HURT);
-	}
-
-	private void revive() {
-		this.living = true;
-		if(getHealth() <= 0.0f)
-			this.setHealth((float) this.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-		this.spawn(this.location);
-	}
-
-	private void dropEquip() {
-		World world = this.location.getWorld();
-		for(EquipmentSlot slot : EquipmentSlot.values()) {
-			this.equip(slot, null);
-			ItemStack item = this.equip.get(slot);
-			if(item != null)
-				world.dropItemNaturally(this.location, item);
-		}
-		this.equip.clear();
-	}
-
-	private void playSound(Sound sound) {
-		if(!this.meta.isSilent())
-			this.location.getWorld().playSound(this.location, sound, 1, 1);
-	}
-
-	public void setParticles(Collection<PotionEffect> effects) {
-		this.meta.setPotionAmbient(effects.stream().allMatch(PotionEffect::isAmbient));
-		this.meta.setPotionColor(calcPotionColor(effects));
+			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.MOVEMENT_SPEED_SPRINTING);
 		updateMetadata();
 	}
 
 	@Override
+	void die() {
+		this.dropEquip();
+		super.die();
+	}
+
+	@Override
+	void revive() {
+		super.revive();
+	}
+
+	private void dropEquip() {
+		World world = this.getLocation().getWorld();
+		for(EquipmentSlot slot : EquipmentSlot.values()) {
+			this.equip(slot, null);
+			ItemStack item = this.getEquipment().get(slot);
+			if(item != null)
+				world.dropItemNaturally(this.getLocation(), item);
+		}
+		this.getEquipment().clear();
+	}
+
+	@Override
 	public boolean touches(Block block) {
-		double x = (block.getX() + 0.5) - this.location.getX();
-		double y = block.getY() - this.location.getY();
-		double z = (block.getZ() + 0.5) - this.location.getZ();
+		double x = (block.getX() + 0.5) - this.getLocation().getX();
+		double y = block.getY() - this.getLocation().getY();
+		double z = (block.getZ() + 0.5) - this.getLocation().getZ();
 
 		return ((-0.8D < x && x < -0.2D) || (-0.2D < x && x < 0.2D) || (0.2 < x && x < 0.8D))
 				&& (-1 < y && y < (0.2D + this.getEyeHeight()))
@@ -707,7 +271,7 @@ public class FakePlayer implements NPC {
 	@Override
 	public List<Block> getSurroundingBlocks() {
 		List<Block> blocks = new ArrayList<>();
-		Block block = this.location.getBlock();
+		Block block = this.getLocation().getBlock();
 
 		for(int y = -1; y <= 2; y++) {
 			for(int x = -1; x <= 1; x++) {
@@ -734,16 +298,16 @@ public class FakePlayer implements NPC {
 
 			//fire(tick)
 			if(block.getType() == Material.STATIONARY_WATER
-					|| this.location.getWorld().hasStorm()
-					|| this.location.getWorld().isThundering()) {
+					|| this.getLocation().getWorld().hasStorm()
+					|| this.getLocation().getWorld().isThundering()) {
 				this.extinguish();
 			}
 
-			if(this.fireTicks > 0) {
-				if(this.fireTicks % 20 == 0) {
+			if(this.getFireTicks() > 0) {
+				if(this.getFireTicks() % 20 == 0) {
 					this.damage(1.0F, EntityDamageEvent.DamageCause.FIRE_TICK);
 				}
-			} else if(this.fireTicks == 0) {
+			} else if(this.getFireTicks() == 0) {
 				this.extinguish();
 			}
 
@@ -754,18 +318,18 @@ public class FakePlayer implements NPC {
 
 		//drown
 		if(this.getEyeLocation().getBlock().getType() == Material.STATIONARY_WATER)
-			this.meta.setAir(this.meta.getAir() - 1);
+			this.getMeta().setAir(this.getMeta().getAir() - 1);
 		else if(!this.getEyeLocation().getBlock().getType().isSolid() && !this.getEyeLocation().getBlock().isLiquid())
-			this.meta.setAir(300);
+			this.getMeta().setAir(300);
 
-		if(this.meta.getAir() <= -20) {
+		if(this.getMeta().getAir() <= -20) {
 			this.damage(2.0F, EntityDamageEvent.DamageCause.DROWNING);
-			this.meta.setAir(0);
+			this.getMeta().setAir(0);
 		}
 	}
 
 	public void tickPotions() {
-		Collection<PotionEffect> effectsToProcess = this.effects.values();
+		Collection<PotionEffect> effectsToProcess = this.getActivePotionEffects();
 
 
 		//--duration
@@ -782,7 +346,7 @@ public class FakePlayer implements NPC {
 	public void attack(LivingEntity target) {
 		if(this.isAlive() && !target.isDead()) {
 			this.playAnimation(NPCAnimationEvent.Animation.SWING_MAINHAND);
-			target.damage(this.attributes.get(Attribute.GENERIC_ATTACK_DAMAGE).getValue());
+			target.damage(this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getValue());
 			Vector distance = MathHelper.calcDistanceVector(this.getLocation(), target.getLocation());
 
 			float yaw = MathHelper.calcYaw(distance.getX(), distance.getZ());
@@ -796,37 +360,37 @@ public class FakePlayer implements NPC {
 
 	@Override
 	public void tick() {
-		if(this.isAlive() && !this.frozen) {
-			if(this.fireTicks > 0)
-				--this.fireTicks;
+		if(this.isAlive() && !this.isFrozen()) {
+			if(this.getFireTicks() > 0)
+				this.setFireTicks(this.getFireTicks() - 1);
 
 			tickPotions();
 			applyAmbientDamage();
 
 			if(this.getNoDamageTicks() > 0)
-				--this.noDamageTicks;
+				this.setNoDamageTicks(this.getNoDamageTicks() - 1);
 		}
 	}
 
 	public void softReset() {
-		this.meta.setAir(300);
-		this.meta.setSilent(false);
-		this.meta.setHealth(20.0F);
+		this.getMeta().setAir(300);
+		this.getMeta().setSilent(false);
+		this.getMeta().setHealth(20.0F);
 
-		this.equip = new FakeEquipment(this);
+		this.setEquipment(new FakeEquipment(this));
 
-		this.effects = new HashMap<>();
+		this.clearPotionEffects();
 
-		this.attributes.forEach((attribute, fakeAttributeInstance) -> fakeAttributeInstance.removeAllModifiers());
+		for(Attribute attribute : Attribute.values())
+			((FakeAttributeInstance) this.getAttribute(attribute)).removeAllModifiers();
 
-		this.frozen = false;
-		this.living = false;
-		this.location = null;
-		this.target = null;
-		this.nature = EnumNature.PASSIVE;
+		this.setFrozen(false);
+		this.setLiving(false);
+		this.setLocation(null);
+		this.setTarget(null);
 
 		this.extinguish();
-		this.noDamageTicks = 0;
-		this.invulnerable = false;
+		this.setNoDamageTicks(0);
+		this.setInvulnerable(false);
 	}
 }
