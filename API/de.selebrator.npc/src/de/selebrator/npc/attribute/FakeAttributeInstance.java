@@ -91,9 +91,15 @@ public class FakeAttributeInstance implements AttributeInstance {
 				this.defaultValue = 0;
 				break;
 			case HORSE_JUMP_STRENGTH:
-				throw new UnsupportedOperationException("Not supported.");
+				this.min = 0;
+				this.max = 2;
+				this.defaultValue = 0.69999999999999996D;
+				break;
 			case ZOMBIE_SPAWN_REINFORCEMENTS:
-				throw new UnsupportedOperationException("Not supported.");
+				this.min = 0;
+				this.max = 1;
+				this.defaultValue = 0;
+				break;
 			default:
 				throw new IllegalArgumentException("Not supported yet.");
 		}
