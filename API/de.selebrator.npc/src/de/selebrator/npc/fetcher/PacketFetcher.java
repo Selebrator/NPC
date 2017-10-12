@@ -3,7 +3,7 @@ package de.selebrator.npc.fetcher;
 import com.mojang.authlib.GameProfile;
 import de.selebrator.reflection.*;
 import org.bukkit.*;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.*;
 
 import java.util.*;
@@ -14,6 +14,7 @@ public class PacketFetcher {
 	//Minecraft classes
 	private static final Class CLASS_Packet = getMinecraftClass("Packet");
 	private static final Class CLASS_PacketPlayOutNamedEntitySpawn = getMinecraftClass("PacketPlayOutNamedEntitySpawn");
+	private static final Class<?> CLASS_PacketPlayOutSpawnEntityLiving = getMinecraftClass("PacketPlayOutSpawnEntityLiving");
 	private static final Class CLASS_PacketPlayOutEntityDestroy = getMinecraftClass("PacketPlayOutEntityDestroy");
 	private static final Class CLASS_PacketPlayOutPlayerInfo = getMinecraftClass("PacketPlayOutPlayerInfo");
 	private static final Class CLASS_PacketPlayOutEntityLook = getMinecraftClass("PacketPlayOutEntity$PacketPlayOutEntityLook");
@@ -46,6 +47,7 @@ public class PacketFetcher {
 
 	//Constructors
 	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutNamedEntitySpawn = getConstructor(CLASS_PacketPlayOutNamedEntitySpawn);
+	private static final ConstructorAccessor<Object> CONSTRUCTOR_PacketPlayOutSpawnEntityLiving = getConstructor(CLASS_PacketPlayOutSpawnEntityLiving);
 	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutEntityDestroy = getConstructor(CLASS_PacketPlayOutEntityDestroy);
 	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutPlayerInfo = getConstructor(CLASS_PacketPlayOutPlayerInfo);
 	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutEntityLook = getConstructor(CLASS_PacketPlayOutEntityLook);
@@ -82,6 +84,24 @@ public class PacketFetcher {
 		fields.put("g", angle(location.getPitch()));
 		fields.put("h", dataWatcher);
 		return packet(CONSTRUCTOR_PacketPlayOutNamedEntitySpawn, fields);
+	}
+
+	public static Object spawnEntityLiving(int entityId, EntityType type, UUID uuid, Location location, Object dataWatcher) {
+		Map<String, Object> fields = new HashMap<>();
+		fields.put("a", entityId);
+		fields.put("b", uuid);
+		fields.put("c", type.getTypeId()); //RegistryID of entityType
+		fields.put("d", location.getX());
+		fields.put("e", location.getY());
+		fields.put("f", location.getZ());
+		fields.put("g", 0); //motX
+		fields.put("h", 0); //motY
+		fields.put("i", 0); //motZ
+		fields.put("j", angle(location.getYaw()));
+		fields.put("k", angle(location.getPitch()));
+		fields.put("l", (byte) 0); //???
+		fields.put("m", dataWatcher);
+		return packet(CONSTRUCTOR_PacketPlayOutSpawnEntityLiving, fields);
 	}
 
 	public static Object entityDestroy(int entityId) {
