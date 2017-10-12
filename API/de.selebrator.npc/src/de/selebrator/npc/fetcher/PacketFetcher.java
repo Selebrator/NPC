@@ -86,7 +86,7 @@ public class PacketFetcher {
 		return packet(CONSTRUCTOR_PacketPlayOutNamedEntitySpawn, fields);
 	}
 
-	public static Object spawnEntityLiving(int entityId, EntityType type, UUID uuid, Location location, Object dataWatcher) {
+	public static Object spawnEntityLiving(int entityId, UUID uuid, EntityType type, Location location, Object dataWatcher) {
 		Map<String, Object> fields = new HashMap<>();
 		fields.put("a", entityId);
 		fields.put("b", uuid);
