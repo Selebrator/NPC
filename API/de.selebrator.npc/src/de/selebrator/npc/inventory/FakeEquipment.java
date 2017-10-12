@@ -134,7 +134,7 @@ public class FakeEquipment {
 				this.helmet = item;
 				break;
 		}
-		holder.equip(slot, item);
+		this.holder.equip(slot, item);
 	}
 
 	public void clear(EquipmentSlot slot) {
