@@ -17,7 +17,6 @@ public class FakeEquipment {
 		this.holder = holder;
 	}
 
-	// ##### MAIN HAND #####
 	public ItemStack getMainHand() {
 		return this.mainHand;
 	}
@@ -26,7 +25,6 @@ public class FakeEquipment {
 		this.set(EquipmentSlot.HAND, mainHand);
 	}
 
-	// ##### OFF HAND #####
 	public ItemStack getOffHand() {
 		return this.offHand;
 	}
@@ -35,7 +33,6 @@ public class FakeEquipment {
 		this.set(EquipmentSlot.OFF_HAND, offHand);
 	}
 
-	// ##### HELMET #####
 	public ItemStack getHelmet() {
 		return this.helmet;
 	}
@@ -44,7 +41,6 @@ public class FakeEquipment {
 		this.set(EquipmentSlot.HEAD, helmet);
 	}
 
-	// ##### CHESTPLATE #####
 	public ItemStack getChestplate() {
 		return this.chestplate;
 	}
@@ -53,7 +49,6 @@ public class FakeEquipment {
 		this.set(EquipmentSlot.CHEST, chestplate);
 	}
 
-	// ##### LEGGINGS #####
 	public ItemStack getLeggings() {
 		return this.leggings;
 	}
@@ -62,7 +57,6 @@ public class FakeEquipment {
 		this.set(EquipmentSlot.LEGS, leggings);
 	}
 
-	// ##### BOOTS #####
 	public ItemStack getBoots() {
 		return this.boots;
 	}
@@ -70,8 +64,6 @@ public class FakeEquipment {
 	public void setBoots(ItemStack boots) {
 		this.set(EquipmentSlot.FEET, boots);
 	}
-
-	// ##### ARMOR #####
 
 	/**
 	 * @return armor contents in order boots, legging, chestplate, helmet
@@ -94,7 +86,6 @@ public class FakeEquipment {
 		setArmor(new ItemStack[] { boots, leggings, chestplate, helmet });
 	}
 
-	// ##### GENERAL #####
 	public ItemStack get(EquipmentSlot slot) {
 		switch(slot) {
 			case HAND:
