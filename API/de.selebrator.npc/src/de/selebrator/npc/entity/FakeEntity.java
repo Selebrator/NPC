@@ -27,7 +27,7 @@ public class FakeEntity {
 	public FakeEntity(EntityType type) {
 		this.random = new Random();
 		this.entityId = FakeEntity.getNextEID();
-		this.uniqueId = getNewUUID(this.random);
+		this.uniqueId = FakeEntity.getNewUUID(this.random);
 		this.setMeta(new FakeEntityMetadata());
 		this.type = type;
 	}
