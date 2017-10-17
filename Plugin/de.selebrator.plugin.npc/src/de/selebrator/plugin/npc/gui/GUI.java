@@ -1,15 +1,15 @@
 package de.selebrator.plugin.npc.gui;
 
-import de.selebrator.npc.NPC;
+import de.selebrator.npc.PlayerNPC;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
 public abstract class GUI implements Listener {
 
-	public NPC npc;
+	public PlayerNPC npc;
 
-	public GUI(NPC npc, Plugin plugin) {
+	public GUI(PlayerNPC npc, Plugin plugin) {
 		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 
 		this.npc = npc;

@@ -2,12 +2,11 @@ package de.selebrator.npc.entity;
 
 import com.mojang.authlib.GameProfile;
 import de.selebrator.npc.*;
-import de.selebrator.npc.NPC;
 import de.selebrator.npc.attribute.FakeAttributeInstance;
-import de.selebrator.npc.event.*;
+import de.selebrator.npc.event.NPCAnimationEvent;
 import de.selebrator.npc.fetcher.PacketFetcher;
 import de.selebrator.npc.inventory.FakeEquipment;
-import de.selebrator.npc.metadata.FakeHumanMetadata;
+import de.selebrator.npc.metadata.*;
 import de.selebrator.reflection.Reflection;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -21,7 +20,7 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class FakePlayer extends FakeLiving implements NPC {
+public class FakePlayer extends FakeLiving implements PlayerNPC {
 	private static final double EYE_HEIGHT_STANDING = 1.62D;
 	private static final double EYE_HEIGHT_SNEAKING = 1.2D;
 	private GameProfile gameProfile;
@@ -47,10 +46,6 @@ public class FakePlayer extends FakeLiving implements NPC {
 
 	@Override
 	public void spawn(Location location) {
-		NPCSpawnEvent event = new NPCSpawnEvent(this);
-		Bukkit.getPluginManager().callEvent(event);
-		if(event.isCancelled()) return;
-
 		this.setLocation(location);
 
 		PacketFetcher.broadcastPackets(
@@ -75,13 +70,6 @@ public class FakePlayer extends FakeLiving implements NPC {
 	}
 
 	public void equip(EquipmentSlot slot, ItemStack item) {
-		NPCEquipEvent event = new NPCEquipEvent(this, slot, item);
-		Bukkit.getPluginManager().callEvent(event);
-		if(event.isCancelled()) return;
-
-		slot = event.getSlot();
-		item = event.getItem();
-
 		PacketFetcher.broadcastPackets(
 				PacketFetcher.entityEquipment(this.getEntityId(), slot, item)
 		);
@@ -93,7 +81,7 @@ public class FakePlayer extends FakeLiving implements NPC {
 	}
 
 	@Override
-	public void setMeta(FakeHumanMetadata meta) {
+	public void setMeta(FakeMetadata meta) {
 		super.setMeta(meta);
 	}
 
@@ -120,16 +108,6 @@ public class FakePlayer extends FakeLiving implements NPC {
 	@Override
 	public String getDisplayName() {
 		return this.gameProfile.getName();
-	}
-
-	@Override
-	public int getRemainingAir() {
-		return this.getMeta().getAir();
-	}
-
-	@Override
-	public void setRemainingAir(int air) {
-		this.getMeta().setAir(air);
 	}
 
 	@Override
@@ -250,7 +228,6 @@ public class FakePlayer extends FakeLiving implements NPC {
 		this.getEquipment().clear();
 	}
 
-	@Override
 	public boolean touches(Block block) {
 		double x = (block.getX() + 0.5) - this.getLocation().getX();
 		double y = block.getY() - this.getLocation().getY();
@@ -261,14 +238,12 @@ public class FakePlayer extends FakeLiving implements NPC {
 				&& ((-0.8D < z && z < -0.2D) || (-0.2D < z && z < 0.2D) || (0.2 < z && z < 0.8D));
 	}
 
-	@Override
 	public List<Block> getTouchedBlocks() {
 		return getSurroundingBlocks().stream()
 				.filter(this::touches)
 				.collect(Collectors.toList());
 	}
 
-	@Override
 	public List<Block> getSurroundingBlocks() {
 		List<Block> blocks = new ArrayList<>();
 		Block block = this.getLocation().getBlock();
@@ -342,7 +317,6 @@ public class FakePlayer extends FakeLiving implements NPC {
 		}
 	}
 
-	@Override
 	public void attack(LivingEntity target) {
 		if(this.isAlive() && !target.isDead()) {
 			this.playAnimation(NPCAnimationEvent.Animation.SWING_MAINHAND);
@@ -358,7 +332,6 @@ public class FakePlayer extends FakeLiving implements NPC {
 		}
 	}
 
-	@Override
 	public void tick() {
 		if(this.isAlive() && !this.isFrozen()) {
 			if(this.getFireTicks() > 0)

@@ -10,7 +10,7 @@ import org.bukkit.entity.EntityType;
 
 import java.util.*;
 
-public class FakeEntity {
+public class FakeEntity implements EntityNPC {
 	private static final Class CLASS_Entity = Reflection.getMinecraftClass("Entity");
 	private static final FieldAccessor<Integer> FIELD_Entity_entityCount = Reflection.getField(CLASS_Entity, int.class, "entityCount");
 	private final int entityId;
@@ -116,6 +116,11 @@ public class FakeEntity {
 		return this.uniqueId;
 	}
 
+	@Override
+	public String getName() {
+		return this.getMeta().getName();
+	}
+
 	public EntityType getType() {
 		return this.type;
 	}
@@ -198,5 +203,10 @@ public class FakeEntity {
 
 	public void setFrozen(boolean frozen) {
 		this.frozen = frozen;
+	}
+
+	@Override
+	public void tick() {
+		//TODO
 	}
 }

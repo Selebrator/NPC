@@ -1,7 +1,6 @@
 package de.selebrator.plugin.npc;
 
 import de.selebrator.npc.*;
-import de.selebrator.npc.NPC;
 import de.selebrator.npc.entity.FakePlayer;
 import de.selebrator.npc.event.NPCAnimationEvent;
 import de.selebrator.plugin.npc.fetcher.GameProfileBuilder;

@@ -250,13 +250,6 @@ public class FakeLiving extends FakeEntity {
 		this.spawn(this.getLocation());
 	}
 
-	/**
-	 * Checks if the {@link FakeLiving} entity is invulnerable to that {@link EntityDamageEvent.DamageCause}
-	 * Does NOT check if the {@link FakeEntity} {@link #isInvulnerable()} in general
-	 *
-	 * @param cause the checked {@link EntityDamageEvent.DamageCause}
-	 * @return true if the {@link FakeLiving} is immune to that {@link EntityDamageEvent.DamageCause}
-	 */
 	public boolean isInvulnerable(EntityDamageEvent.DamageCause cause) {
 		switch(cause) {
 			case LAVA:

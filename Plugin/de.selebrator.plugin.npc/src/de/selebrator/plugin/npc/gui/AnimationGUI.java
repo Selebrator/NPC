@@ -1,6 +1,6 @@
 package de.selebrator.plugin.npc.gui;
 
-import de.selebrator.npc.NPC;
+import de.selebrator.npc.PlayerNPC;
 import de.selebrator.npc.event.NPCAnimationEvent;
 import de.selebrator.plugin.npc.fetcher.ItemBuilder;
 import org.bukkit.*;
@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin;
 
 public class AnimationGUI extends GUI implements Listener {
 
-	public AnimationGUI(NPC npc, Plugin plugin) {
+	public AnimationGUI(PlayerNPC npc, Plugin plugin) {
 		super(npc, plugin);
 	}
 

@@ -1,6 +1,6 @@
 package de.selebrator.plugin.npc.gui;
 
-import de.selebrator.npc.NPC;
+import de.selebrator.npc.PlayerNPC;
 import de.selebrator.plugin.npc.fetcher.*;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -14,7 +14,7 @@ public class EquipGUI extends GUI implements Listener {
 	private EquipmentSlot selected;
 	private String subSelected;
 
-	public EquipGUI(NPC npc, Plugin plugin) {
+	public EquipGUI(PlayerNPC npc, Plugin plugin) {
 		super(npc, plugin);
 	}
 
