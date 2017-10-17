@@ -2,11 +2,10 @@ package de.selebrator.npc.metadata;
 
 import de.selebrator.reflection.*;
 
-public class MetadataObject<T> {
-	private static final Class CLASS_DataWatcher = Reflection.getMinecraftClass("DataWatcher");
-	private static final Class<?> CLASS_DataWatcherObject = Reflection.getMinecraftClass("DataWatcherObject");
-	private static final MethodAccessor METHOD_DataWatcher_registerObject = Reflection.getMethod(CLASS_DataWatcher, null, "registerObject", CLASS_DataWatcherObject, Object.class);
+import static de.selebrator.npc.Imports.CLASS_DataWatcherObject;
+import static de.selebrator.npc.Imports.METHOD_DataWatcher_registerObject;
 
+public class MetadataObject<T> {
 	private T value;
 	private Object dataWatcher;
 	private Object dataWatcherObject;

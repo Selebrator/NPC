@@ -4,15 +4,14 @@ import de.selebrator.npc.*;
 import de.selebrator.npc.event.NPCAnimationEvent;
 import de.selebrator.npc.fetcher.PacketFetcher;
 import de.selebrator.npc.metadata.*;
-import de.selebrator.reflection.*;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 
 import java.util.*;
 
+import static de.selebrator.npc.Imports.FIELD_Entity_entityCount;
+
 public class FakeEntity implements EntityNPC {
-	private static final Class CLASS_Entity = Reflection.getMinecraftClass("Entity");
-	private static final FieldAccessor<Integer> FIELD_Entity_entityCount = Reflection.getField(CLASS_Entity, int.class, "entityCount");
 	private final int entityId;
 	private final UUID uniqueId;
 	private final EntityType type;

@@ -7,7 +7,6 @@ import de.selebrator.npc.event.NPCAnimationEvent;
 import de.selebrator.npc.fetcher.PacketFetcher;
 import de.selebrator.npc.inventory.FakeEquipment;
 import de.selebrator.npc.metadata.*;
-import de.selebrator.reflection.Reflection;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
@@ -19,6 +18,8 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static de.selebrator.npc.Imports.FIELD_PotionEffect_duration;
 
 public class FakePlayer extends FakeLiving implements PlayerNPC {
 	private static final double EYE_HEIGHT_STANDING = 1.62D;
@@ -313,7 +314,7 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 			if(duration <= 0)
 				this.removePotionEffect(effect.getType());
 			else
-				Reflection.getField(effect.getClass(), int.class, "duration").set(effect, duration - 1);
+				FIELD_PotionEffect_duration.set(effect, duration - 1);
 		}
 	}
 

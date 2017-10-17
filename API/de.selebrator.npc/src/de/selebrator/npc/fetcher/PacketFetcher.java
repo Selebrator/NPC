@@ -9,71 +9,9 @@ import org.bukkit.inventory.*;
 
 import java.util.*;
 
-import static de.selebrator.reflection.Reflection.*;
+import static de.selebrator.npc.Imports.*;
 
 public class PacketFetcher {
-	//Minecraft classes
-	private static final Class CLASS_Packet = getMinecraftClass("Packet");
-	private static final Class CLASS_PacketPlayOutNamedEntitySpawn = getMinecraftClass("PacketPlayOutNamedEntitySpawn");
-	private static final Class<?> CLASS_PacketPlayOutSpawnEntityLiving = getMinecraftClass("PacketPlayOutSpawnEntityLiving");
-	private static final Class CLASS_PacketPlayOutEntityDestroy = getMinecraftClass("PacketPlayOutEntityDestroy");
-	private static final Class CLASS_PacketPlayOutPlayerInfo = getMinecraftClass("PacketPlayOutPlayerInfo");
-	private static final Class CLASS_PacketPlayOutEntityLook = getMinecraftClass("PacketPlayOutEntity$PacketPlayOutEntityLook");
-	private static final Class CLASS_PacketPlayOutEntityHeadRotation = getMinecraftClass("PacketPlayOutEntityHeadRotation");
-	private static final Class CLASS_PacketPlayOutRelEntityMove = getMinecraftClass("PacketPlayOutEntity$PacketPlayOutRelEntityMove");
-	private static final Class CLASS_PacketPlayOutRelEntityMoveLook = getMinecraftClass("PacketPlayOutEntity$PacketPlayOutRelEntityMoveLook");
-	private static final Class CLASS_PacketPlayOutEntityTeleport = getMinecraftClass("PacketPlayOutEntityTeleport");
-	private static final Class CLASS_PacketPlayOutEntityEquipment = getMinecraftClass("PacketPlayOutEntityEquipment");
-	private static final Class CLASS_PacketPlayOutAnimation = getMinecraftClass("PacketPlayOutAnimation");
-	private static final Class CLASS_PacketPlayOutEntityStatus = getMinecraftClass("PacketPlayOutEntityStatus");
-	private static final Class CLASS_PacketPlayOutEntityMetadata = getMinecraftClass("PacketPlayOutEntityMetadata");
-
-	private static final Class<?> CLASS_EntityPlayer = getMinecraftClass("EntityPlayer");
-	private static final Class<?> CLASS_PlayerConnection = getMinecraftClass("PlayerConnection");
-	private static final Class CLASS_DataWatcher = getMinecraftClass("DataWatcher");
-	private static final Class CLASS_PlayerInfoData = getMinecraftClass("PacketPlayOutPlayerInfo$PlayerInfoData");
-	private static final Class CLASS_IChatBaseComponent = getMinecraftClass("IChatBaseComponent");
-	private static final Class CLASS_ChatComponentText = getMinecraftClass("ChatComponentText");
-	private static final Class<?> CLASS_ItemStack = getMinecraftClass("ItemStack");
-
-	//Minecraft Enums
-	private static final Class<? extends Enum> CLASS_EnumPlayerInfoAction = getMinecraftEnum("PacketPlayOutPlayerInfo$EnumPlayerInfoAction");
-	private static final Class<? extends Enum> CLASS_EnumGamemode = getMinecraftEnum("EnumGamemode");
-	private static final Class<? extends Enum> CLASS_EnumItemSlot = getMinecraftEnum("EnumItemSlot");
-
-	//CraftBukkit classes
-	private static final Class CLASS_CraftEquipmentSlot = getCraftBukkitClass("CraftEquipmentSlot");
-	private static final Class CLASS_CraftItemStack = getCraftBukkitClass("inventory.CraftItemStack");
-	private static final Class<?> CLASS_CraftPlayer = getCraftBukkitClass("entity.CraftPlayer");
-
-	//Constructors
-	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutNamedEntitySpawn = getConstructor(CLASS_PacketPlayOutNamedEntitySpawn);
-	private static final ConstructorAccessor<Object> CONSTRUCTOR_PacketPlayOutSpawnEntityLiving = getConstructor(CLASS_PacketPlayOutSpawnEntityLiving);
-	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutEntityDestroy = getConstructor(CLASS_PacketPlayOutEntityDestroy);
-	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutPlayerInfo = getConstructor(CLASS_PacketPlayOutPlayerInfo);
-	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutEntityLook = getConstructor(CLASS_PacketPlayOutEntityLook);
-	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutEntityHeadRotation = getConstructor(CLASS_PacketPlayOutEntityHeadRotation);
-	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutRelEntityMove = getConstructor(CLASS_PacketPlayOutRelEntityMove);
-	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutRelEntityMoveLook = getConstructor(CLASS_PacketPlayOutRelEntityMoveLook);
-	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutEntityTeleport = getConstructor(CLASS_PacketPlayOutEntityTeleport);
-	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutEntityEquipment = getConstructor(CLASS_PacketPlayOutEntityEquipment);
-	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutAnimation = getConstructor(CLASS_PacketPlayOutAnimation);
-	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutEntityStatus = getConstructor(CLASS_PacketPlayOutEntityStatus);
-	private static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutEntityMetadata = getConstructor(CLASS_PacketPlayOutEntityMetadata);
-
-	private static final ConstructorAccessor CONSTRUCTOR_PlayerInfoData = getConstructor(CLASS_PlayerInfoData, CLASS_PacketPlayOutPlayerInfo, GameProfile.class, int.class, CLASS_EnumGamemode, CLASS_IChatBaseComponent);
-	private static final ConstructorAccessor CONSTRUCTOR_ChatComponentText = getConstructor(CLASS_ChatComponentText, String.class);
-
-	//Methods
-	private static final MethodAccessor METHOD_CraftEquipmentSlot_getNMS = getMethod(CLASS_CraftEquipmentSlot, CLASS_EnumItemSlot, "getNMS", EquipmentSlot.class);
-	private static final MethodAccessor METHOD_CraftItemStack_asNMSCopy = getMethod(CLASS_CraftItemStack, CLASS_ItemStack, "asNMSCopy", ItemStack.class);
-	private static final MethodAccessor METHOD_DataWatcher_c = getMethod(CLASS_DataWatcher, List.class, "c");
-	private static final MethodAccessor METHOD_CraftPlayer_getHandle = getMethod(CLASS_CraftPlayer, CLASS_EntityPlayer, "getHandle");
-	private static final MethodAccessor METHOD_PlayerConnection_sendPacket = getMethod(CLASS_PlayerConnection, null, "sendPacket", CLASS_Packet);
-
-	//Fields
-	private static final FieldAccessor FIELD_EntityPlayer_playerConnection = getField(CLASS_EntityPlayer, CLASS_PlayerConnection, "playerConnection");
-
 	public static Object namedEntitySpawn(int entityId, GameProfile gameProfile, Location location, FakeMetadata metadata) {
 		Map<String, Object> fields = new HashMap<>();
 		fields.put("a", entityId);
@@ -204,7 +142,7 @@ public class PacketFetcher {
 	@SuppressWarnings("unchecked")
 	private static Object packet(ConstructorAccessor constructorAccessor, Map<String, Object> values) {
 		Object packet = constructorAccessor.newInstance();
-		values.forEach((fieldName, value) -> getField(packet.getClass(), fieldName).set(packet, value));
+		values.forEach((fieldName, value) -> Reflection.getField(packet.getClass(), fieldName).set(packet, value));
 		return packet;
 	}
 

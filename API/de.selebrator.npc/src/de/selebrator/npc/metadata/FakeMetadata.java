@@ -1,12 +1,10 @@
 package de.selebrator.npc.metadata;
 
 import de.selebrator.npc.MathHelper;
-import de.selebrator.reflection.*;
+
+import static de.selebrator.npc.Imports.CONSTRUCTOR_DataWatcher;
 
 public class FakeMetadata {
-	private static final Class CLASS_DataWatcher = Reflection.getMinecraftClass("DataWatcher");
-	private static final Class CLASS_Entity = Reflection.getMinecraftClass("Entity");
-	private static final ConstructorAccessor CONSTRUCTOR_DataWatcher = Reflection.getConstructor(CLASS_DataWatcher, CLASS_Entity);
 	private Object dataWatcher;
 
 	public FakeMetadata() {
