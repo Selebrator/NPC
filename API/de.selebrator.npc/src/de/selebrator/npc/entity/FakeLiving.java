@@ -3,7 +3,7 @@ package de.selebrator.npc.entity;
 import de.selebrator.npc.EnumEntityStatus;
 import de.selebrator.npc.attribute.FakeAttributeInstance;
 import de.selebrator.npc.metadata.FakeLivingMetadata;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.attribute.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -61,9 +61,9 @@ public class FakeLiving extends FakeEntity {
 		this.effects = new HashMap<>();
 	}
 
-	public static int calcPotionColor(Collection<PotionEffect> effects) {
+	public static Color calcPotionColor(Collection<PotionEffect> effects) {
 		if(effects == null || effects.isEmpty())
-			return 0;
+			return Color.BLACK;
 
 		float red = 0.0F;
 		float green = 0.0F;
@@ -82,12 +82,12 @@ public class FakeLiving extends FakeEntity {
 		}
 
 		if(totalAmplifier == 0)
-			return 0;
+			return Color.BLACK;
 		else {
 			red = red / (float) totalAmplifier * 255.0F;
 			green = green / (float) totalAmplifier * 255.0F;
 			blue = blue / (float) totalAmplifier * 255.0F;
-			return (int) red << 16 | (int) green << 8 | (int) blue;
+			return Color.fromRGB((int) red, (int) green, (int) blue);
 		}
 	}
 

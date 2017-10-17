@@ -1,5 +1,7 @@
 package de.selebrator.npc.metadata;
 
+import org.bukkit.Color;
+
 public class FakeLivingMetadata extends FakeEntityMetadata {
 	private MetadataObject<Byte> activeHand = new MetadataObject<>(this.getDataWatcher(), (byte) 0, "EntityLiving", "at", 0); //6
 	private MetadataObject<Float> health = new MetadataObject<>(this.getDataWatcher(), 1.0f, "EntityLiving", "HEALTH", 1); //7
@@ -19,12 +21,12 @@ public class FakeLivingMetadata extends FakeEntityMetadata {
 		this.health.set(health);
 	}
 
-	public int getPotionColor() {
-		return this.potionColor.get();
+	public Color getPotionColor() {
+		return Color.fromRGB(this.potionColor.get());
 	}
 
-	public void setPotionColor(int potionColor) {
-		this.potionColor.set(potionColor);
+	public void setPotionColor(Color potionColor) {
+		this.potionColor.set(potionColor.asRGB());
 	}
 
 	public boolean isPotionAmbient() {
