@@ -1,5 +1,6 @@
 package de.selebrator.plugin.npc;
 
+import de.selebrator.npc.*;
 import de.selebrator.npc.NPC;
 import de.selebrator.npc.entity.FakePlayer;
 import de.selebrator.npc.event.NPCAnimationEvent;
@@ -32,19 +33,19 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 	public static Logger logger;
 
-	private Map<Integer, NPC> fakePlayers = new HashMap<>();
-	private NPC npc;
+	private Map<Integer, PlayerNPC> fakePlayers = new HashMap<>();
+	private PlayerNPC npc;
 	private BukkitRunnable task = new BukkitRunnable() {
 
 		@Override
 		public void run() {
-			Supplier<Stream<NPC>> operableNPCs = () -> fakePlayers.values().stream()
+			Supplier<Stream<PlayerNPC>> operableNPCs = () -> fakePlayers.values().stream()
 					.filter(Objects::nonNull)
-					.filter(NPC::isAlive)
+					.filter(EntityNPC::isAlive)
 					.filter(npc -> !npc.isFrozen());
 
 			operableNPCs.get()
-					.filter(NPC::hasTarget)
+					.filter(PlayerNPC::hasTarget)
 					.filter(npc -> !npc.getTarget().isDead())
 					.forEach(npc -> {
 						Vector vNPC = new Vector(npc.getLocation().getX(), npc.getLocation().getY(), npc.getLocation().getZ());
@@ -58,7 +59,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 						}
 					});
 
-			operableNPCs.get().forEach(NPC::tick);
+			operableNPCs.get().forEach(EntityNPC::tick);
 		}
 	};
 
@@ -140,7 +141,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 					if(args.length == 2) {
 						int id = Integer.parseInt(args[1]);
 						if(fakePlayers.containsKey(id)) {
-							NPC npc = fakePlayers.get(id);
+							PlayerNPC npc = fakePlayers.get(id);
 							String name = fakePlayers.get(id).getDisplayName();
 							fakePlayers.remove(id);
 							npc.despawn();
