@@ -18,7 +18,7 @@ public class AnimationGUI extends GUI implements Listener {
 
 	public void open(Player player) {
 		NPCAnimationEvent.Animation[] set = NPCAnimationEvent.Animation.values();
-		Inventory inventory = Bukkit.getServer().createInventory(null, getInventorySize(set.length), npc.getName() + " - Animation");
+		Inventory inventory = Bukkit.getServer().createInventory(null, getInventorySize(set.length), npc.getCustomName() + " - Animation");
 		int item = 0;
 
 		for(int row = 0; row < inventory.getSize() / 9; row++) {

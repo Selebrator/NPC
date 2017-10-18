@@ -27,6 +27,8 @@ public class Imports {
 	public static final Class CLASS_PacketPlayOutEntityMetadata = getMinecraftClass("PacketPlayOutEntityMetadata");
 
 	public static final Class CLASS_Entity = getMinecraftClass("Entity");
+	public static final Class CLASS_EntityLiving = getMinecraftClass("EntityLiving");
+	public static final Class CLASS_EntityHuman = getMinecraftClass("EntityHuman");
 	public static final Class<?> CLASS_EntityPlayer = getMinecraftClass("EntityPlayer");
 	public static final Class<?> CLASS_PlayerConnection = getMinecraftClass("PlayerConnection");
 	public static final Class CLASS_DataWatcher = getMinecraftClass("DataWatcher");
@@ -35,6 +37,7 @@ public class Imports {
 	public static final Class CLASS_IChatBaseComponent = getMinecraftClass("IChatBaseComponent");
 	public static final Class CLASS_ChatComponentText = getMinecraftClass("ChatComponentText");
 	public static final Class<?> CLASS_ItemStack = getMinecraftClass("ItemStack");
+	public static final Class CLASS_NBTTagCompound = getMinecraftClass("NBTTagCompound");
 
 	//Minecraft Enums
 	public static final Class<? extends Enum> CLASS_EnumPlayerInfoAction = getMinecraftEnum("PacketPlayOutPlayerInfo$EnumPlayerInfoAction");
@@ -64,6 +67,7 @@ public class Imports {
 	public static final ConstructorAccessor CONSTRUCTOR_PlayerInfoData = getConstructor(CLASS_PlayerInfoData, CLASS_PacketPlayOutPlayerInfo, GameProfile.class, int.class, CLASS_EnumGamemode, CLASS_IChatBaseComponent);
 	public static final ConstructorAccessor CONSTRUCTOR_ChatComponentText = getConstructor(CLASS_ChatComponentText, String.class);
 	public static final ConstructorAccessor CONSTRUCTOR_DataWatcher = getConstructor(CLASS_DataWatcher, CLASS_Entity);
+	public static final ConstructorAccessor CONSTRUCTOR_NBTTagCompound = getConstructor(CLASS_NBTTagCompound);
 
 	//Methods
 	public static final MethodAccessor METHOD_CraftEquipmentSlot_getNMS = getMethod(CLASS_CraftEquipmentSlot, CLASS_EnumItemSlot, "getNMS", EquipmentSlot.class);
@@ -77,4 +81,22 @@ public class Imports {
 	public static final FieldAccessor FIELD_EntityPlayer_playerConnection = getField(CLASS_EntityPlayer, CLASS_PlayerConnection, "playerConnection");
 	public static final FieldAccessor<Integer> FIELD_Entity_entityCount = getField(CLASS_Entity, int.class, "entityCount");
 	public static final FieldAccessor<Integer> FIELD_PotionEffect_duration = getField(PotionEffect.class, int.class, "duration");
+
+	public static final FieldAccessor FIELD_Entity_Z = getField(CLASS_Entity, CLASS_DataWatcherObject, "Z"); //0
+	public static final FieldAccessor FIELD_Entity_aA = getField(CLASS_Entity, CLASS_DataWatcherObject, "aA"); //1
+	public static final FieldAccessor FIELD_Entity_aB = getField(CLASS_Entity, CLASS_DataWatcherObject, "aB"); //2
+	public static final FieldAccessor FIELD_Entity_aC = getField(CLASS_Entity, CLASS_DataWatcherObject, "aC"); //3
+	public static final FieldAccessor FIELD_Entity_aD = getField(CLASS_Entity, CLASS_DataWatcherObject, "aD"); //4
+	public static final FieldAccessor FIELD_Entity_aE = getField(CLASS_Entity, CLASS_DataWatcherObject, "aE"); //5
+	public static final FieldAccessor FIELD_EntityLiving_at = getField(CLASS_EntityLiving, CLASS_DataWatcherObject, "at"); //6
+	public static final FieldAccessor FIELD_EntityLiving_HEALTH = getField(CLASS_EntityLiving, CLASS_DataWatcherObject, "HEALTH"); //7
+	public static final FieldAccessor FIELD_EntityLiving_g = getField(CLASS_EntityLiving, CLASS_DataWatcherObject, "g"); //8
+	public static final FieldAccessor FIELD_EntityLiving_h = getField(CLASS_EntityLiving, CLASS_DataWatcherObject, "h"); //9
+	public static final FieldAccessor FIELD_EntityLiving_br = getField(CLASS_EntityLiving, CLASS_DataWatcherObject, "br"); //10
+	public static final FieldAccessor FIELD_EntityHuman_a = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "a"); //11
+	public static final FieldAccessor FIELD_EntityHuman_b = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "b"); //12
+	public static final FieldAccessor FIELD_EntityHuman_br = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "br"); //13
+	public static final FieldAccessor FIELD_EntityHuman_bs = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "bs"); //14
+	public static final FieldAccessor FIELD_EntityHuman_bt = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "bt"); //15
+	public static final FieldAccessor FIELD_EntityHuman_bu = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "bu"); //16
 }

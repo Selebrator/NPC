@@ -1,5 +1,7 @@
 package de.selebrator.npc.metadata;
 
+import de.selebrator.npc.entity.FakeEntity;
+
 public class FakeSpiderMetadata extends FakeMonsterMetadata {
 	private MetadataObject<Byte> climbing = new MetadataObject<>(this.getDataWatcher(), (byte) 0, "EntitySpider", "a", 0); //12
 
@@ -8,10 +10,10 @@ public class FakeSpiderMetadata extends FakeMonsterMetadata {
 	}
 
 	public boolean isClimbing() {
-		return FakeMetadata.getBitmaskValue(this.climbing, (byte) 0);
+		return FakeEntity.getBitmaskValue(this.climbing, (byte) 0);
 	}
 
 	public void setClimbing(boolean climbing) {
-		FakeMetadata.setBitmaskValue(this.climbing, (byte) 0, climbing);
+		FakeEntity.setBitmaskValue(this.climbing, (byte) 0, climbing);
 	}
 }

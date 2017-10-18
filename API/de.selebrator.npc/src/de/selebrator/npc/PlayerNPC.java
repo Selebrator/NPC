@@ -2,15 +2,12 @@ package de.selebrator.npc;
 
 import com.mojang.authlib.GameProfile;
 import de.selebrator.npc.inventory.FakeEquipment;
-import de.selebrator.npc.metadata.FakeHumanMetadata;
+import de.selebrator.npc.metadata.HumanMetadata;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
-public interface PlayerNPC extends LivingNPC {
-
-	@Override
-	FakeHumanMetadata getMeta();
+public interface PlayerNPC extends LivingNPC, HumanMetadata {
 
 	/**
 	 * Look at the given location
@@ -38,10 +35,6 @@ public interface PlayerNPC extends LivingNPC {
 	default Location getEyeLocation() {
 		return this.hasLocation() ? this.getLocation().clone().add(0, this.getEyeHeight(false), 0) : null;
 	}
-
-	void setSneaking(boolean state);
-
-	void setSprinting(boolean state);
 
 	FakeEquipment getEquipment();
 

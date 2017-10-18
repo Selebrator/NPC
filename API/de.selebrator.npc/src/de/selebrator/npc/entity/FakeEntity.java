@@ -3,21 +3,27 @@ package de.selebrator.npc.entity;
 import de.selebrator.npc.*;
 import de.selebrator.npc.event.NPCAnimationEvent;
 import de.selebrator.npc.fetcher.PacketFetcher;
-import de.selebrator.npc.metadata.*;
+import de.selebrator.npc.metadata.MetadataObject;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 
 import java.util.*;
 
-import static de.selebrator.npc.Imports.FIELD_Entity_entityCount;
+import static de.selebrator.npc.Imports.*;
 
 public class FakeEntity implements EntityNPC {
 	private final int entityId;
 	private final UUID uniqueId;
 	private final EntityType type;
 	Random random;
+	MetadataObject<Byte> status;
+	MetadataObject<Integer> air;
+	MetadataObject<String> name;
+	MetadataObject<Boolean> nameVisible;
+	MetadataObject<Boolean> silent;
+	MetadataObject<Boolean> noGravity;
+	private Object dataWatcher;
 	private Location location;
-	private FakeMetadata meta;
 	private int noDamageTicks;
 	private int fireTicks;
 	private boolean invulnerable;
@@ -27,7 +33,7 @@ public class FakeEntity implements EntityNPC {
 		this.random = new Random();
 		this.entityId = FakeEntity.getNextEID();
 		this.uniqueId = FakeEntity.getNewUUID(this.random);
-		this.setMeta(new FakeEntityMetadata());
+		initMetadata();
 		this.type = type;
 	}
 
@@ -43,10 +49,33 @@ public class FakeEntity implements EntityNPC {
 		return new UUID(mostSigBits, leastSigBits);
 	}
 
+	//TODO make package-private after moving metadata
+	public static boolean getBitmaskValue(MetadataObject<Byte> bitmask, byte id) {
+		return MathHelper.getBit(bitmask.get(), id);
+	}
+
+	public static void setBitmaskValue(MetadataObject<Byte> bitmask, byte id, boolean state) {
+		bitmask.set(MathHelper.setBit(bitmask.get(), id, state));
+	}
+
+	void initMetadata() {
+		this.dataWatcher = CONSTRUCTOR_DataWatcher.newInstance(new Object[] { null });
+		this.status = new MetadataObject<>(this.getDataWatcher(), FIELD_Entity_Z, (byte) 0); //0
+		this.air = new MetadataObject<>(this.getDataWatcher(), FIELD_Entity_aA, 300); //1
+		this.name = new MetadataObject<>(this.getDataWatcher(), FIELD_Entity_aB, ""); //2
+		this.nameVisible = new MetadataObject<>(this.getDataWatcher(), FIELD_Entity_aC, false); //3
+		this.silent = new MetadataObject<>(this.getDataWatcher(), FIELD_Entity_aD, false); //4
+		this.noGravity = new MetadataObject<>(this.getDataWatcher(), FIELD_Entity_aE, false); //5
+	}
+
+	public Object getDataWatcher() {
+		return this.dataWatcher;
+	}
+
 	public void spawn(Location location) {
 		this.setLocation(location);
 		PacketFetcher.broadcastPackets(
-				PacketFetcher.spawnEntityLiving(this.getEntityId(), this.getUniqueId(), this.getType(), this.getLocation(), this.getMeta())
+				PacketFetcher.spawnEntityLiving(this.getEntityId(), this.getUniqueId(), this.getType(), this.getLocation(), this.getDataWatcher())
 		);
 	}
 
@@ -103,7 +132,7 @@ public class FakeEntity implements EntityNPC {
 
 	public void updateMetadata() {
 		PacketFetcher.broadcastPackets(
-				PacketFetcher.entityMetadata(this.getEntityId(), this.getMeta())
+				PacketFetcher.entityMetadata(this.getEntityId(), this.getDataWatcher())
 		);
 	}
 
@@ -115,21 +144,8 @@ public class FakeEntity implements EntityNPC {
 		return this.uniqueId;
 	}
 
-	@Override
-	public String getName() {
-		return this.getMeta().getName();
-	}
-
 	public EntityType getType() {
 		return this.type;
-	}
-
-	public FakeEntityMetadata getMeta() {
-		return (FakeEntityMetadata) this.meta;
-	}
-
-	public void setMeta(FakeMetadata meta) {
-		this.meta = meta;
 	}
 
 	public boolean hasLocation() {
@@ -179,19 +195,19 @@ public class FakeEntity implements EntityNPC {
 	}
 
 	public void playSound(Sound sound) {
-		if(!this.getMeta().isSilent())
+		if(!this.isSilent())
 			this.getLocation().getWorld().playSound(this.getLocation(), sound, 1, 1);
 	}
 
 	public void ignite(int fireTicks) {
-		this.getMeta().setOnFire(true);
+		this.setOnFire(true);
 		if(this.getFireTicks() < fireTicks)
 			this.setFireTicks(fireTicks);
 		updateMetadata();
 	}
 
 	public void extinguish() {
-		this.getMeta().setOnFire(false);
+		this.setOnFire(false);
 		this.setFireTicks(-20);
 		updateMetadata();
 	}
@@ -207,5 +223,57 @@ public class FakeEntity implements EntityNPC {
 	@Override
 	public void tick() {
 		//TODO
+	}
+
+	public boolean getStatus(Status target) {
+		return FakeEntity.getBitmaskValue(this.status, target.getId());
+	}
+
+	public void setStatus(Status target, boolean state) {
+		FakeEntity.setBitmaskValue(this.status, target.getId(), state);
+	}
+
+	public void setStatus(boolean fire, boolean sneak, boolean sprint, boolean invisible, boolean glow, boolean gliding) {
+		this.status.set((byte) ((fire ? 1 : 0) << Status.FIRE.getId() | (sneak ? 1 : 0) << Status.SNEAK.getId() | (sprint ? 1 : 0) << Status.SPRINT.getId() | (invisible ? 1 : 0) << Status.INVISIBLE.getId() | (glow ? 1 : 0) << Status.GLOW.getId() | (gliding ? 1 : 0) << Status.ELYTRA.getId()));
+	}
+
+	public int getRemainingAir() {
+		return this.air.get();
+	}
+
+	public void setRemainingAir(int air) {
+		this.air.set(air);
+	}
+
+	public String getCustomName() {
+		return this.name.get();
+	}
+
+	public void setCustomName(String name) {
+		this.name.set(name);
+	}
+
+	public boolean isCustomNameVisible() {
+		return this.nameVisible.get();
+	}
+
+	public void setCustomNameVisible(boolean nameVisible) {
+		this.nameVisible.set(nameVisible);
+	}
+
+	public boolean isSilent() {
+		return this.silent.get();
+	}
+
+	public void setSilent(boolean silent) {
+		this.silent.set(silent);
+	}
+
+	public boolean hasGravity() {
+		return !this.noGravity.get();
+	}
+
+	public void setGravity(boolean gravity) {
+		this.noGravity.set(!gravity);
 	}
 }

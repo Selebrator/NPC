@@ -16,7 +16,17 @@ public abstract class GUI implements Listener {
 	}
 
 	public static boolean[] getPattern(int items) {
-		return new boolean[] { items >= 8, items >= 6, items >= 4, items >= 2, items % 2 == 1 || items >= 10, items >= 2, items >= 4, items >= 6, items >= 8 };
+		return new boolean[] {
+				items >= 8,
+				items >= 6,
+				items >= 4,
+				items >= 2,
+				items % 2 == 1 || items >= 10,
+				items >= 2,
+				items >= 4,
+				items >= 6,
+				items >= 8
+		};
 	}
 
 	public static int getInventorySize(int items) {

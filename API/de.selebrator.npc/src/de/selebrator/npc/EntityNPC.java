@@ -1,13 +1,13 @@
 package de.selebrator.npc;
 
 import de.selebrator.npc.event.NPCAnimationEvent;
-import de.selebrator.npc.metadata.*;
+import de.selebrator.npc.metadata.EntityMetadata;
 import org.bukkit.*;
 import org.bukkit.util.Vector;
 
 import java.util.UUID;
 
-public interface EntityNPC extends NPC {
+public interface EntityNPC extends NPC, EntityMetadata {
 
 	void spawn(Location location);
 
@@ -83,15 +83,9 @@ public interface EntityNPC extends NPC {
 
 	void updateMetadata();
 
-	FakeEntityMetadata getMeta();
-
-	void setMeta(FakeMetadata meta);
-
 	int getEntityId();
 
 	UUID getUniqueId();
-
-	String getName();
 
 	int getNoDamageTicks();
 

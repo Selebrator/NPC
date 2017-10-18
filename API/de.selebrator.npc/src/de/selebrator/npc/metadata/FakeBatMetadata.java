@@ -1,5 +1,7 @@
 package de.selebrator.npc.metadata;
 
+import de.selebrator.npc.entity.FakeEntity;
+
 public class FakeBatMetadata extends FakeAmbientMetadata {
 	private MetadataObject<Byte> hanging = new MetadataObject<>(this.getDataWatcher(), (byte) 0, "EntityBat", "a", 0); //12
 
@@ -8,10 +10,10 @@ public class FakeBatMetadata extends FakeAmbientMetadata {
 	}
 
 	public boolean isHanging() {
-		return FakeMetadata.getBitmaskValue(this.hanging, (byte) 0);
+		return FakeEntity.getBitmaskValue(this.hanging, (byte) 0);
 	}
 
 	public void setHanging(boolean hanging) {
-		FakeMetadata.setBitmaskValue(this.hanging, (byte) 0, hanging);
+		FakeEntity.setBitmaskValue(this.hanging, (byte) 0, hanging);
 	}
 }

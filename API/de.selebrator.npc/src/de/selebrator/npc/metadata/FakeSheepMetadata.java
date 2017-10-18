@@ -1,5 +1,7 @@
 package de.selebrator.npc.metadata;
 
+import de.selebrator.npc.entity.FakeEntity;
+
 public class FakeSheepMetadata extends FakeAnimalMetadata {
 	private MetadataObject<Byte> wool = new MetadataObject<>(this.getDataWatcher(), (byte) 0, "EntitySheep", "bx", 0); //13
 
@@ -16,10 +18,10 @@ public class FakeSheepMetadata extends FakeAnimalMetadata {
 	}
 
 	public boolean isSheared() {
-		return FakeMetadata.getBitmaskValue(this.wool, (byte) 4);
+		return FakeEntity.getBitmaskValue(this.wool, (byte) 4);
 	}
 
 	public void setSheared(boolean sheared) {
-		FakeMetadata.setBitmaskValue(this.wool, (byte) 4, sheared);
+		FakeEntity.setBitmaskValue(this.wool, (byte) 4, sheared);
 	}
 }

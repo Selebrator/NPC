@@ -1,8 +1,8 @@
 package de.selebrator.npc.entity;
 
-import de.selebrator.npc.EnumEntityStatus;
+import de.selebrator.npc.*;
 import de.selebrator.npc.attribute.FakeAttributeInstance;
-import de.selebrator.npc.metadata.FakeLivingMetadata;
+import de.selebrator.npc.metadata.MetadataObject;
 import org.bukkit.*;
 import org.bukkit.attribute.*;
 import org.bukkit.entity.EntityType;
@@ -11,7 +11,9 @@ import org.bukkit.potion.*;
 
 import java.util.*;
 
-public class FakeLiving extends FakeEntity {
+import static de.selebrator.npc.Imports.*;
+
+public class FakeLiving extends FakeEntity implements LivingNPC {
 	private static final Map<PotionEffectType, Integer> potionColors = Map.ofEntries(
 			Map.entry(PotionEffectType.SPEED, 0x7cafc6),
 			Map.entry(PotionEffectType.SLOW, 0x5a6c81),
@@ -41,13 +43,17 @@ public class FakeLiving extends FakeEntity {
 			Map.entry(PotionEffectType.LUCK, 0x339900),
 			Map.entry(PotionEffectType.UNLUCK, 0xc0a44d)
 	);
+	MetadataObject<Byte> activeHand;
+	MetadataObject<Float> health;
+	MetadataObject<Integer> potionColor;
+	MetadataObject<Boolean> potionAmbient;
+	MetadataObject<Integer> arrows;
 	private Map<Attribute, FakeAttributeInstance> attributes;
 	private Map<PotionEffectType, PotionEffect> effects;
 	private boolean living;
 
 	public FakeLiving(EntityType type) {
 		super(type);
-		this.setMeta(new FakeLivingMetadata());
 
 		this.attributes = new HashMap<>();
 		this.initAttribute(Attribute.GENERIC_MAX_HEALTH);
@@ -92,14 +98,19 @@ public class FakeLiving extends FakeEntity {
 	}
 
 	@Override
-	public void despawn() {
-		super.despawn();
-		this.setLiving(false);
+	void initMetadata() {
+		super.initMetadata();
+		this.activeHand = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityLiving_at, (byte) 0); //6
+		this.health = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityLiving_HEALTH, 1.0f); //7
+		this.potionColor = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityLiving_g, 0); //8
+		this.potionAmbient = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityLiving_h, false); //9
+		this.arrows = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityLiving_br, 0); //10
 	}
 
 	@Override
-	public FakeLivingMetadata getMeta() {
-		return (FakeLivingMetadata) super.getMeta();
+	public void despawn() {
+		super.despawn();
+		this.setLiving(false);
 	}
 
 	void initAttribute(Attribute attribute) {
@@ -108,6 +119,11 @@ public class FakeLiving extends FakeEntity {
 
 	public AttributeInstance getAttribute(Attribute attribute) {
 		return this.attributes.get(attribute);
+	}
+
+	@Override
+	public double getMoveSpeed() {
+		return 0;
 	}
 
 	public boolean hasPotionEffect(PotionEffectType type) {
@@ -144,14 +160,14 @@ public class FakeLiving extends FakeEntity {
 			this.damage((6.0F * (float) Math.pow(2.0D, level - 1.0D)), EntityDamageEvent.DamageCause.MAGIC); //TODO
 			this.removePotionEffect(PotionEffectType.HARM);
 		} else if(type.equals(PotionEffectType.INVISIBILITY)) {
-			this.getMeta().setInvisibleTemp(true);
+			this.setInvisible(true);
 			updateMetadata();
 		} else if(type.equals(PotionEffectType.WEAKNESS))
 			this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(FakeAttributeInstance.EFFECT_WEAKNESS.apply(level));
 		else if(type.equals(PotionEffectType.HEALTH_BOOST))
 			this.getAttribute(Attribute.GENERIC_MAX_HEALTH).addModifier(FakeAttributeInstance.EFFECT_HEALTH_BOOST.apply(level));
 		else if(type.equals(PotionEffectType.GLOWING)) {
-			this.getMeta().setGlowingTemp(true);
+			this.setGlowing(true);
 			updateMetadata();
 		}
 	}
@@ -174,14 +190,14 @@ public class FakeLiving extends FakeEntity {
 			else if(type.equals(PotionEffectType.INCREASE_DAMAGE))
 				this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier(FakeAttributeInstance.EFFECT_STRENGTH.apply(level));
 			else if(type.equals(PotionEffectType.INVISIBILITY)) {
-				this.getMeta().setInvisibleTemp(false);
+				this.setInvisible(false);
 				updateMetadata();
 			} else if(type.equals(PotionEffectType.WEAKNESS))
 				this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier(FakeAttributeInstance.EFFECT_WEAKNESS.apply(level));
 			else if(type.equals(PotionEffectType.HEALTH_BOOST))
 				this.getAttribute(Attribute.GENERIC_MAX_HEALTH).removeModifier(FakeAttributeInstance.EFFECT_HEALTH_BOOST.apply(level));
 			else if(type.equals(PotionEffectType.GLOWING)) {
-				this.getMeta().setGlowingTemp(false);
+				this.setGlowing(false);
 				updateMetadata();
 			}
 		}
@@ -200,8 +216,8 @@ public class FakeLiving extends FakeEntity {
 	}
 
 	public void setParticles(Collection<PotionEffect> effects) {
-		this.getMeta().setPotionAmbient(effects != null && effects.stream().allMatch(PotionEffect::isAmbient));
-		this.getMeta().setPotionColor(calcPotionColor(effects));
+		this.setPotionAmbient(effects != null && effects.stream().allMatch(PotionEffect::isAmbient));
+		this.setPotionColor(calcPotionColor(effects));
 		updateMetadata();
 	}
 
@@ -215,13 +231,13 @@ public class FakeLiving extends FakeEntity {
 	}
 
 	public float getHealth() {
-		return this.isAlive() ? this.getMeta().getHealth() : 0;
+		return this.isAlive() ? this.health.get() : 0;
 	}
 
 	public void setHealth(float health) {
 		final float before = this.getHealth();
 		health = Math.min(Math.max(0.0f, health), (float) this.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-		this.getMeta().setHealth(health);
+		this.health.set(health);
 
 		if(health == 0)
 			this.die();
@@ -229,6 +245,30 @@ public class FakeLiving extends FakeEntity {
 			this.hurt();
 		else if(before == 0 && health > 0)
 			this.revive();
+	}
+
+	public Color getPotionColor() {
+		return Color.fromRGB(this.potionColor.get());
+	}
+
+	public void setPotionColor(Color potionColor) {
+		this.potionColor.set(potionColor.asRGB());
+	}
+
+	public boolean isPotionAmbient() {
+		return this.potionAmbient.get();
+	}
+
+	public void setPotionAmbient(boolean potionAmbient) {
+		this.potionAmbient.set(potionAmbient);
+	}
+
+	public int getArrows() {
+		return this.arrows.get();
+	}
+
+	public void setArrows(int arrows) {
+		this.arrows.set(arrows);
 	}
 
 	void die() {
@@ -281,15 +321,15 @@ public class FakeLiving extends FakeEntity {
 			//absorption
 			if(this instanceof FakePlayer) {
 				FakePlayer fakePlayer = (FakePlayer) this;
-				float newAbsorption = Math.max(fakePlayer.getMeta().getAbsorption() - amount, 0.0f);
-				float absorbed = fakePlayer.getMeta().getAbsorption() - newAbsorption;
+				float newAbsorption = Math.max(fakePlayer.getAbsorption() - amount, 0.0f);
+				float absorbed = fakePlayer.getAbsorption() - newAbsorption;
 
 				amount -= absorbed;
 
 				if(absorbed > 0.0f)
 					this.hurt();
 
-				fakePlayer.getMeta().setAbsorption(newAbsorption);
+				fakePlayer.setAbsorption(newAbsorption);
 			}
 
 			this.setHealth(this.getHealth() - amount);

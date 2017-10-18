@@ -1,7 +1,7 @@
 package de.selebrator.npc;
 
 import de.selebrator.npc.entity.*;
-import de.selebrator.npc.metadata.FakeLivingMetadata;
+import de.selebrator.npc.metadata.LivingMetadata;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -10,10 +10,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Collection;
 
-public interface LivingNPC extends EntityNPC, Attributable {
-
-	@Override
-	FakeLivingMetadata getMeta();
+public interface LivingNPC extends EntityNPC, LivingMetadata, Attributable {
 
 	/**
 	 * Make a step in the given direction

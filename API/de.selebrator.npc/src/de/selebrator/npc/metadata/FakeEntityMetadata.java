@@ -1,5 +1,7 @@
 package de.selebrator.npc.metadata;
 
+import de.selebrator.npc.entity.FakeEntity;
+
 public class FakeEntityMetadata extends FakeMetadata {
 	private MetadataObject<Byte> status = new MetadataObject<>(this.getDataWatcher(), (byte) 0, "Entity", "Z", 0); //0
 	private MetadataObject<Integer> air = new MetadataObject<>(this.getDataWatcher(), 300, "Entity", "aA", 1); //1
@@ -16,11 +18,11 @@ public class FakeEntityMetadata extends FakeMetadata {
 	}
 
 	public boolean getStatus(Status target) {
-		return FakeMetadata.getBitmaskValue(this.status, target.getId());
+		return FakeEntity.getBitmaskValue(this.status, target.getId());
 	}
 
 	public void setStatus(Status target, boolean state) {
-		FakeMetadata.setBitmaskValue(this.status, target.getId(), state);
+		FakeEntity.setBitmaskValue(this.status, target.getId(), state);
 	}
 
 	public boolean isOnFire() {

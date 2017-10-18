@@ -10,14 +10,30 @@ public class MetadataObject<T> {
 	private Object dataWatcher;
 	private Object dataWatcherObject;
 
-	MetadataObject(Object dataWatcher, T defaultValue, String parent, String fieldName, int fieldNumber) {
+	public MetadataObject(Object dataWatcher, T defaultValue, String parent, String fieldName, int fieldNumber) {
+		this(dataWatcher, parent, fieldName, fieldNumber, defaultValue);
+	}
+
+	public MetadataObject(Object dataWatcher, String parent, String fieldName, int fieldNumber, T defaultValue) {
+		this(
+				dataWatcher,
+				Reflection.getMinecraftClass(parent),
+				fieldName,
+				fieldNumber,
+				defaultValue
+		);
+	}
+
+	public MetadataObject(Object dataWatcher, Class parentClazz, String fieldName, int fieldNumber, T defaultValue) {
+		this(
+				dataWatcher,
+				ServerPackage.getVersion().equals("v1_12_R1") ? Reflection.getField(parentClazz, fieldName) : Reflection.getField(parentClazz, CLASS_DataWatcherObject, fieldNumber),
+				defaultValue
+		);
+	}
+
+	public MetadataObject(Object dataWatcher, FieldAccessor field, T defaultValue) {
 		this.dataWatcher = dataWatcher;
-		Class<?> parentClazz = Reflection.getMinecraftClass(parent);
-		FieldAccessor field;
-		if(ServerPackage.getVersion().equals("v1_12_R1"))
-			field = Reflection.getField(parentClazz, fieldName);
-		else
-			field = Reflection.getField(parentClazz, CLASS_DataWatcherObject, fieldNumber);
 		this.dataWatcherObject = field.get(null);
 		this.set(defaultValue);
 	}

@@ -6,7 +6,7 @@ import de.selebrator.npc.attribute.FakeAttributeInstance;
 import de.selebrator.npc.event.NPCAnimationEvent;
 import de.selebrator.npc.fetcher.PacketFetcher;
 import de.selebrator.npc.inventory.FakeEquipment;
-import de.selebrator.npc.metadata.*;
+import de.selebrator.npc.metadata.MetadataObject;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
@@ -19,7 +19,7 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static de.selebrator.npc.Imports.FIELD_PotionEffect_duration;
+import static de.selebrator.npc.Imports.*;
 
 public class FakePlayer extends FakeLiving implements PlayerNPC {
 	private static final double EYE_HEIGHT_STANDING = 1.62D;
@@ -28,14 +28,20 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 	private FakeEquipment equip;
 	private LivingEntity target;
 
+	private MetadataObject<Float> absorption;
+	private MetadataObject<Integer> score;
+	private MetadataObject<Byte> skinFlags;
+	private MetadataObject<Byte> mainHand;
+	private MetadataObject<?> leftShoulder;
+	private MetadataObject<?> rightShoulder;
+
 	public FakePlayer(GameProfile gameProfile) {
 		super(EntityType.PLAYER);
 		this.gameProfile = gameProfile;
 
-		this.setMeta(new FakeHumanMetadata());
-		this.getMeta().setSkinFlags(true, true, true, true, true, true, true);
-		this.getMeta().setHealth(20.0F);
-		this.getMeta().setName(this.getName());
+		this.setSkinFlags(true, true, true, true, true, true, true);
+		this.health.set(20.0F);
+		this.setCustomName(this.getDisplayName());
 
 		this.setEquipment(new FakeEquipment(this));
 
@@ -46,15 +52,26 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 	}
 
 	@Override
+	void initMetadata() {
+		super.initMetadata();
+		this.absorption = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityHuman_a, 0.0f); //11
+		this.score = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityHuman_b, 0); //12
+		this.skinFlags = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityHuman_br, (byte) 0); //13
+		this.mainHand = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityHuman_bs, (byte) 1); //14
+		this.leftShoulder = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityHuman_bt, CONSTRUCTOR_NBTTagCompound.newInstance()); //15
+		this.rightShoulder = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityHuman_bu, CONSTRUCTOR_NBTTagCompound.newInstance()); //16
+	}
+
+	@Override
 	public void spawn(Location location) {
 		this.setLocation(location);
 
 		PacketFetcher.broadcastPackets(
 				PacketFetcher.playerInfo(this.gameProfile, "ADD_PLAYER"),
-				PacketFetcher.namedEntitySpawn(this.getEntityId(), this.gameProfile, this.getLocation(), this.getMeta())
+				PacketFetcher.namedEntitySpawn(this.getEntityId(), this.gameProfile, this.getLocation(), this.getDataWatcher())
 		);
 
-		this.setLiving(this.getMeta().getHealth() > 0);
+		this.setLiving(this.health.get() > 0);
 
 		for(EquipmentSlot slot : EquipmentSlot.values())
 			this.equip(slot, this.getEquipment().get(slot));
@@ -76,16 +93,6 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 		);
 	}
 
-	@Override
-	public FakeHumanMetadata getMeta() {
-		return (FakeHumanMetadata) super.getMeta();
-	}
-
-	@Override
-	public void setMeta(FakeMetadata meta) {
-		super.setMeta(meta);
-	}
-
 	public GameProfile getGameProfile() {
 		return this.gameProfile;
 	}
@@ -95,15 +102,10 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 			PacketFetcher.broadcastPackets(
 					PacketFetcher.playerInfo(this.getGameProfile(), "REMOVE_PLAYER"),
 					PacketFetcher.playerInfo(gameProfile, "ADD_PLAYER"),
-					PacketFetcher.namedEntitySpawn(this.getEntityId(), gameProfile, this.getLocation(), this.getMeta())
+					PacketFetcher.namedEntitySpawn(this.getEntityId(), gameProfile, this.getLocation(), this.getDataWatcher())
 			);
 		}
 		this.gameProfile = gameProfile;
-	}
-
-	@Override
-	public String getName() {
-		return ChatColor.stripColor(this.gameProfile.getName());
 	}
 
 	@Override
@@ -118,7 +120,7 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 
 	@Override
 	public double getEyeHeight(boolean ignoreSneaking) {
-		return ignoreSneaking ? EYE_HEIGHT_STANDING : (this.getMeta().isSneaking() ? EYE_HEIGHT_SNEAKING : EYE_HEIGHT_STANDING);
+		return ignoreSneaking ? EYE_HEIGHT_STANDING : (this.isSneaking() ? EYE_HEIGHT_SNEAKING : EYE_HEIGHT_STANDING);
 	}
 
 	@Override
@@ -156,7 +158,7 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 		else if(type.equals(PotionEffectType.SLOW_DIGGING))
 			this.getAttribute(Attribute.GENERIC_ATTACK_SPEED).addModifier(FakeAttributeInstance.EFFECT_MINING_FATIGUE.apply(level)); //TODO Mining Fatigue
 		else if(type.equals(PotionEffectType.ABSORPTION)) {
-			this.getMeta().setAbsorption(4 * level);
+			this.setAbsorption(4 * level);
 			updateMetadata();
 		} else if(type.equals(PotionEffectType.LUCK))
 			this.getAttribute(Attribute.GENERIC_LUCK).addModifier(FakeAttributeInstance.EFFECT_LUCK.apply(level));
@@ -176,7 +178,7 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 			else if(type.equals(PotionEffectType.SLOW_DIGGING))
 				this.getAttribute(Attribute.GENERIC_ATTACK_SPEED).removeModifier(FakeAttributeInstance.EFFECT_MINING_FATIGUE.apply(level));
 			else if(type.equals(PotionEffectType.ABSORPTION)) {
-				this.getMeta().setAbsorption(0);
+				this.setAbsorption(0);
 				updateMetadata();
 			} else if(type.equals(PotionEffectType.LUCK))
 				this.getAttribute(Attribute.GENERIC_LUCK).removeModifier(FakeAttributeInstance.EFFECT_LUCK.apply(level));
@@ -187,10 +189,10 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 
 	@Override
 	public void setSneaking(boolean state) {
-		this.getMeta().setSneaking(state);
+		this.setStatus(Status.SNEAK, state);
 		if(state) {
 			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.MOVEMENT_SPEED_SNEAKING);
-			this.getMeta().setSprinting(false);
+			this.setStatus(Status.SPRINT, false);
 		} else
 			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.MOVEMENT_SPEED_SNEAKING);
 		updateMetadata();
@@ -198,10 +200,10 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 
 	@Override
 	public void setSprinting(boolean state) {
-		this.getMeta().setSprinting(state);
+		this.setStatus(Status.SPRINT, state);
 		if(state) {
 			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.MOVEMENT_SPEED_SPRINTING);
-			this.getMeta().setSneaking(false);
+			this.setStatus(Status.SNEAK, false);
 		} else
 			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.MOVEMENT_SPEED_SPRINTING);
 		updateMetadata();
@@ -294,13 +296,13 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 
 		//drown
 		if(this.getEyeLocation().getBlock().getType() == Material.STATIONARY_WATER)
-			this.getMeta().setAir(this.getMeta().getAir() - 1);
+			this.setRemainingAir(this.getRemainingAir() - 1);
 		else if(!this.getEyeLocation().getBlock().getType().isSolid() && !this.getEyeLocation().getBlock().isLiquid())
-			this.getMeta().setAir(300);
+			this.setRemainingAir(300);
 
-		if(this.getMeta().getAir() <= -20) {
+		if(this.getRemainingAir() <= -20) {
 			this.damage(2.0F, EntityDamageEvent.DamageCause.DROWNING);
-			this.getMeta().setAir(0);
+			this.setRemainingAir(0);
 		}
 	}
 
@@ -347,9 +349,9 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 	}
 
 	public void softReset() {
-		this.getMeta().setAir(300);
-		this.getMeta().setSilent(false);
-		this.getMeta().setHealth(20.0F);
+		this.setRemainingAir(300);
+		this.setSilent(false);
+		this.health.set(20.0F);
 
 		this.setEquipment(new FakeEquipment(this));
 
@@ -366,5 +368,48 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 		this.extinguish();
 		this.setNoDamageTicks(0);
 		this.setInvulnerable(false);
+	}
+
+	public float getAbsorption() {
+		return this.absorption.get();
+	}
+
+	public void setAbsorption(float absorption) {
+		this.absorption.set(absorption > 0 ? absorption : 0);
+	}
+
+	public int getScore() {
+		return this.score.get();
+	}
+
+	public void setScore(int score) {
+		this.score.set(score);
+	}
+
+	public boolean getSkinFlag(SkinFlag target) {
+		return FakeEntity.getBitmaskValue(this.skinFlags, target.getId());
+	}
+
+	public void setSkinFlag(SkinFlag target, boolean state) {
+		FakeEntity.setBitmaskValue(this.skinFlags, target.getId(), state);
+	}
+
+	public void setSkinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
+		this.skinFlags.set((byte) ((cape ? 1 : 0) << SkinFlag.CAPE.getId() | (jacket ? 1 : 0) << SkinFlag.JACKET.getId() | (leftArm ? 1 : 0) << SkinFlag.LEFT_SLEEVE.getId() | (rightArm ? 1 : 0) << SkinFlag.RIGHT_SLEEVE.getId() | (leftLeg ? 1 : 0) << SkinFlag.LEFT_PANTS.getId() | (rightLeg ? 1 : 0) << SkinFlag.RIGHT_PANTS.getId() | (hat ? 1 : 0) << SkinFlag.HAT.getId()));
+	}
+
+	public MainHand getMainHand() {
+		return this.mainHand.get() == 1 ? MainHand.RIGHT : MainHand.LEFT;
+	}
+
+	public void setMainHand(MainHand mainHand) {
+		switch(mainHand) {
+			case LEFT:
+				this.mainHand.set((byte) 0);
+				break;
+			case RIGHT:
+				this.mainHand.set((byte) 1);
+				break;
+		}
 	}
 }

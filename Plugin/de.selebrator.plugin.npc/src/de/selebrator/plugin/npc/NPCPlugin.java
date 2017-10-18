@@ -252,7 +252,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if(npc != null) {
 						if(args.length == 1) {
-							player.sendMessage(npc.getHealth() + " [+ " + npc.getMeta().getAbsorption() + "]");
+							player.sendMessage(npc.getHealth() + " [+ " + npc.getAbsorption() + "]");
 							return true;
 						} else if(args.length == 2) {
 							npc.setHealth(Float.parseFloat(args[1]));
@@ -337,7 +337,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 
 					if(npc != null) {
 						if(args.length == 2) {
-							npc.getMeta().setAbsorption(Float.parseFloat(args[1]));
+							npc.setAbsorption(Float.parseFloat(args[1]));
 							return true;
 						}
 						player.sendMessage("§c/npc " + args[0] + " <amount>");

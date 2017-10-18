@@ -1,5 +1,6 @@
 package de.selebrator.npc.metadata;
 
+import de.selebrator.npc.entity.FakeEntity;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import org.bukkit.inventory.MainHand;
 
@@ -34,11 +35,11 @@ public class FakeHumanMetadata extends FakeLivingMetadata {
 	}
 
 	public boolean getSkinFlag(SkinFlag target) {
-		return FakeMetadata.getBitmaskValue(this.skinFlags, target.getId());
+		return FakeEntity.getBitmaskValue(this.skinFlags, target.getId());
 	}
 
 	public void setSkinFlag(SkinFlag target, boolean state) {
-		FakeMetadata.setBitmaskValue(this.skinFlags, target.getId(), state);
+		FakeEntity.setBitmaskValue(this.skinFlags, target.getId(), state);
 	}
 
 	public boolean isCapeEnabled() {

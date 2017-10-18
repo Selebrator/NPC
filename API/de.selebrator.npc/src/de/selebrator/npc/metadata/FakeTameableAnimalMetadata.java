@@ -1,6 +1,7 @@
 package de.selebrator.npc.metadata;
 
 import com.google.common.base.Optional;
+import de.selebrator.npc.entity.FakeEntity;
 
 import java.util.UUID;
 
@@ -13,11 +14,11 @@ public class FakeTameableAnimalMetadata extends FakeAnimalMetadata {
 	}
 
 	public boolean getTameableAnimalInfo(TameableAnimalInfo target) {
-		return FakeMetadata.getBitmaskValue(this.tameableAnimalInfo, target.getId());
+		return FakeEntity.getBitmaskValue(this.tameableAnimalInfo, target.getId());
 	}
 
 	public void setTameableAnimalInfo(TameableAnimalInfo target, boolean state) {
-		FakeMetadata.setBitmaskValue(this.tameableAnimalInfo, target.getId(), state);
+		FakeEntity.setBitmaskValue(this.tameableAnimalInfo, target.getId(), state);
 	}
 
 	public boolean isSitting() {

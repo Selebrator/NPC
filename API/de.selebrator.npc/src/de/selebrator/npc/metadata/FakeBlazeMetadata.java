@@ -1,5 +1,7 @@
 package de.selebrator.npc.metadata;
 
+import de.selebrator.npc.entity.FakeEntity;
+
 public class FakeBlazeMetadata extends FakeAmbientMetadata {
 	private MetadataObject<Byte> onFire = new MetadataObject<>(this.getDataWatcher(), (byte) 0, "EntityBlaze", "c", 0); //12
 
@@ -8,10 +10,10 @@ public class FakeBlazeMetadata extends FakeAmbientMetadata {
 	}
 
 	public boolean isOnFire() {
-		return FakeMetadata.getBitmaskValue(this.onFire, (byte) 0);
+		return FakeEntity.getBitmaskValue(this.onFire, (byte) 0);
 	}
 
 	public void setOnFire(boolean onFire) {
-		FakeMetadata.setBitmaskValue(this.onFire, (byte) 0, onFire);
+		FakeEntity.setBitmaskValue(this.onFire, (byte) 0, onFire);
 	}
 }

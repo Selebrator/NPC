@@ -21,7 +21,7 @@ public class EquipGUI extends GUI implements Listener {
 	public void open(Player player) {
 		ItemStack marker = new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 5, " ").build();
 
-		Inventory inventory = Bukkit.getServer().createInventory(null, 6 * 9, npc.getName() + " - Equip");
+		Inventory inventory = Bukkit.getServer().createInventory(null, 6 * 9, npc.getCustomName() + " - Equip");
 
 		inventory.setItem(10, npc.getEquipment().getMainHand() == null ? new ItemBuilder(Material.STICK, "§8Empty MainHand").build() : npc.getEquipment().getMainHand());
 		inventory.setItem(11, npc.getEquipment().getOffHand() == null ? new ItemBuilder(Material.PAPER, "§8Empty OffHand").build() : npc.getEquipment().getOffHand());
