@@ -11,10 +11,9 @@ import java.util.*;
 
 import static de.selebrator.npc.Imports.*;
 
-public class FakeEntity implements EntityNPC {
+public abstract class FakeEntity implements EntityNPC {
 	private final int entityId;
 	private final UUID uniqueId;
-	private final EntityType type;
 	Random random;
 	MetadataObject<Byte> status;
 	MetadataObject<Integer> air;
@@ -29,12 +28,11 @@ public class FakeEntity implements EntityNPC {
 	private boolean invulnerable;
 	private boolean frozen;
 
-	public FakeEntity(EntityType type) {
+	public FakeEntity() {
 		this.random = new Random();
 		this.entityId = FakeEntity.getNextEID();
 		this.uniqueId = FakeEntity.getNewUUID(this.random);
 		initMetadata();
-		this.type = type;
 	}
 
 	private static int getNextEID() {
@@ -144,9 +142,7 @@ public class FakeEntity implements EntityNPC {
 		return this.uniqueId;
 	}
 
-	public EntityType getType() {
-		return this.type;
-	}
+	public abstract EntityType getType();
 
 	public boolean hasLocation() {
 		return this.getLocation() != null;

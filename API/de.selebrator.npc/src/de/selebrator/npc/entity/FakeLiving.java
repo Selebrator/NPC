@@ -5,7 +5,6 @@ import de.selebrator.npc.attribute.FakeAttributeInstance;
 import de.selebrator.npc.metadata.MetadataObject;
 import org.bukkit.*;
 import org.bukkit.attribute.*;
-import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.*;
 
@@ -13,7 +12,7 @@ import java.util.*;
 
 import static de.selebrator.npc.Imports.*;
 
-public class FakeLiving extends FakeEntity implements LivingNPC {
+public abstract class FakeLiving extends FakeEntity implements LivingNPC {
 	private static final Map<PotionEffectType, Integer> potionColors = Map.ofEntries(
 			Map.entry(PotionEffectType.SPEED, 0x7cafc6),
 			Map.entry(PotionEffectType.SLOW, 0x5a6c81),
@@ -52,8 +51,8 @@ public class FakeLiving extends FakeEntity implements LivingNPC {
 	private Map<PotionEffectType, PotionEffect> effects;
 	private boolean living;
 
-	public FakeLiving(EntityType type) {
-		super(type);
+	public FakeLiving() {
+		super();
 
 		this.attributes = new HashMap<>();
 		this.initAttribute(Attribute.GENERIC_MAX_HEALTH);

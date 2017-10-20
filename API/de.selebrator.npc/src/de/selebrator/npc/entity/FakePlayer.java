@@ -36,7 +36,7 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 	private MetadataObject<?> rightShoulder;
 
 	public FakePlayer(GameProfile gameProfile) {
-		super(EntityType.PLAYER);
+		super();
 		this.gameProfile = gameProfile;
 
 		this.setSkinFlags(true, true, true, true, true, true, true);
@@ -49,6 +49,11 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 		this.initAttribute(Attribute.GENERIC_LUCK);
 
 		this.setFireTicks(-20);
+	}
+
+	@Override
+	public EntityType getType() {
+		return EntityType.PLAYER;
 	}
 
 	@Override
