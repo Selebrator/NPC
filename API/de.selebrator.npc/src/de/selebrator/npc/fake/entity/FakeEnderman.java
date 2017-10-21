@@ -3,7 +3,6 @@ package de.selebrator.npc.fake.entity;
 import com.google.common.base.Optional;
 import de.selebrator.npc.entity.EndermanNPC;
 import de.selebrator.npc.entity.metadata.MetadataObject;
-import org.bukkit.entity.EntityType;
 
 import static de.selebrator.npc.fake.Imports.*;
 
@@ -20,10 +19,6 @@ public class FakeEnderman extends FakeMonster implements EndermanNPC {
 			Object blockData = METHOD_Block_getByCombinedId.invoke(null, number);
 			return Optional.of(blockData);
 		}
-	}
-
-	public EntityType getType() {
-		return EntityType.ENDERMAN;
 	}
 
 	@Override

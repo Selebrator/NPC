@@ -5,7 +5,6 @@ import de.selebrator.npc.entity.EntityNPC;
 import de.selebrator.npc.entity.metadata.MetadataObject;
 import de.selebrator.npc.fake.packet.FakePacket;
 import org.bukkit.*;
-import org.bukkit.entity.EntityType;
 
 import java.util.*;
 
@@ -132,8 +131,6 @@ public abstract class FakeEntity implements EntityNPC {
 	public UUID getUniqueId() {
 		return this.uniqueId;
 	}
-
-	public abstract EntityType getType();
 
 	public boolean hasLocation() {
 		return this.getLocation() != null;

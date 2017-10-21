@@ -2,7 +2,6 @@ package de.selebrator.npc.fake.entity;
 
 import de.selebrator.npc.entity.ZombieNPC;
 import de.selebrator.npc.entity.metadata.MetadataObject;
-import org.bukkit.entity.EntityType;
 
 import static de.selebrator.npc.fake.Imports.FIELD_EntityZombie_bx;
 import static de.selebrator.npc.fake.Imports.FIELD_EntityZombie_bz;
@@ -11,11 +10,6 @@ public class FakeZombie extends FakeMonster implements ZombieNPC {
 
 	MetadataObject<Boolean> baby;
 	MetadataObject<Boolean> handsUp;
-
-	@Override
-	public EntityType getType() {
-		return EntityType.ZOMBIE;
-	}
 
 	@Override
 	void initMetadata() {

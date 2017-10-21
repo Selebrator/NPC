@@ -5,10 +5,15 @@ import de.selebrator.npc.MathHelper;
 import de.selebrator.npc.entity.metadata.HumanMetadata;
 import de.selebrator.npc.inventory.Equipment;
 import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.*;
 import org.bukkit.util.Vector;
 
 public interface PlayerNPC extends LivingNPC, HumanMetadata {
+
+	@Override
+	default EntityType getType() {
+		return EntityType.PLAYER;
+	}
 
 	/**
 	 * Look at the given location

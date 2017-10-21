@@ -10,7 +10,7 @@ import de.selebrator.npc.inventory.Equipment;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.potion.*;
@@ -49,11 +49,6 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 		this.initAttribute(Attribute.GENERIC_LUCK);
 
 		this.setFireTicks(-20);
-	}
-
-	@Override
-	public EntityType getType() {
-		return EntityType.PLAYER;
 	}
 
 	@Override
