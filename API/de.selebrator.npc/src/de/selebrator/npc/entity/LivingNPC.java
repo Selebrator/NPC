@@ -2,7 +2,6 @@ package de.selebrator.npc.entity;
 
 import de.selebrator.npc.MathHelper;
 import de.selebrator.npc.entity.metadata.LivingMetadata;
-import de.selebrator.npc.fake.entity.*;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -68,11 +67,11 @@ public interface LivingNPC extends EntityNPC, LivingMetadata, Attributable {
 	void removePotionEffect(PotionEffectType potionEffectType);
 
 	/**
-	 * Checks if the {@link FakeLiving} entity is invulnerable to that {@link EntityDamageEvent.DamageCause}
-	 * Does NOT check if the {@link FakeEntity} {@link #isInvulnerable()} in general
+	 * Checks if the {@link LivingNPC} entity is invulnerable to that {@link EntityDamageEvent.DamageCause}
+	 * Does NOT check if the {@link EntityNPC} {@link #isInvulnerable()} in general
 	 *
 	 * @param cause the checked {@link EntityDamageEvent.DamageCause}
-	 * @return true if the {@link FakeLiving} is immune to that {@link EntityDamageEvent.DamageCause}
+	 * @return true if the {@link LivingNPC} is immune to that {@link EntityDamageEvent.DamageCause}
 	 */
 	boolean isInvulnerable(EntityDamageEvent.DamageCause cause);
 
