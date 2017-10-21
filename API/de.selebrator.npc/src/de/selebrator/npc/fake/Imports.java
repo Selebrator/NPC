@@ -33,6 +33,7 @@ public class Imports {
 	public static final Class<?> CLASS_EntityPlayer = getMinecraftClass("EntityPlayer");
 	public static final Class CLASS_EntityEnderman = Reflection.getMinecraftClass("EntityEnderman");
 	public static final Class CLASS_EntityZombie = Reflection.getMinecraftClass("EntityZombie");
+	public static final Class CLASS_EntityZombieVillager = Reflection.getMinecraftClass("EntityZombieVillager");
 	public static final Class<?> CLASS_PlayerConnection = getMinecraftClass("PlayerConnection");
 	public static final Class CLASS_DataWatcher = getMinecraftClass("DataWatcher");
 	public static final Class<?> CLASS_DataWatcherObject = getMinecraftClass("DataWatcherObject");
@@ -110,5 +111,7 @@ public class Imports {
 	public static final FieldAccessor FIELD_EntityHuman_bs = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "bs"); //14
 	public static final FieldAccessor FIELD_EntityZombie_bz = getField(CLASS_EntityZombie, CLASS_DataWatcherObject, "bz"); //14
 	public static final FieldAccessor FIELD_EntityHuman_bt = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "bt"); //15
+	public static final FieldAccessor FIELD_EntityZombieVillager_b = getField(CLASS_EntityZombieVillager, CLASS_DataWatcherObject, "b"); //15
 	public static final FieldAccessor FIELD_EntityHuman_bu = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "bu"); //16
+	public static final FieldAccessor FIELD_EntityZombieVillager_c = getField(CLASS_EntityZombieVillager, CLASS_DataWatcherObject, "c"); //16
 }
