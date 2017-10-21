@@ -1,7 +1,7 @@
 package de.selebrator.plugin.npc.gui;
 
-import de.selebrator.npc.PlayerNPC;
-import de.selebrator.npc.event.NPCAnimationEvent;
+import de.selebrator.npc.Animation;
+import de.selebrator.npc.entity.PlayerNPC;
 import de.selebrator.plugin.npc.fetcher.ItemBuilder;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -17,7 +17,7 @@ public class AnimationGUI extends GUI implements Listener {
 	}
 
 	public void open(Player player) {
-		NPCAnimationEvent.Animation[] set = NPCAnimationEvent.Animation.values();
+		Animation[] set = Animation.values();
 		Inventory inventory = Bukkit.getServer().createInventory(null, getInventorySize(set.length), npc.getCustomName() + " - Animation");
 		int item = 0;
 
@@ -39,7 +39,7 @@ public class AnimationGUI extends GUI implements Listener {
 			if(inventory.getName().contains(" - Animation")) {
 				ItemStack item = event.getCurrentItem();
 				if(item != null && item.getType() == Material.INK_SACK) {
-					npc.playAnimation(NPCAnimationEvent.Animation.valueOf(item.getItemMeta().getDisplayName()));
+					npc.playAnimation(Animation.valueOf(item.getItemMeta().getDisplayName()));
 				}
 				event.setCancelled(true);
 				this.open((Player) event.getWhoClicked());

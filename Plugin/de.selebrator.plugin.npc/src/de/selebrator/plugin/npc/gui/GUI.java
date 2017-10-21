@@ -1,6 +1,6 @@
 package de.selebrator.plugin.npc.gui;
 
-import de.selebrator.npc.PlayerNPC;
+import de.selebrator.npc.entity.PlayerNPC;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;

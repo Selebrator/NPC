@@ -1,8 +1,8 @@
 package de.selebrator.plugin.npc;
 
-import de.selebrator.npc.*;
-import de.selebrator.npc.entity.FakePlayer;
-import de.selebrator.npc.event.NPCAnimationEvent;
+import de.selebrator.npc.Animation;
+import de.selebrator.npc.entity.*;
+import de.selebrator.npc.fake.entity.FakePlayer;
 import de.selebrator.plugin.npc.fetcher.GameProfileBuilder;
 import de.selebrator.plugin.npc.gui.*;
 import de.selebrator.reflection.ServerPackage;
@@ -239,7 +239,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 							new AnimationGUI(npc, this).open(player);
 							return true;
 						} else if(args.length == 2) {
-							npc.playAnimation(NPCAnimationEvent.Animation.valueOf(args[1].toUpperCase()));
+							npc.playAnimation(Animation.valueOf(args[1].toUpperCase()));
 							return true;
 						}
 						player.sendMessage("§c/npc animation [animation]");
