@@ -45,9 +45,6 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 
 		this.setEquipment(new Equipment(this));
 
-		this.initAttribute(Attribute.GENERIC_ATTACK_SPEED);
-		this.initAttribute(Attribute.GENERIC_LUCK);
-
 		this.setFireTicks(-20);
 	}
 
@@ -60,6 +57,15 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 		this.mainHand = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityHuman_bs, (byte) 1); //14
 		this.leftShoulder = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityHuman_bt, CONSTRUCTOR_NBTTagCompound.newInstance()); //15
 		this.rightShoulder = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityHuman_bu, CONSTRUCTOR_NBTTagCompound.newInstance()); //16
+	}
+
+	@Override
+	void initAttributes() {
+		super.initAttributes();
+		this.addAttribute(Attribute.GENERIC_ATTACK_DAMAGE, 1.0D);
+		this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.10000000149011612D);
+		this.addAttribute(Attribute.GENERIC_ATTACK_SPEED);
+		this.addAttribute(Attribute.GENERIC_LUCK);
 	}
 
 	@Override

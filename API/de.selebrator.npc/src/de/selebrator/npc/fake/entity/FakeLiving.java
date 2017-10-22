@@ -54,16 +54,7 @@ public abstract class FakeLiving extends FakeEntity implements LivingNPC {
 
 	public FakeLiving() {
 		super();
-
-		this.attributes = new HashMap<>();
-		this.initAttribute(Attribute.GENERIC_MAX_HEALTH);
-		this.initAttribute(Attribute.GENERIC_FOLLOW_RANGE);
-		this.initAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
-		this.initAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-		this.initAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
-		this.initAttribute(Attribute.GENERIC_ARMOR);
-		this.initAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS);
-
+		this.initAttributes();
 		this.effects = new HashMap<>();
 	}
 
@@ -107,14 +98,28 @@ public abstract class FakeLiving extends FakeEntity implements LivingNPC {
 		this.arrows = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityLiving_br, 0); //10
 	}
 
+	void initAttributes() {
+		this.attributes = new HashMap<>();
+		this.addAttribute(Attribute.GENERIC_MAX_HEALTH);
+		this.addAttribute(Attribute.GENERIC_FOLLOW_RANGE, 16.0D);
+		this.addAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+		this.addAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+		this.addAttribute(Attribute.GENERIC_ARMOR);
+		this.addAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS);
+	}
+
 	@Override
 	public void despawn() {
 		super.despawn();
 		this.setLiving(false);
 	}
 
-	void initAttribute(Attribute attribute) {
+	void addAttribute(Attribute attribute) {
 		this.attributes.put(attribute, new FakeAttributeInstance(attribute));
+	}
+
+	void addAttribute(Attribute attribute, double baseValue) {
+		this.attributes.put(attribute, new FakeAttributeInstance(attribute, baseValue));
 	}
 
 	public AttributeInstance getAttribute(Attribute attribute) {

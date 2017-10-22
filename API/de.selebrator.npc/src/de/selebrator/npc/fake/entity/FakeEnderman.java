@@ -3,6 +3,7 @@ package de.selebrator.npc.fake.entity;
 import com.google.common.base.Optional;
 import de.selebrator.npc.entity.EndermanNPC;
 import de.selebrator.npc.entity.metadata.MetadataObject;
+import org.bukkit.attribute.Attribute;
 
 import static de.selebrator.npc.fake.Imports.*;
 
@@ -26,6 +27,15 @@ public class FakeEnderman extends FakeMonster implements EndermanNPC {
 		super.initMetadata();
 		this.carry = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityEnderman_bx, getOptBlockID(0, 0));
 		this.screaming = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityEnderman_by, false);
+	}
+
+	@Override
+	void initAttributes() {
+		super.initAttributes();
+		this.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(40.0D);
+		this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.30000001192092896D);
+		this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(7.0D);
+		this.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).setBaseValue(64.0D);
 	}
 
 	@Override
