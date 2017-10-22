@@ -25,8 +25,8 @@ public class FakeEnderman extends FakeMonster implements EndermanNPC {
 	@Override
 	void initMetadata() {
 		super.initMetadata();
-		this.carry = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityEnderman_bx, getOptBlockID(0, 0));
-		this.screaming = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityEnderman_by, false);
+		this.carry = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityEnderman_bx, getOptBlockID(0, 0)); //12
+		this.screaming = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityEnderman_by, false); //13
 	}
 
 	@Override
