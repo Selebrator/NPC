@@ -121,7 +121,7 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 
 	@Override
 	public double getMoveSpeed() {
-		return this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue() * 6.16714296217D;
+		return this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue() * 43.178 - 0.02141; //https://minecraft.gamepedia.com/Attribute
 	}
 
 	@Override
