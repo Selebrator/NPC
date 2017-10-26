@@ -1,10 +1,6 @@
 package de.selebrator.npc.entity.metadata;
 
-import com.google.common.base.Optional;
-
-import java.util.UUID;
-
-public interface AbstractHorseMetadata extends AnimalMetadata {
+public interface AbstractHorseMetadata extends AnimalMetadata, Ownable {
 
 	boolean getAbstractHorseInfo(AbstractHorseInfo target);
 
@@ -57,18 +53,6 @@ public interface AbstractHorseMetadata extends AnimalMetadata {
 	default void setMouthOpen(boolean state) {
 		this.setAbstractHorseInfo(AbstractHorseInfo.MOUTH_OPEN, state);
 	}
-
-	default boolean hasOwner() {
-		return this.getOwner().isPresent();
-	}
-
-	Optional<UUID> getOwner();
-
-	default void setOwner(UUID owner) {
-		this.setOwner(Optional.fromNullable(owner));
-	}
-
-	void setOwner(Optional<UUID> owner);
 
 	enum AbstractHorseInfo {
 		TAMED(1),
