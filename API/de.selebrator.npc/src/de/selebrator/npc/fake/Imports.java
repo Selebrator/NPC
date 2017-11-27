@@ -43,6 +43,7 @@ public class Imports {
 	public static final Class CLASS_EntityOcelot = Reflection.getMinecraftClass("EntityOcelot");
 	public static final Class CLASS_EntityParrot = Reflection.getMinecraftClass("EntityParrot");
 	public static final Class CLASS_EntityWolf = Reflection.getMinecraftClass("EntityWolf");
+	public static final Class CLASS_EntityGuardian = getMinecraftClass("EntityGuardian");
 	public static final Class<?> CLASS_PlayerConnection = getMinecraftClass("PlayerConnection");
 	public static final Class CLASS_DataWatcher = getMinecraftClass("DataWatcher");
 	public static final Class<?> CLASS_DataWatcherObject = getMinecraftClass("DataWatcherObject");
@@ -116,10 +117,12 @@ public class Imports {
 	public static final FieldAccessor FIELD_EntityEnderman_bx = getField(CLASS_EntityEnderman, CLASS_DataWatcherObject, "bx"); //12
 	public static final FieldAccessor FIELD_EntityZombie_bx = getField(CLASS_EntityZombie, CLASS_DataWatcherObject, "bx"); //12
 	public static final FieldAccessor FIELD_EntityAgeable_bx = getField(CLASS_EntityAgeable, CLASS_DataWatcherObject, "bx"); //12
+	public static final FieldAccessor FIELD_EntityGuardian_bA = getField(CLASS_EntityGuardian, CLASS_DataWatcherObject, "bA"); //12
 	public static final FieldAccessor FIELD_EntityHuman_br = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "br"); //13
 	public static final FieldAccessor FIELD_EntityHorseAbstract_bI = getField(CLASS_EntityHorseAbstract, CLASS_DataWatcherObject, "bI"); //13
 	public static final FieldAccessor FIELD_EntityEnderman_by = getField(CLASS_EntityEnderman, CLASS_DataWatcherObject, "by"); //13
 	public static final FieldAccessor FIELD_EntityTameableAnimal_bx = getField(CLASS_EntityTameableAnimal, CLASS_DataWatcherObject, "bx"); //13
+	public static final FieldAccessor FIELD_EntityGuardian_bB = getField(CLASS_EntityGuardian, CLASS_DataWatcherObject, "bB"); //13
 	public static final FieldAccessor FIELD_EntityHuman_bs = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "bs"); //14
 	public static final FieldAccessor FIELD_EntityZombie_bz = getField(CLASS_EntityZombie, CLASS_DataWatcherObject, "bz"); //14
 	public static final FieldAccessor FIELD_EntityHorseAbstract_bJ = getField(CLASS_EntityHorseAbstract, CLASS_DataWatcherObject, "bJ"); //14
