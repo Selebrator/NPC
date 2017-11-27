@@ -1,6 +1,5 @@
 package de.selebrator.npc.fake.entity;
 
-import de.selebrator.npc.EnumEntityStatus;
 import de.selebrator.npc.entity.LivingNPC;
 import de.selebrator.npc.entity.metadata.MetadataObject;
 import de.selebrator.npc.fake.attribute.FakeAttributeInstance;
@@ -277,14 +276,14 @@ public abstract class FakeLiving extends FakeEntity implements LivingNPC {
 	}
 
 	void die() {
-		this.playEntityStatus(EnumEntityStatus.DEATH);
+		this.playEffect(EntityEffect.DEATH);
 		this.playSound(Sound.ENTITY_GENERIC_DEATH);
 		this.setFireTicks(-20);
 		this.setLiving(false);
 	}
 
 	void hurt() {
-		this.playEntityStatus(EnumEntityStatus.HURT);
+		this.playEffect(EntityEffect.HURT);
 		playSound(Sound.ENTITY_GENERIC_HURT);
 	}
 

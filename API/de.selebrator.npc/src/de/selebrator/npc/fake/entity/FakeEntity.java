@@ -106,9 +106,9 @@ public abstract class FakeEntity implements EntityNPC {
 		);
 	}
 
-	public void playEntityStatus(EnumEntityStatus status) {
+	public void playEffect(EntityEffect effect) {
 		FakePacket.broadcastPackets(
-				FakePacket.entityStatus(this.getEntityId(), status.getId())
+				FakePacket.entityStatus(this.getEntityId(), effect.getData())
 		);
 	}
 

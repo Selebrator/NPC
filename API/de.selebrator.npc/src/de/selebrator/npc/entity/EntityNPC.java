@@ -72,14 +72,7 @@ public interface EntityNPC extends NPC, EntityMetadata {
 
 	void playAnimation(Animation animation);
 
-	void playEntityStatus(EnumEntityStatus status);
-
-	/**
-	 * alternative to playEntityStatus(EnumEntityStatus) for similarity to Bukkit
-	 */
-	default void playEffect(EntityEffect effect) {
-		this.playEntityStatus(EnumEntityStatus.fromBukkit(effect));
-	}
+	void playEffect(EntityEffect effect);
 
 	void updateMetadata();
 
