@@ -52,6 +52,7 @@ public class Imports {
 	public static final Class CLASS_EntityPolarBear = getMinecraftClass("EntityPolarBear");
 	public static final Class CLASS_EntityRabbit = getMinecraftClass("EntityRabbit");
 	public static final Class CLASS_EntitySheep = getMinecraftClass("EntitySheep");
+	public static final Class CLASS_EntityVillager = getMinecraftClass("EntityVillager");
 	public static final Class<?> CLASS_PlayerConnection = getMinecraftClass("PlayerConnection");
 	public static final Class CLASS_DataWatcher = getMinecraftClass("DataWatcher");
 	public static final Class<?> CLASS_DataWatcherObject = getMinecraftClass("DataWatcherObject");
@@ -138,6 +139,7 @@ public class Imports {
 	public static final FieldAccessor FIELD_EntityPolarBear_bx = getField(CLASS_EntityPolarBear, CLASS_DataWatcherObject, "bx"); //13
 	public static final FieldAccessor FIELD_EntityRabbit_bx = getField(CLASS_EntityRabbit, CLASS_DataWatcherObject, "bx"); //13
 	public static final FieldAccessor FIELD_EntitySheep_bx = getField(CLASS_EntitySheep, CLASS_DataWatcherObject, "bx"); //13
+	public static final FieldAccessor FIELD_EntityVillager_bz = getField(CLASS_EntityVillager, CLASS_DataWatcherObject, "bz"); //13
 	public static final FieldAccessor FIELD_EntityHuman_bs = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "bs"); //14
 	public static final FieldAccessor FIELD_EntityZombie_bz = getField(CLASS_EntityZombie, CLASS_DataWatcherObject, "bz"); //14
 	public static final FieldAccessor FIELD_EntityHorseAbstract_bJ = getField(CLASS_EntityHorseAbstract, CLASS_DataWatcherObject, "bJ"); //14

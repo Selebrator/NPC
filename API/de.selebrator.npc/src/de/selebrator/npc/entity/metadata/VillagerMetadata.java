@@ -1,17 +1,13 @@
-package de.selebrator.npc.fake.entity.metadata;
+package de.selebrator.npc.entity.metadata;
 
-import de.selebrator.npc.entity.metadata.MetadataObject;
 import org.bukkit.entity.Villager;
 
-public class FakeVillagerMetadata extends FakeAgeableMetadata {
-	private MetadataObject<Integer> profession = new MetadataObject<>(this.getDataWatcher(), 0, "EntityVillager", "bz", 0); //13
+public interface VillagerMetadata extends AgeableMetadata {
 
-	public FakeVillagerMetadata() {
-		super();
-	}
+	int getProfessionId();
 
-	public Villager.Profession getProfession() {
-		switch(this.profession.get()) {
+	default Villager.Profession getProfession() {
+		switch(this.getProfessionId()) {
 			case 0:
 			default:
 				return Villager.Profession.FARMER;
@@ -28,25 +24,27 @@ public class FakeVillagerMetadata extends FakeAgeableMetadata {
 		}
 	}
 
-	public void setProfession(Villager.Profession profession) {
+	void setProfession(int id);
+
+	default void setProfession(Villager.Profession profession) {
 		switch(profession) {
 			case FARMER:
-				this.profession.set(0);
+				this.setProfession(0);
 				break;
 			case LIBRARIAN:
-				this.profession.set(1);
+				this.setProfession(1);
 				break;
 			case PRIEST:
-				this.profession.set(2);
+				this.setProfession(2);
 				break;
 			case BLACKSMITH:
-				this.profession.set(3);
+				this.setProfession(3);
 				break;
 			case BUTCHER:
-				this.profession.set(4);
+				this.setProfession(4);
 				break;
 			case NITWIT:
-				this.profession.set(5);
+				this.setProfession(5);
 				break;
 			case NORMAL:
 			case HUSK:
@@ -55,7 +53,7 @@ public class FakeVillagerMetadata extends FakeAgeableMetadata {
 				if(profession.isZombie())
 					throw new IllegalArgumentException("Profession is reserved for Zombies: " + profession.name());
 				else
-					this.profession.set(0);
+					this.setProfession(0);
 		}
 	}
 }
