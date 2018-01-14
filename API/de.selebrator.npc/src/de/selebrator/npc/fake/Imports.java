@@ -31,18 +31,18 @@ public class Imports {
 	public static final Class CLASS_EntityInsentient = getMinecraftClass("EntityInsentient");
 	public static final Class CLASS_EntityHuman = getMinecraftClass("EntityHuman");
 	public static final Class<?> CLASS_EntityPlayer = getMinecraftClass("EntityPlayer");
-	public static final Class CLASS_EntityEnderman = Reflection.getMinecraftClass("EntityEnderman");
-	public static final Class CLASS_EntityZombie = Reflection.getMinecraftClass("EntityZombie");
-	public static final Class CLASS_EntityZombieVillager = Reflection.getMinecraftClass("EntityZombieVillager");
-	public static final Class CLASS_EntityHorseAbstract = Reflection.getMinecraftClass("EntityHorseAbstract");
-	public static final Class CLASS_EntityAgeable = Reflection.getMinecraftClass("EntityAgeable");
-	public static final Class CLASS_EntityHorseChestedAbstract = Reflection.getMinecraftClass("EntityHorseChestedAbstract");
-	public static final Class CLASS_EntityHorse = Reflection.getMinecraftClass("EntityHorse");
-	public static final Class CLASS_EntityLlama = Reflection.getMinecraftClass("EntityLlama");
-	public static final Class CLASS_EntityTameableAnimal = Reflection.getMinecraftClass("EntityTameableAnimal");
-	public static final Class CLASS_EntityOcelot = Reflection.getMinecraftClass("EntityOcelot");
-	public static final Class CLASS_EntityParrot = Reflection.getMinecraftClass("EntityParrot");
-	public static final Class CLASS_EntityWolf = Reflection.getMinecraftClass("EntityWolf");
+	public static final Class CLASS_EntityEnderman = getMinecraftClass("EntityEnderman");
+	public static final Class CLASS_EntityZombie = getMinecraftClass("EntityZombie");
+	public static final Class CLASS_EntityZombieVillager = getMinecraftClass("EntityZombieVillager");
+	public static final Class CLASS_EntityHorseAbstract = getMinecraftClass("EntityHorseAbstract");
+	public static final Class CLASS_EntityAgeable = getMinecraftClass("EntityAgeable");
+	public static final Class CLASS_EntityHorseChestedAbstract = getMinecraftClass("EntityHorseChestedAbstract");
+	public static final Class CLASS_EntityHorse = getMinecraftClass("EntityHorse");
+	public static final Class CLASS_EntityLlama = getMinecraftClass("EntityLlama");
+	public static final Class CLASS_EntityTameableAnimal = getMinecraftClass("EntityTameableAnimal");
+	public static final Class CLASS_EntityOcelot = getMinecraftClass("EntityOcelot");
+	public static final Class CLASS_EntityParrot = getMinecraftClass("EntityParrot");
+	public static final Class CLASS_EntityWolf = getMinecraftClass("EntityWolf");
 	public static final Class CLASS_EntityGuardian = getMinecraftClass("EntityGuardian");
 	public static final Class CLASS_EntitySkeletonAbstract = getMinecraftClass("EntitySkeletonAbstract");
 	public static final Class CLASS_EntityIronGolem = getMinecraftClass("EntityIronGolem");
@@ -61,8 +61,8 @@ public class Imports {
 	public static final Class CLASS_ChatComponentText = getMinecraftClass("ChatComponentText");
 	public static final Class<?> CLASS_ItemStack = getMinecraftClass("ItemStack");
 	public static final Class CLASS_NBTTagCompound = getMinecraftClass("NBTTagCompound");
-	public static final Class<?> CLASS_IBlockData = Reflection.getMinecraftClass("IBlockData");
-	public static final Class CLASS_Block = Reflection.getMinecraftClass("Block");
+	public static final Class<?> CLASS_IBlockData = getMinecraftClass("IBlockData");
+	public static final Class CLASS_Block = getMinecraftClass("Block");
 
 	//Minecraft Enums
 	public static final Class<? extends Enum> CLASS_EnumPlayerInfoAction = getMinecraftEnum("PacketPlayOutPlayerInfo$EnumPlayerInfoAction");
@@ -101,8 +101,8 @@ public class Imports {
 	public static final MethodAccessor METHOD_DataWatcher_registerObject = getMethod(CLASS_DataWatcher, null, "registerObject", CLASS_DataWatcherObject, Object.class);
 	public static final MethodAccessor METHOD_CraftPlayer_getHandle = getMethod(CLASS_CraftPlayer, CLASS_EntityPlayer, "getHandle");
 	public static final MethodAccessor METHOD_PlayerConnection_sendPacket = getMethod(CLASS_PlayerConnection, null, "sendPacket", CLASS_Packet);
-	public static final MethodAccessor METHOD_Block_getByCombinedId = Reflection.getMethod(CLASS_Block, CLASS_IBlockData, "getByCombinedId", int.class);
-	public static final MethodAccessor<Integer> METHOD_Block_getCombinedId = Reflection.getMethod(CLASS_Block, int.class, "getCombinedId", CLASS_IBlockData);
+	public static final MethodAccessor METHOD_Block_getByCombinedId = getMethod(CLASS_Block, CLASS_IBlockData, "getByCombinedId", int.class);
+	public static final MethodAccessor<Integer> METHOD_Block_getCombinedId = getMethod(CLASS_Block, int.class, "getCombinedId", CLASS_IBlockData);
 
 	//Fields
 	public static final FieldAccessor FIELD_EntityPlayer_playerConnection = getField(CLASS_EntityPlayer, CLASS_PlayerConnection, "playerConnection");
