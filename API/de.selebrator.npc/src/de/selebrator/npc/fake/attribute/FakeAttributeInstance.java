@@ -117,7 +117,7 @@ public class FakeAttributeInstance implements AttributeInstance {
 
 	@Override
 	public void setBaseValue(double value) {
-		if(this.min < value && value < this.max)
+		if(this.min <= value && value <= this.max)
 			this.base = value;
 		else
 			throw new IllegalArgumentException("Value out of range");
