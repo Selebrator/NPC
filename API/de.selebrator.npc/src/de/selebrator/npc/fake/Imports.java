@@ -10,6 +10,10 @@ import java.util.List;
 import static de.selebrator.reflection.Reflection.*;
 
 public class Imports {
+
+	//no instances of this allowed. This class is static only
+	private Imports() {}
+
 	//Minecraft classes
 	public static final Class CLASS_Packet = getMinecraftClass("Packet");
 	public static final Class CLASS_PacketPlayOutNamedEntitySpawn = getMinecraftClass("PacketPlayOutNamedEntitySpawn");
