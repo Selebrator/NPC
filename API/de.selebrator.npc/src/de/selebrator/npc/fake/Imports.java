@@ -9,12 +9,14 @@ import java.util.List;
 
 import static de.selebrator.reflection.Reflection.*;
 
+@SuppressWarnings("WeakerAccess")
 public class Imports {
 
 	//no instances of this allowed. This class is static only
 	private Imports() {}
 
-	//Minecraft classes
+	//# Minecraft #
+	//packets
 	public static final Class CLASS_Packet = getMinecraftClass("Packet");
 	public static final Class CLASS_PacketPlayOutNamedEntitySpawn = getMinecraftClass("PacketPlayOutNamedEntitySpawn");
 	public static final Class CLASS_PacketPlayOutSpawnEntityLiving = getMinecraftClass("PacketPlayOutSpawnEntityLiving");
@@ -29,7 +31,7 @@ public class Imports {
 	public static final Class CLASS_PacketPlayOutAnimation = getMinecraftClass("PacketPlayOutAnimation");
 	public static final Class CLASS_PacketPlayOutEntityStatus = getMinecraftClass("PacketPlayOutEntityStatus");
 	public static final Class CLASS_PacketPlayOutEntityMetadata = getMinecraftClass("PacketPlayOutEntityMetadata");
-
+	//entities
 	public static final Class CLASS_Entity = getMinecraftClass("Entity");
 	public static final Class CLASS_EntityLiving = getMinecraftClass("EntityLiving");
 	public static final Class CLASS_EntityInsentient = getMinecraftClass("EntityInsentient");
@@ -57,6 +59,7 @@ public class Imports {
 	public static final Class CLASS_EntityRabbit = getMinecraftClass("EntityRabbit");
 	public static final Class CLASS_EntitySheep = getMinecraftClass("EntitySheep");
 	public static final Class CLASS_EntityVillager = getMinecraftClass("EntityVillager");
+	//classes
 	public static final Class<?> CLASS_PlayerConnection = getMinecraftClass("PlayerConnection");
 	public static final Class CLASS_DataWatcher = getMinecraftClass("DataWatcher");
 	public static final Class<?> CLASS_DataWatcherObject = getMinecraftClass("DataWatcherObject");
@@ -67,18 +70,19 @@ public class Imports {
 	public static final Class CLASS_NBTTagCompound = getMinecraftClass("NBTTagCompound");
 	public static final Class<?> CLASS_IBlockData = getMinecraftClass("IBlockData");
 	public static final Class CLASS_Block = getMinecraftClass("Block");
-
-	//Minecraft Enums
+	//enums
 	public static final Class<? extends Enum> CLASS_EnumPlayerInfoAction = getMinecraftEnum("PacketPlayOutPlayerInfo$EnumPlayerInfoAction");
 	public static final Class<? extends Enum> CLASS_EnumGamemode = getMinecraftEnum("EnumGamemode");
 	public static final Class<? extends Enum> CLASS_EnumItemSlot = getMinecraftEnum("EnumItemSlot");
 
-	//CraftBukkit classes
+	//# CraftBukkit #
+	//classes
 	public static final Class CLASS_CraftEquipmentSlot = getCraftBukkitClass("CraftEquipmentSlot");
 	public static final Class CLASS_CraftItemStack = getCraftBukkitClass("inventory.CraftItemStack");
 	public static final Class CLASS_CraftPlayer = getCraftBukkitClass("entity.CraftPlayer");
 
-	//Constructors
+	//# Constructors #
+	//packets
 	public static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutNamedEntitySpawn = getConstructor(CLASS_PacketPlayOutNamedEntitySpawn);
 	public static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutSpawnEntityLiving = getConstructor(CLASS_PacketPlayOutSpawnEntityLiving);
 	public static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutEntityDestroy = getConstructor(CLASS_PacketPlayOutEntityDestroy);
@@ -98,7 +102,7 @@ public class Imports {
 	public static final ConstructorAccessor CONSTRUCTOR_DataWatcher = getConstructor(CLASS_DataWatcher, CLASS_Entity);
 	public static final ConstructorAccessor CONSTRUCTOR_NBTTagCompound = getConstructor(CLASS_NBTTagCompound);
 
-	//Methods
+	//# Methods #
 	public static final MethodAccessor METHOD_CraftEquipmentSlot_getNMS = getMethod(CLASS_CraftEquipmentSlot, CLASS_EnumItemSlot, "getNMS", EquipmentSlot.class);
 	public static final MethodAccessor METHOD_CraftItemStack_asNMSCopy = getMethod(CLASS_CraftItemStack, CLASS_ItemStack, "asNMSCopy", ItemStack.class);
 	public static final MethodAccessor<List> METHOD_DataWatcher_c = getMethod(CLASS_DataWatcher, List.class, "c");
@@ -108,11 +112,11 @@ public class Imports {
 	public static final MethodAccessor METHOD_Block_getByCombinedId = getMethod(CLASS_Block, CLASS_IBlockData, "getByCombinedId", int.class);
 	public static final MethodAccessor<Integer> METHOD_Block_getCombinedId = getMethod(CLASS_Block, int.class, "getCombinedId", CLASS_IBlockData);
 
-	//Fields
+	//# Fields #
 	public static final FieldAccessor FIELD_EntityPlayer_playerConnection = getField(CLASS_EntityPlayer, CLASS_PlayerConnection, "playerConnection");
 	public static final FieldAccessor<Integer> FIELD_Entity_entityCount = getField(CLASS_Entity, int.class, "entityCount");
 	public static final FieldAccessor<Integer> FIELD_PotionEffect_duration = getField(PotionEffect.class, int.class, "duration");
-
+	//data watcher objects
 	public static final FieldAccessor FIELD_Entity_Z = getField(CLASS_Entity, CLASS_DataWatcherObject, "Z"); //0
 	public static final FieldAccessor FIELD_Entity_aA = getField(CLASS_Entity, CLASS_DataWatcherObject, "aA"); //1
 	public static final FieldAccessor FIELD_Entity_aB = getField(CLASS_Entity, CLASS_DataWatcherObject, "aB"); //2
