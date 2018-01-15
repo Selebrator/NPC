@@ -9,7 +9,27 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.plugin.Plugin;
 
+import java.util.Optional;
+
 public class EquipGUI extends GUI implements Listener {
+
+	public static final Color DARK_GRAY = Color.fromBGR(76, 76, 76);
+
+	public static final ItemStack MARKER = new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 5, " ").build();
+	public static final ItemStack DEFAULT_MAIN_HAND = new ItemBuilder(Material.STICK, "§8Empty MainHand").build();
+	public static final ItemStack DEFAULT_OFF_HAND = new ItemBuilder(Material.PAPER, "§8Empty OffHand").build();
+	public static final ItemStack DEFAULT_HELMET = new LeatherArmorBuilder(EquipmentSlot.HEAD, "§8No Helmet", DARK_GRAY).build();
+	public static final ItemStack DEFAULT_CHESTPLATE = new LeatherArmorBuilder(EquipmentSlot.CHEST, "§8No Chestplate", DARK_GRAY).build();
+	public static final ItemStack DEFAULT_LEGGINGS = new LeatherArmorBuilder(EquipmentSlot.LEGS, "§8No Leggings", DARK_GRAY).build();
+	public static final ItemStack DEFAULT_FEET = new LeatherArmorBuilder(EquipmentSlot.FEET, "§8No Boots", DARK_GRAY).build();
+
+	public static final ItemStack SWORD = new ItemBuilder(Material.IRON_SWORD, "Sword").build();
+	public static final ItemStack PICKAXE = new ItemBuilder(Material.IRON_PICKAXE, "Pickaxe").build();
+	public static final ItemStack AXE = new ItemBuilder(Material.IRON_AXE, "Axe").build();
+	public static final ItemStack SPADE = new ItemBuilder(Material.IRON_SPADE, "Shovel").build();
+	public static final ItemStack HOE = new ItemBuilder(Material.IRON_HOE, "Hoe").build();
+	public static final ItemStack BOW = new ItemStack(Material.BOW);
+	public static final ItemStack SHIELD = new ItemStack(Material.SHIELD);
 
 	private EquipmentSlot selected;
 	private String subSelected;
@@ -19,16 +39,14 @@ public class EquipGUI extends GUI implements Listener {
 	}
 
 	public void open(Player player) {
-		ItemStack marker = new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 5, " ").build();
+		Inventory inventory = Bukkit.getServer().createInventory(null, 6 * 9, this.npc.getCustomName() + " - Equip");
 
-		Inventory inventory = Bukkit.getServer().createInventory(null, 6 * 9, npc.getCustomName() + " - Equip");
-
-		inventory.setItem(10, npc.getEquipment().getMainHand() == null ? new ItemBuilder(Material.STICK, "§8Empty MainHand").build() : npc.getEquipment().getMainHand());
-		inventory.setItem(11, npc.getEquipment().getOffHand() == null ? new ItemBuilder(Material.PAPER, "§8Empty OffHand").build() : npc.getEquipment().getOffHand());
-		inventory.setItem(13, npc.getEquipment().getHelmet() == null ? new LeatherArmorBuilder(EquipmentSlot.HEAD, "§8No Helmet", Color.fromBGR(76, 76, 76)).build() : npc.getEquipment().getHelmet());
-		inventory.setItem(14, npc.getEquipment().getChestplate() == null ? new LeatherArmorBuilder(EquipmentSlot.CHEST, "§8No Chestplate", Color.fromBGR(76, 76, 76)).build() : npc.getEquipment().getChestplate());
-		inventory.setItem(15, npc.getEquipment().getLeggings() == null ? new LeatherArmorBuilder(EquipmentSlot.LEGS, "§8No Leggings", Color.fromBGR(76, 76, 76)).build() : npc.getEquipment().getLeggings());
-		inventory.setItem(16, npc.getEquipment().getBoots() == null ? new LeatherArmorBuilder(EquipmentSlot.FEET, "§8No Boots", Color.fromBGR(76, 76, 76)).build() : npc.getEquipment().getBoots());
+		inventory.setItem(10, Optional.ofNullable(this.npc.getEquipment().getMainHand()).orElse(DEFAULT_MAIN_HAND));
+		inventory.setItem(11, Optional.ofNullable(this.npc.getEquipment().getOffHand()).orElse(DEFAULT_OFF_HAND));
+		inventory.setItem(13, Optional.ofNullable(this.npc.getEquipment().getHelmet()).orElse(DEFAULT_HELMET));
+		inventory.setItem(14, Optional.ofNullable(this.npc.getEquipment().getChestplate()).orElse(DEFAULT_CHESTPLATE));
+		inventory.setItem(15, Optional.ofNullable(this.npc.getEquipment().getLeggings()).orElse(DEFAULT_LEGGINGS));
+		inventory.setItem(16, Optional.ofNullable(this.npc.getEquipment().getBoots()).orElse(DEFAULT_FEET));
 
 		if(selected != null) {
 			ItemStack enchant = new ItemStack(Material.ENCHANTED_BOOK, 1);
@@ -39,22 +57,22 @@ public class EquipGUI extends GUI implements Listener {
 
 			switch(selected) {
 				case HAND:
-					inventory.setItem(1, marker);
+					inventory.setItem(1, MARKER);
 					break;
 				case OFF_HAND:
-					inventory.setItem(2, marker);
+					inventory.setItem(2, MARKER);
 					break;
 				case HEAD:
-					inventory.setItem(4, marker);
+					inventory.setItem(4, MARKER);
 					break;
 				case CHEST:
-					inventory.setItem(5, marker);
+					inventory.setItem(5, MARKER);
 					break;
 				case LEGS:
-					inventory.setItem(6, marker);
+					inventory.setItem(6, MARKER);
 					break;
 				case FEET:
-					inventory.setItem(7, marker);
+					inventory.setItem(7, MARKER);
 					break;
 				default:
 					break;
@@ -62,13 +80,13 @@ public class EquipGUI extends GUI implements Listener {
 			}
 
 			if(selected == EquipmentSlot.HAND || selected == EquipmentSlot.OFF_HAND) {
-				inventory.setItem(29, new ItemBuilder(Material.IRON_SWORD, "Sword").build());
-				inventory.setItem(30, new ItemBuilder(Material.IRON_PICKAXE, "Pickaxe").build());
-				inventory.setItem(31, new ItemBuilder(Material.IRON_AXE, "Axe").build());
-				inventory.setItem(32, new ItemBuilder(Material.IRON_SPADE, "Shovel").build());
-				inventory.setItem(33, new ItemBuilder(Material.IRON_HOE, "Hoe").build());
-				inventory.setItem(39, new ItemStack(Material.BOW));
-				inventory.setItem(41, new ItemStack(Material.SHIELD));
+				inventory.setItem(29, SWORD);
+				inventory.setItem(30, PICKAXE);
+				inventory.setItem(31, AXE);
+				inventory.setItem(32, SPADE);
+				inventory.setItem(33, HOE);
+				inventory.setItem(39, BOW);
+				inventory.setItem(41, SHIELD);
 
 				if(subSelected != null) {
 					inventory.setItem(38, new ItemStack(Material.valueOf("WOOD_" + subSelected)));

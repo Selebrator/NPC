@@ -248,6 +248,22 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 					player.sendMessage("§cSelect a NPC first");
 					return true;
 
+				case "status":
+
+					if(npc != null) {
+						if(args.length == 1) {
+							new EntityEffectGUI(npc, this).open(player);
+							return true;
+						} else if(args.length == 2) {
+							npc.playAnimation(Animation.valueOf(args[1].toUpperCase()));
+							return true;
+						}
+						player.sendMessage("§c/npc animation [animation]");
+						return true;
+					}
+					player.sendMessage("§cSelect a NPC first");
+					return true;
+
 				case "health":
 
 					if(npc != null) {
