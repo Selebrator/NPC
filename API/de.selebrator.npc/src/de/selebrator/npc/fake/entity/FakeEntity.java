@@ -41,7 +41,7 @@ public abstract class FakeEntity implements EntityNPC {
 	}
 
 	private static UUID getNewUUID(Random random) {
-		long mostSigBits = random.nextLong() & 0xffffffffffff0fffL | 0x4000L;
+		long mostSigBits = random.nextLong() & 0xffffffffffff0fffL | 0x2000L;
 		long leastSigBits = random.nextLong() & 0x3fffffffffffffffL | 0x8000000000000000L;
 		return new UUID(mostSigBits, leastSigBits);
 	}
