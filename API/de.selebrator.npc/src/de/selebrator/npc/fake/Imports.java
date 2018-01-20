@@ -31,6 +31,7 @@ public class Imports {
 	public static final Class CLASS_PacketPlayOutAnimation = getMinecraftClass("PacketPlayOutAnimation");
 	public static final Class CLASS_PacketPlayOutEntityStatus = getMinecraftClass("PacketPlayOutEntityStatus");
 	public static final Class CLASS_PacketPlayOutEntityMetadata = getMinecraftClass("PacketPlayOutEntityMetadata");
+	public static final Class CLASS_PacketPlayOutBed = getMinecraftClass("PacketPlayOutBed");
 	//entities
 	public static final Class CLASS_Entity = getMinecraftClass("Entity");
 	public static final Class CLASS_EntityLiving = getMinecraftClass("EntityLiving");
@@ -70,6 +71,7 @@ public class Imports {
 	public static final Class CLASS_NBTTagCompound = getMinecraftClass("NBTTagCompound");
 	public static final Class<?> CLASS_IBlockData = getMinecraftClass("IBlockData");
 	public static final Class CLASS_Block = getMinecraftClass("Block");
+	public static final Class CLASS_BlockPosition = getMinecraftClass("BlockPosition");
 	//enums
 	public static final Class<? extends Enum> CLASS_EnumPlayerInfoAction = getMinecraftEnum("PacketPlayOutPlayerInfo$EnumPlayerInfoAction");
 	public static final Class<? extends Enum> CLASS_EnumGamemode = getMinecraftEnum("EnumGamemode");
@@ -96,11 +98,13 @@ public class Imports {
 	public static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutAnimation = getConstructor(CLASS_PacketPlayOutAnimation);
 	public static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutEntityStatus = getConstructor(CLASS_PacketPlayOutEntityStatus);
 	public static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutEntityMetadata = getConstructor(CLASS_PacketPlayOutEntityMetadata);
+	public static final ConstructorAccessor CONSTRUCTOR_PacketPlayOutBed = getConstructor(CLASS_PacketPlayOutBed);
 
 	public static final ConstructorAccessor CONSTRUCTOR_PlayerInfoData = getConstructor(CLASS_PlayerInfoData, CLASS_PacketPlayOutPlayerInfo, GameProfile.class, int.class, CLASS_EnumGamemode, CLASS_IChatBaseComponent);
 	public static final ConstructorAccessor CONSTRUCTOR_ChatComponentText = getConstructor(CLASS_ChatComponentText, String.class);
 	public static final ConstructorAccessor CONSTRUCTOR_DataWatcher = getConstructor(CLASS_DataWatcher, CLASS_Entity);
 	public static final ConstructorAccessor CONSTRUCTOR_NBTTagCompound = getConstructor(CLASS_NBTTagCompound);
+	public static final ConstructorAccessor CONSTRUCTOR_BlockPosition = getConstructor(CLASS_BlockPosition, int.class, int.class, int.class);
 
 	//# Methods #
 	public static final MethodAccessor METHOD_CraftEquipmentSlot_getNMS = getMethod(CLASS_CraftEquipmentSlot, CLASS_EnumItemSlot, "getNMS", EquipmentSlot.class);

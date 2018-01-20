@@ -138,6 +138,13 @@ public class FakePacket {
 		return packet(CONSTRUCTOR_PacketPlayOutEntityMetadata, fields);
 	}
 
+	public static Object useBed(int entityId, Location location) {
+		Map<String, Object> fields = new HashMap<>();
+		fields.put("a", entityId);
+		fields.put("b", CONSTRUCTOR_BlockPosition.newInstance(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
+		return packet(CONSTRUCTOR_PacketPlayOutBed, fields);
+	}
+
 	@SuppressWarnings("unchecked")
 	private static Object packet(ConstructorAccessor constructorAccessor, Map<String, Object> values) {
 		Object packet = constructorAccessor.newInstance();
