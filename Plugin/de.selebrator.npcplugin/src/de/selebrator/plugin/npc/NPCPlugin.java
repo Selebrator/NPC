@@ -171,7 +171,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 			case SLIME:
 				throw new UnsupportedOperationException();
 			case GHAST:
-				throw new UnsupportedOperationException();
+				return new FakeGhast();
 			case PIG_ZOMBIE:
 				return new FakeZombiePigman();
 			case ENDERMAN:
