@@ -207,7 +207,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 			case CHICKEN:
 				return new FakeChicken();
 			case SQUID:
-				throw new UnsupportedOperationException();
+				return new FakeSquid();
 			case WOLF:
 				return new FakeWolf();
 			case MUSHROOM_COW:
