@@ -189,7 +189,7 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 			case WITHER:
 				throw new UnsupportedOperationException();
 			case BAT:
-				throw new UnsupportedOperationException();
+				return new FakeBat();
 			case WITCH:
 				throw new UnsupportedOperationException();
 			case ENDERMITE:

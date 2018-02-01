@@ -61,6 +61,7 @@ public class Imports {
 	public static final Class CLASS_EntitySheep = getMinecraftClass("EntitySheep");
 	public static final Class CLASS_EntityVillager = getMinecraftClass("EntityVillager");
 	public static final Class CLASS_EntityGhast = getMinecraftClass("EntityGhast");
+	public static final Class CLASS_EntityBat = getMinecraftClass("EntityBat");
 	//classes
 	public static final Class<?> CLASS_PlayerConnection = getMinecraftClass("PlayerConnection");
 	public static final Class CLASS_DataWatcher = getMinecraftClass("DataWatcher");
@@ -143,7 +144,8 @@ public class Imports {
 	public static final FieldAccessor FIELD_EntitySkeletonAbstract_a = getField(CLASS_EntitySkeletonAbstract, CLASS_DataWatcherObject, "a"); //12
 	public static final FieldAccessor FIELD_EntityIronGolem_a = getField(CLASS_EntityIronGolem, CLASS_DataWatcherObject, "a"); //12
 	public static final FieldAccessor FIELD_EntitySnowman_a = getField(CLASS_EntitySnowman, CLASS_DataWatcherObject, "a"); //12
-	public static final FieldAccessor FIELD_EntityGhast_a = getField(CLASS_EntityGhast, CLASS_DataWatcherObject, "a"); //13
+	public static final FieldAccessor FIELD_EntityGhast_a = getField(CLASS_EntityGhast, CLASS_DataWatcherObject, "a"); //12
+	public static final FieldAccessor FIELD_EntityBat_a = getField(CLASS_EntityBat, CLASS_DataWatcherObject, "a"); //12
 	public static final FieldAccessor FIELD_EntityHuman_br = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "br"); //13
 	public static final FieldAccessor FIELD_EntityHorseAbstract_bI = getField(CLASS_EntityHorseAbstract, CLASS_DataWatcherObject, "bI"); //13
 	public static final FieldAccessor FIELD_EntityEnderman_by = getField(CLASS_EntityEnderman, CLASS_DataWatcherObject, "by"); //13

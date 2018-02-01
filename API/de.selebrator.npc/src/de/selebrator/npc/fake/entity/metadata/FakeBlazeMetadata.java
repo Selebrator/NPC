@@ -2,7 +2,7 @@ package de.selebrator.npc.fake.entity.metadata;
 
 import de.selebrator.npc.entity.metadata.MetadataObject;
 
-public class FakeBlazeMetadata extends FakeAmbientMetadata {
+public class FakeBlazeMetadata extends FakeMonsterMetadata {
 	private MetadataObject<Byte> onFire = new MetadataObject<>(this.getDataWatcher(), (byte) 0, "EntityBlaze", "c", 0); //12
 
 	public FakeBlazeMetadata() {
