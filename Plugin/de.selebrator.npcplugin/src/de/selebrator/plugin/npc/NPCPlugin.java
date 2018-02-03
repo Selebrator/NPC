@@ -2,10 +2,11 @@ package de.selebrator.plugin.npc;
 
 import de.selebrator.npc.Animation;
 import de.selebrator.npc.entity.*;
+import de.selebrator.npc.entity.metadata.MetadataObject;
 import de.selebrator.npc.fake.entity.*;
 import de.selebrator.plugin.npc.fetcher.GameProfileBuilder;
 import de.selebrator.plugin.npc.gui.*;
-import de.selebrator.reflection.ServerPackage;
+import de.selebrator.reflection.*;
 import net.md_5.bungee.api.chat.*;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -630,6 +631,52 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 							return true;
 						}
 						sender.sendMessage(command + DAMAGE_PARAMETERS);
+						return true;
+					}
+					sender.sendMessage(ChatColor.RED + "Select a NPC first");
+					return true;
+
+				case "meta":
+
+					if(this.selected != null) {
+						MetadataObject meta;
+						try {
+							meta = Reflection.getField(this.selected.getClass(), MetadataObject.class, args[1]).get(this.selected);
+						} catch(IllegalArgumentException e) {
+							sender.sendMessage(ChatColor.RED + "Cannot find " + MetadataObject.class.getSimpleName() + " " + args[1]);
+							return true;
+						}
+						if(args.length == 2) {
+							TextComponent message = new TextComponent();
+							message.addExtra(npcText(this.selected));
+							message.addExtra("." + args[1] + " == " + (meta.get() instanceof String ? "\"" + meta.get().toString() + "\"" : meta.get().toString()));
+							sender.spigot().sendMessage(message);
+							return true;
+						} else if(args.length == 3) {
+							Class type = Reflection.getField(MetadataObject.class, "value").get(meta).getClass();
+							Object value;
+
+							if(type == Boolean.class) value = Boolean.valueOf(args[2]);
+							else if(type == Byte.class) value = Byte.valueOf(args[2]);
+							else if(type == Short.class) value = Short.valueOf(args[2]);
+							else if(type == Integer.class) value = Integer.valueOf(args[2]);
+							else if(type == Long.class) value = Long.valueOf(args[2]);
+							else if(type == Float.class) value = Float.valueOf(args[2]);
+							else if(type == Double.class) value = Double.valueOf(args[2]);
+							else if(type == String.class) value = String.valueOf(args[2]);
+							else throw new IllegalArgumentException("nope");
+
+							//noinspection unchecked
+							meta.set(value);
+							this.selected.updateMetadata();
+							TextComponent message = new TextComponent();
+							message.addExtra(npcText(this.selected));
+							message.addExtra("." + args[1] + " = " + (meta.get() instanceof String ? "\"" + meta.get().toString() + "\"" : meta.get().toString()));
+							sender.spigot().sendMessage(message);
+							return true;
+						}
+
+						sender.sendMessage(command);
 						return true;
 					}
 					sender.sendMessage(ChatColor.RED + "Select a NPC first");
