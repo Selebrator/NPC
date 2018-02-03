@@ -62,6 +62,14 @@ public class Imports {
 	public static final Class CLASS_EntityVillager = getMinecraftClass("EntityVillager");
 	public static final Class CLASS_EntityGhast = getMinecraftClass("EntityGhast");
 	public static final Class CLASS_EntityBat = getMinecraftClass("EntityBat");
+	public static final Class CLASS_EntityBlaze = getMinecraftClass("EntityBlaze");
+	public static final Class CLASS_EntitySpider = getMinecraftClass("EntitySpider");
+	public static final Class CLASS_EntityCreeper = getMinecraftClass("EntityCreeper");
+	public static final Class CLASS_EntityVex = getMinecraftClass("EntityVex");
+	public static final Class CLASS_EntityWitch = getMinecraftClass("EntityWitch");
+	public static final Class CLASS_EntityWither = getMinecraftClass("EntityWither");
+	public static final Class CLASS_EntitySlime = getMinecraftClass("EntitySlime");
+	public static final Class CLASS_EntityEnderDragon = getMinecraftClass("EntityEnderDragon");
 	//classes
 	public static final Class<?> CLASS_PlayerConnection = getMinecraftClass("PlayerConnection");
 	public static final Class CLASS_DataWatcher = getMinecraftClass("DataWatcher");
@@ -146,6 +154,14 @@ public class Imports {
 	public static final FieldAccessor FIELD_EntitySnowman_a = getField(CLASS_EntitySnowman, CLASS_DataWatcherObject, "a"); //12
 	public static final FieldAccessor FIELD_EntityGhast_a = getField(CLASS_EntityGhast, CLASS_DataWatcherObject, "a"); //12
 	public static final FieldAccessor FIELD_EntityBat_a = getField(CLASS_EntityBat, CLASS_DataWatcherObject, "a"); //12
+	public static final FieldAccessor FIELD_EntityBlaze_c = getField(CLASS_EntityBlaze, CLASS_DataWatcherObject, "c"); //12
+	public static final FieldAccessor FIELD_EntitySpider_a = getField(CLASS_EntitySpider, CLASS_DataWatcherObject, "a"); //12
+	public static final FieldAccessor FIELD_EntityCreeper_a = getField(CLASS_EntityCreeper, CLASS_DataWatcherObject, "a"); //12
+	public static final FieldAccessor FIELD_EntityVex_a = getField(CLASS_EntityVex, CLASS_DataWatcherObject, "a"); //12
+	public static final FieldAccessor FIELD_EntityWitch_c = getField(CLASS_EntityWitch, CLASS_DataWatcherObject, "c"); //12
+	public static final FieldAccessor FIELD_EntityWither_a = getField(CLASS_EntityWither, CLASS_DataWatcherObject, "a"); //12
+	public static final FieldAccessor FIELD_EntitySlime_bv = getField(CLASS_EntitySlime, CLASS_DataWatcherObject, "bv"); //12
+	public static final FieldAccessor FIELD_EntityEnderDragon_PHASE = getField(CLASS_EntityEnderDragon, CLASS_DataWatcherObject, "PHASE"); //12
 	public static final FieldAccessor FIELD_EntityHuman_br = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "br"); //13
 	public static final FieldAccessor FIELD_EntityHorseAbstract_bI = getField(CLASS_EntityHorseAbstract, CLASS_DataWatcherObject, "bI"); //13
 	public static final FieldAccessor FIELD_EntityEnderman_by = getField(CLASS_EntityEnderman, CLASS_DataWatcherObject, "by"); //13
@@ -156,12 +172,16 @@ public class Imports {
 	public static final FieldAccessor FIELD_EntityRabbit_bx = getField(CLASS_EntityRabbit, CLASS_DataWatcherObject, "bx"); //13
 	public static final FieldAccessor FIELD_EntitySheep_bx = getField(CLASS_EntitySheep, CLASS_DataWatcherObject, "bx"); //13
 	public static final FieldAccessor FIELD_EntityVillager_bz = getField(CLASS_EntityVillager, CLASS_DataWatcherObject, "bz"); //13
+	public static final FieldAccessor FIELD_EntityCreeper_b = getField(CLASS_EntityCreeper, CLASS_DataWatcherObject, "b"); //13
+	public static final FieldAccessor FIELD_EntityWither_b = getField(CLASS_EntityWither, CLASS_DataWatcherObject, "b"); //13
 	public static final FieldAccessor FIELD_EntityHuman_bs = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "bs"); //14
 	public static final FieldAccessor FIELD_EntityZombie_bz = getField(CLASS_EntityZombie, CLASS_DataWatcherObject, "bz"); //14
 	public static final FieldAccessor FIELD_EntityHorseAbstract_bJ = getField(CLASS_EntityHorseAbstract, CLASS_DataWatcherObject, "bJ"); //14
 	public static final FieldAccessor FIELD_EntityTameableAnimal_by = getField(CLASS_EntityTameableAnimal, CLASS_DataWatcherObject, "by"); //14
 	public static final FieldAccessor FIELD_EntityShulker_c = getField(CLASS_EntityShulker, CLASS_DataWatcherObject, "c"); //14
 	public static final FieldAccessor FIELD_EntityPig_by = getField(CLASS_EntityPig, CLASS_DataWatcherObject, "by"); //14
+	public static final FieldAccessor FIELD_EntityCreeper_c = getField(CLASS_EntityCreeper, CLASS_DataWatcherObject, "c"); //14
+	public static final FieldAccessor FIELD_EntityWither_c = getField(CLASS_EntityWither, CLASS_DataWatcherObject, "c"); //14
 	public static final FieldAccessor FIELD_EntityHuman_bt = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "bt"); //15
 	public static final FieldAccessor FIELD_EntityZombieVillager_b = getField(CLASS_EntityZombieVillager, CLASS_DataWatcherObject, "b"); //15
 	public static final FieldAccessor FIELD_EntityHorse_bI = getField(CLASS_EntityHorse, CLASS_DataWatcherObject, "bI"); //15
@@ -170,6 +190,7 @@ public class Imports {
 	public static final FieldAccessor FIELD_EntityParrot_bG = getField(CLASS_EntityParrot, CLASS_DataWatcherObject, "bG"); //15
 	public static final FieldAccessor FIELD_EntityWolf_DATA_HEALTH = getField(CLASS_EntityWolf, CLASS_DataWatcherObject, "DATA_HEALTH"); //15
 	public static final FieldAccessor FIELD_EntityShulker_COLOR = getField(CLASS_EntityShulker, CLASS_DataWatcherObject, "COLOR"); //15
+	public static final FieldAccessor FIELD_EntityWither_by = getField(CLASS_EntityWither, CLASS_DataWatcherObject, "by"); //15
 	public static final FieldAccessor FIELD_EntityHuman_bu = getField(CLASS_EntityHuman, CLASS_DataWatcherObject, "bu"); //16
 	public static final FieldAccessor FIELD_EntityZombieVillager_c = getField(CLASS_EntityZombieVillager, CLASS_DataWatcherObject, "c"); //16
 	public static final FieldAccessor FIELD_EntityHorse_bJ = getField(CLASS_EntityHorse, CLASS_DataWatcherObject, "bJ"); //16

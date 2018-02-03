@@ -8,11 +8,11 @@ public interface EntityMetadata extends Nameable {
 
 	void setStatus(Status target, boolean state);
 
-	default boolean isOnFire() {
+	default boolean isBurning() {
 		return this.getStatus(Status.FIRE);
 	}
 
-	default void setOnFire(boolean state) {
+	default void setBurning(boolean state) {
 		this.setStatus(Status.FIRE, state);
 	}
 
@@ -56,7 +56,7 @@ public interface EntityMetadata extends Nameable {
 		this.setStatus(Status.ELYTRA, state);
 	}
 
-	void setStatus(boolean fire, boolean sneak, boolean sprint, boolean invisible, boolean glow, boolean gliding);
+	void setStatus(boolean burn, boolean sneak, boolean sprint, boolean invisible, boolean glow, boolean gliding);
 
 	int getRemainingAir();
 

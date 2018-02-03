@@ -184,14 +184,14 @@ public abstract class FakeEntity implements EntityNPC {
 	}
 
 	public void ignite(int fireTicks) {
-		this.setOnFire(true);
+		this.setBurning(true);
 		if(this.getFireTicks() < fireTicks)
 			this.setFireTicks(fireTicks);
 		updateMetadata();
 	}
 
 	public void extinguish() {
-		this.setOnFire(false);
+		this.setBurning(false);
 		this.setFireTicks(-20);
 		updateMetadata();
 	}
@@ -217,8 +217,8 @@ public abstract class FakeEntity implements EntityNPC {
 		MetadataObject.setBitmaskValue(this.status, target.getId(), state);
 	}
 
-	public void setStatus(boolean fire, boolean sneak, boolean sprint, boolean invisible, boolean glow, boolean gliding) {
-		this.status.set((byte) ((fire ? 1 : 0) << Status.FIRE.getId() | (sneak ? 1 : 0) << Status.SNEAK.getId() | (sprint ? 1 : 0) << Status.SPRINT.getId() | (invisible ? 1 : 0) << Status.INVISIBLE.getId() | (glow ? 1 : 0) << Status.GLOW.getId() | (gliding ? 1 : 0) << Status.ELYTRA.getId()));
+	public void setStatus(boolean burn, boolean sneak, boolean sprint, boolean invisible, boolean glow, boolean gliding) {
+		this.status.set((byte) ((burn ? 1 : 0) << Status.FIRE.getId() | (sneak ? 1 : 0) << Status.SNEAK.getId() | (sprint ? 1 : 0) << Status.SPRINT.getId() | (invisible ? 1 : 0) << Status.INVISIBLE.getId() | (glow ? 1 : 0) << Status.GLOW.getId() | (gliding ? 1 : 0) << Status.ELYTRA.getId()));
 	}
 
 	public int getRemainingAir() {

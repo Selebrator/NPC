@@ -142,8 +142,6 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 				return new FakeSkeletonHorse();
 			case ZOMBIE_HORSE:
 				return new FakeZombieHorse();
-			case ARMOR_STAND:
-				throw new UnsupportedOperationException();
 			case DONKEY:
 				return new FakeDonkey();
 			case MULE:
@@ -159,17 +157,17 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 			case ILLUSIONER:
 				throw new UnsupportedOperationException();
 			case CREEPER:
-				throw new UnsupportedOperationException();
+				return new FakeCreeper();
 			case SKELETON:
 				return new FakeSkeleton();
 			case SPIDER:
-				throw new UnsupportedOperationException();
+				return new FakeSpider();
 			case GIANT:
-				throw new UnsupportedOperationException();
+				return new FakeGiant();
 			case ZOMBIE:
 				return new FakeZombie();
 			case SLIME:
-				throw new UnsupportedOperationException();
+				return new FakeSlime();
 			case GHAST:
 				return new FakeGhast();
 			case PIG_ZOMBIE:
@@ -177,23 +175,23 @@ public class NPCPlugin extends JavaPlugin implements Listener, CommandExecutor {
 			case ENDERMAN:
 				return new FakeEnderman();
 			case CAVE_SPIDER:
-				throw new UnsupportedOperationException();
+				return new FakeCaveSpider();
 			case SILVERFISH:
-				throw new UnsupportedOperationException();
+				return new FakeSilverfish();
 			case BLAZE:
-				throw new UnsupportedOperationException();
+				return new FakeBlaze();
 			case MAGMA_CUBE:
-				throw new UnsupportedOperationException();
+				return new FakeMagmaCube();
 			case ENDER_DRAGON:
-				throw new UnsupportedOperationException();
+				return new FakeEnderDragon();
 			case WITHER:
-				throw new UnsupportedOperationException();
+				return new FakeWither();
 			case BAT:
 				return new FakeBat();
 			case WITCH:
-				throw new UnsupportedOperationException();
+				return new FakeWitch();
 			case ENDERMITE:
-				throw new UnsupportedOperationException();
+				return new FakeEndermite();
 			case GUARDIAN:
 				return new FakeGuardian();
 			case SHULKER:
