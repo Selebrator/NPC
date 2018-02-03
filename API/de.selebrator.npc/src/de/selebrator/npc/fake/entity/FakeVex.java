@@ -23,11 +23,13 @@ public class FakeVex extends FakeMonster implements VexNPC {
 		this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(4.0D);
 	}
 
-	public boolean isAttacking() {
-		return MetadataObject.getBitmaskValue(this.attacking, (byte) 0);
+	@Override
+	public byte getVexInfo() {
+		return this.attacking.get();
 	}
 
-	public void setAttacking(boolean attacking) {
-		MetadataObject.setBitmaskValue(this.attacking, (byte) 0, attacking);
+	@Override
+	public void setVexInfo(byte value) {
+		this.attacking.set(value);
 	}
 }

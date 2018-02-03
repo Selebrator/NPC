@@ -8,7 +8,7 @@ import static de.selebrator.npc.fake.Imports.FIELD_EntityBat_a;
 
 public class FakeBat extends FakeAmbient implements BatNPC {
 
-	private MetadataObject<Byte> hanging;
+	MetadataObject<Byte> hanging;
 
 	@Override
 	void initMetadata() {
@@ -22,11 +22,11 @@ public class FakeBat extends FakeAmbient implements BatNPC {
 		this.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(6.0D);
 	}
 
-	public boolean isHanging() {
-		return MetadataObject.getBitmaskValue(this.hanging, (byte) 0);
+	public byte getBatInfo() {
+		return this.hanging.get();
 	}
 
-	public void setHanging(boolean hanging) {
-		MetadataObject.setBitmaskValue(this.hanging, (byte) 0, hanging);
+	public void setBatInfo(byte value) {
+		this.hanging.set(value);
 	}
 }

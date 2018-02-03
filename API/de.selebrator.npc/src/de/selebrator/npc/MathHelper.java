@@ -72,12 +72,4 @@ public class MathHelper {
 	public static Vector calcDistanceVector(Location start, Location destination) {
 		return calcDistanceVector(start.getX(), start.getY(), start.getZ(), destination.getX(), destination.getY(), destination.getZ());
 	}
-
-	public static boolean getBit(byte bitMask, int bit) {
-		return (bitMask & (1 << bit)) != 0;
-	}
-
-	public static byte setBit(byte bitMask, int bit, boolean state) {
-		return state ? (byte) (bitMask | (1 << bit)) : (byte) (bitMask & ~(1 << bit));
-	}
 }

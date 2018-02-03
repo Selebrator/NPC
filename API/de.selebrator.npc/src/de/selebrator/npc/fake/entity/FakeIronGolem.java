@@ -24,11 +24,11 @@ public class FakeIronGolem extends FakeGolem implements IronGolemNPC {
 		this.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1.0D);
 	}
 
-	public boolean isPlayerCreated() {
-		return MetadataObject.getBitmaskValue(this.playerCreated, (byte) 4);
+	public byte getIronGolemInfo() {
+		return this.playerCreated.get();
 	}
 
-	public void setPlayerCreated(boolean playerCreated) {
-		MetadataObject.setBitmaskValue(this.playerCreated, (byte) 4, playerCreated);
+	public void setIronGolemInfo(byte value) {
+		this.playerCreated.set(value);
 	}
 }

@@ -209,16 +209,13 @@ public abstract class FakeEntity implements EntityNPC {
 		//TODO
 	}
 
-	public boolean getStatus(Status target) {
-		return MetadataObject.getBitmaskValue(this.status, target.getId());
+	public byte getStatus() {
+		return this.status.get();
 	}
 
-	public void setStatus(Status target, boolean state) {
-		MetadataObject.setBitmaskValue(this.status, target.getId(), state);
-	}
-
-	public void setStatus(boolean burn, boolean sneak, boolean sprint, boolean invisible, boolean glow, boolean gliding) {
-		this.status.set((byte) ((burn ? 1 : 0) << Status.FIRE.getId() | (sneak ? 1 : 0) << Status.SNEAK.getId() | (sprint ? 1 : 0) << Status.SPRINT.getId() | (invisible ? 1 : 0) << Status.INVISIBLE.getId() | (glow ? 1 : 0) << Status.GLOW.getId() | (gliding ? 1 : 0) << Status.ELYTRA.getId()));
+	@Override
+	public void setStatus(byte value) {
+		this.status.set(value);
 	}
 
 	public int getRemainingAir() {

@@ -2,6 +2,8 @@ package de.selebrator.npc.entity.metadata;
 
 import org.bukkit.inventory.MainHand;
 
+import static de.selebrator.npc.entity.metadata.MetadataObject.SkinFlag.*;
+
 public interface HumanMetadata extends LivingMetadata {
 
 	float getAbsorption();
@@ -12,89 +14,87 @@ public interface HumanMetadata extends LivingMetadata {
 
 	void setScore(int score);
 
-	boolean getSkinFlag(SkinFlag target);
+	byte getSkinFlag();
 
-	void setSkinFlag(SkinFlag target, boolean state);
+	default boolean getSkinFlag(int target) {
+		return MetadataObject.getBitmaskValue(this.getSkinFlag(), target);
+	}
+
+	void setSkinFlag(byte value);
+
+	default void setSkinFlag(int target, boolean state) {
+		this.setSkinFlag(MetadataObject.setBitmaskValue(this.getSkinFlag(), target, state));
+	}
 
 	default boolean isCapeEnabled() {
-		return this.getSkinFlag(SkinFlag.CAPE);
+		return this.getSkinFlag(CAPE);
 	}
 
 	default void enableCape(boolean state) {
-		this.setSkinFlag(SkinFlag.CAPE, state);
+		this.setSkinFlag(CAPE, state);
 	}
 
 	default boolean isJacketEnabled() {
-		return this.getSkinFlag(SkinFlag.JACKET);
+		return this.getSkinFlag(JACKET);
 	}
 
 	default void enableJacket(boolean state) {
-		this.setSkinFlag(SkinFlag.JACKET, state);
+		this.setSkinFlag(JACKET, state);
 	}
 
 	default boolean isLeftArmEnabled() {
-		return this.getSkinFlag(SkinFlag.LEFT_SLEEVE);
+		return this.getSkinFlag(LEFT_SLEEVE);
 	}
 
 	default void enableLeftArm(boolean state) {
-		this.setSkinFlag(SkinFlag.LEFT_SLEEVE, state);
+		this.setSkinFlag(LEFT_SLEEVE, state);
 	}
 
 	default boolean isRightArmEnabled() {
-		return this.getSkinFlag(SkinFlag.RIGHT_SLEEVE);
+		return this.getSkinFlag(RIGHT_SLEEVE);
 	}
 
 	default void enableRightArm(boolean state) {
-		this.setSkinFlag(SkinFlag.RIGHT_SLEEVE, state);
+		this.setSkinFlag(RIGHT_SLEEVE, state);
 	}
 
 	default boolean isLeftLegEnabled() {
-		return this.getSkinFlag(SkinFlag.LEFT_PANTS);
+		return this.getSkinFlag(LEFT_PANTS);
 	}
 
 	default void enableLeftLeg(boolean state) {
-		this.setSkinFlag(SkinFlag.LEFT_PANTS, state);
+		this.setSkinFlag(LEFT_PANTS, state);
 	}
 
 	default boolean isRightLegEnabled() {
-		return this.getSkinFlag(SkinFlag.RIGHT_PANTS);
+		return this.getSkinFlag(RIGHT_PANTS);
 	}
 
 	default void enableRightLeg(boolean state) {
-		this.setSkinFlag(SkinFlag.RIGHT_PANTS, state);
+		this.setSkinFlag(RIGHT_PANTS, state);
 	}
 
 	default boolean isHatEnabled() {
-		return this.getSkinFlag(SkinFlag.HAT);
+		return this.getSkinFlag(HAT);
 	}
 
 	default void enableHat(boolean state) {
-		this.setSkinFlag(SkinFlag.HAT, state);
+		this.setSkinFlag(HAT, state);
 	}
 
-	void setSkinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat);
+	default void setSkinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
+		byte value = 0x00;
+		if(cape) value |= CAPE;
+		if(jacket) value |= JACKET;
+		if(leftArm) value |= LEFT_SLEEVE;
+		if(rightArm) value |= RIGHT_SLEEVE;
+		if(leftLeg) value |= LEFT_PANTS;
+		if(rightLeg) value |= RIGHT_PANTS;
+		if(hat) value |= HAT;
+		this.setSkinFlag(value);
+	}
 
 	MainHand getMainHand();
 
 	void setMainHand(MainHand mainHand);
-
-	enum SkinFlag {
-		CAPE(0),
-		JACKET(1),
-		LEFT_SLEEVE(2),
-		RIGHT_SLEEVE(3),
-		LEFT_PANTS(4),
-		RIGHT_PANTS(5),
-		HAT(6);
-
-		byte id;
-
-		SkinFlag(int id) {
-			this.id = (byte) id;
-		}
-
-		public byte getId() {
-			return this.id;
-		}
-	}
 }

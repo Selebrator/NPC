@@ -21,12 +21,12 @@ public abstract class FakeTameable extends FakeAnimal implements TameableNPC {
 		this.owner = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityTameableAnimal_by, Optional.absent()); //14 TODO check again if Mojang uses java.util.Optional
 	}
 
-	public boolean getTameableAnimalInfo(TameableAnimalInfo target) {
-		return MetadataObject.getBitmaskValue(this.tameableAnimalInfo, target.getId());
+	public byte getTameableAnimalInfo() {
+		return this.tameableAnimalInfo.get();
 	}
 
-	public void setTameableAnimalInfo(TameableAnimalInfo target, boolean state) {
-		MetadataObject.setBitmaskValue(this.tameableAnimalInfo, target.getId(), state);
+	public void setTameableAnimalInfo(byte value) {
+		this.tameableAnimalInfo.set(value);
 	}
 
 	public Optional<UUID> getOwner() {

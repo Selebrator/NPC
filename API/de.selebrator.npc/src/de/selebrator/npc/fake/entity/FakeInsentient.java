@@ -15,19 +15,11 @@ public abstract class FakeInsentient extends FakeLiving implements InsentientNPC
 		this.insentientInfo = new MetadataObject<>(this.getDataWatcher(), FIELD_EntityInsentient_a, (byte) 0); //11
 	}
 
-	public boolean hasAI() {
-		return MetadataObject.getBitmaskValue(this.insentientInfo, (byte) 0);
+	public byte getInsentientInfo() {
+		return this.insentientInfo.get();
 	}
 
-	public void setAI(boolean ai) {
-		MetadataObject.setBitmaskValue(this.insentientInfo, (byte) 0, ai);
-	}
-
-	public boolean isLeftHanded() {
-		return MetadataObject.getBitmaskValue(this.insentientInfo, (byte) 1);
-	}
-
-	public void setLeftHanded(boolean leftHanded) {
-		MetadataObject.setBitmaskValue(this.insentientInfo, (byte) 1, leftHanded);
+	public void setInsentientInfo(byte value) {
+		this.insentientInfo.set(value);
 	}
 }

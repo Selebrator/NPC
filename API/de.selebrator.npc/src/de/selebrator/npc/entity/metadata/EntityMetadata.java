@@ -2,61 +2,80 @@ package de.selebrator.npc.entity.metadata;
 
 import org.bukkit.Nameable;
 
+import static de.selebrator.npc.entity.metadata.MetadataObject.StatusFlag.*;
+
 public interface EntityMetadata extends Nameable {
 
-	boolean getStatus(Status target);
+	byte getStatus();
 
-	void setStatus(Status target, boolean state);
+	default boolean getStatus(int target) {
+		return MetadataObject.getBitmaskValue(this.getStatus(), target);
+	}
+
+	void setStatus(byte value);
+
+	default void setStatus(int target, boolean state) {
+		this.setStatus(MetadataObject.setBitmaskValue(this.getStatus(), target, state));
+	}
 
 	default boolean isBurning() {
-		return this.getStatus(Status.FIRE);
+		return this.getStatus(BURNING);
 	}
 
 	default void setBurning(boolean state) {
-		this.setStatus(Status.FIRE, state);
+		this.setStatus(BURNING, state);
 	}
 
 	default boolean isSneaking() {
-		return this.getStatus(Status.SNEAK);
+		return this.getStatus(SNEAKING);
 	}
 
 	default void setSneaking(boolean state) {
-		this.setStatus(Status.SNEAK, state);
+		this.setStatus(SNEAKING, state);
 	}
 
 	default boolean isSprinting() {
-		return this.getStatus(Status.SPRINT);
+		return this.getStatus(SPRINTING);
 	}
 
 	default void setSprinting(boolean state) {
-		this.setStatus(Status.SPRINT, state);
+		this.setStatus(SPRINTING, state);
 	}
 
 	default boolean isInvisible() {
-		return this.getStatus(Status.INVISIBLE);
+		return this.getStatus(INVISIBLE);
 	}
 
 	default void setInvisible(boolean state) {
-		this.setStatus(Status.INVISIBLE, state);
+		this.setStatus(INVISIBLE, state);
 	}
 
 	default boolean isGlowing() {
-		return this.getStatus(Status.GLOW);
+		return this.getStatus(GLOWING);
 	}
 
 	default void setGlowing(boolean state) {
-		this.setStatus(Status.GLOW, state);
+		this.setStatus(GLOWING, state);
 	}
 
 	default boolean isGliding() {
-		return this.getStatus(Status.ELYTRA);
+		return this.getStatus(GLIDING);
 	}
 
 	default void setGliding(boolean state) {
-		this.setStatus(Status.ELYTRA, state);
+		this.setStatus(GLIDING, state);
 	}
 
-	void setStatus(boolean burn, boolean sneak, boolean sprint, boolean invisible, boolean glow, boolean gliding);
+	default void setStatus(boolean burn, boolean sneak, boolean sprint, boolean invisible, boolean glow, boolean gliding) {
+		byte value = 0x00;
+		if(burn) value |= BURNING;
+		if(sneak) value |= SNEAKING;
+		if(sprint) value |= SPRINTING;
+		if(invisible) value |= INVISIBLE;
+		if(glow) value |= GLOWING;
+		if(gliding) value |= GLIDING;
+		this.setStatus(value);
+	}
 
 	int getRemainingAir();
 
@@ -73,23 +92,4 @@ public interface EntityMetadata extends Nameable {
 	boolean hasGravity();
 
 	void setGravity(boolean gravity);
-
-	enum Status {
-		FIRE(0),
-		SNEAK(1),
-		SPRINT(3),
-		INVISIBLE(5),
-		GLOW(6),
-		ELYTRA(7);
-
-		private byte id;
-
-		Status(int id) {
-			this.id = (byte) id;
-		}
-
-		public byte getId() {
-			return this.id;
-		}
-	}
 }

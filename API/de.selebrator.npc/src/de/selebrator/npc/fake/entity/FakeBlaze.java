@@ -24,11 +24,13 @@ public class FakeBlaze extends FakeMonster implements BlazeNPC {
 		this.getAttribute(Attribute.GENERIC_FOLLOW_RANGE).setBaseValue(48.0D);
 	}
 
-	public boolean isOnFire() {
-		return MetadataObject.getBitmaskValue(this.onFire, (byte) 0);
+	@Override
+	public byte getBlazeInfo() {
+		return this.onFire.get();
 	}
 
-	public void setOnFire(boolean onFire) {
-		MetadataObject.setBitmaskValue(this.onFire, (byte) 0, onFire);
+	@Override
+	public void setBlazeInfo(byte value) {
+		this.onFire.set(value);
 	}
 }

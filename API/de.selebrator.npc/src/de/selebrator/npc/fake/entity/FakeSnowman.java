@@ -15,11 +15,13 @@ public class FakeSnowman extends FakeGolem implements SnowmanNPC {
 		this.pumpkinHat = new MetadataObject<>(this.getDataWatcher(), FIELD_EntitySnowman_a, (byte) 0x10); //12
 	}
 
-	public boolean hasPumpkinHat() {
-		return MetadataObject.getBitmaskValue(this.pumpkinHat, (byte) 4);
+	@Override
+	public byte getSnowmanInfo() {
+		return this.pumpkinHat.get();
 	}
 
-	public void setPumpkinHat(boolean hat) {
-		MetadataObject.setBitmaskValue(this.pumpkinHat, (byte) 4, hat);
+	@Override
+	public void setSnowmanInfo(byte value) {
+		this.pumpkinHat.set(value);
 	}
 }

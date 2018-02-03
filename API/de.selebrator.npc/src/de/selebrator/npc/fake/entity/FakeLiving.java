@@ -234,6 +234,16 @@ public abstract class FakeLiving extends FakeEntity implements LivingNPC {
 		this.living = living;
 	}
 
+	@Override
+	public byte getHandInfo() {
+		return this.activeHand.get();
+	}
+
+	@Override
+	public void setHandInfo(byte value) {
+		this.activeHand.set(value);
+	}
+
 	public float getHealth() {
 		return this.isAlive() ? this.health.get() : 0;
 	}

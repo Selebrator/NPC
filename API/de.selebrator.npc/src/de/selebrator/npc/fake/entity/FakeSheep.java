@@ -23,19 +23,11 @@ public class FakeSheep extends FakeAnimal implements SheepNPC {
 		this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.23000000417232513D);
 	}
 
-	public int getColorId() {
-		return this.wool.get() & 0x0f;
+	public byte getWoolInfo() {
+		return this.wool.get();
 	}
 
-	public void setColor(int id) {
-		this.wool.set((byte) (this.wool.get() | (id & 0x0f)));
-	}
-
-	public boolean isSheared() {
-		return MetadataObject.getBitmaskValue(this.wool, (byte) 4);
-	}
-
-	public void setSheared(boolean sheared) {
-		MetadataObject.setBitmaskValue(this.wool, (byte) 4, sheared);
+	public void setWoolInfo(byte value) {
+		this.wool.set(value);
 	}
 }

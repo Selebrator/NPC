@@ -1,48 +1,42 @@
 package de.selebrator.npc.entity.metadata;
 
+import static de.selebrator.npc.entity.metadata.MetadataObject.TameableAnimalFlag.*;
+
 public interface TameableMetadata extends AnimalMetadata, Ownable {
 
-	boolean getTameableAnimalInfo(TameableAnimalInfo target);
+	byte getTameableAnimalInfo();
 
-	void setTameableAnimalInfo(TameableAnimalInfo target, boolean state);
+	default boolean getTameableAnimalInfo(int target) {
+		return MetadataObject.getBitmaskValue(this.getStatus(), target);
+	}
+
+	void setTameableAnimalInfo(byte value);
+
+	default void setTameableAnimalInfo(int target, boolean state) {
+		this.setStatus(MetadataObject.setBitmaskValue(this.getStatus(), target, state));
+	}
 
 	default boolean isSitting() {
-		return this.getTameableAnimalInfo(TameableAnimalInfo.SITTING);
+		return this.getTameableAnimalInfo(SITTING);
 	}
 
 	default void setSitting(boolean state) {
-		this.setTameableAnimalInfo(TameableAnimalInfo.SITTING, state);
+		this.setTameableAnimalInfo(SITTING, state);
 	}
 
 	default boolean isAngry() {
-		return this.getTameableAnimalInfo(TameableAnimalInfo.ANGRY);
+		return this.getTameableAnimalInfo(ANGRY);
 	}
 
 	default void setAngry(boolean state) {
-		this.setTameableAnimalInfo(TameableAnimalInfo.ANGRY, state);
+		this.setTameableAnimalInfo(ANGRY, state);
 	}
 
 	default boolean isTamed() {
-		return this.getTameableAnimalInfo(TameableAnimalInfo.TAMED);
+		return this.getTameableAnimalInfo(TAMED);
 	}
 
 	default void setTamed(boolean state) {
-		this.setTameableAnimalInfo(TameableAnimalInfo.TAMED, state);
-	}
-
-	enum TameableAnimalInfo {
-		SITTING(0),
-		ANGRY(1),
-		TAMED(2);
-
-		private byte id;
-
-		TameableAnimalInfo(int id) {
-			this.id = (byte) id;
-		}
-
-		public byte getId() {
-			return this.id;
-		}
+		this.setTameableAnimalInfo(TAMED, state);
 	}
 }

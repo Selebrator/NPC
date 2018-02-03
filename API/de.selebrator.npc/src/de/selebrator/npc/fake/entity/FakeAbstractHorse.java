@@ -42,12 +42,12 @@ public abstract class FakeAbstractHorse extends FakeAnimal implements AbstractHo
 		this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.22499999403953552D);
 	}
 
-	public boolean getAbstractHorseInfo(AbstractHorseInfo target) {
-		return MetadataObject.getBitmaskValue(this.abstractHorseInfo, target.getId());
+	public byte getAbstractHorseInfo() {
+		return this.abstractHorseInfo.get();
 	}
 
-	public void setAbstractHorseInfo(AbstractHorseInfo target, boolean state) {
-		MetadataObject.setBitmaskValue(this.abstractHorseInfo, target.getId(), state);
+	public void setAbstractHorseInfo(byte value) {
+		this.abstractHorseInfo.set(value);
 	}
 
 	public Optional<UUID> getOwner() {

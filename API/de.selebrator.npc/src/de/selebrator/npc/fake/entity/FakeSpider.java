@@ -23,11 +23,13 @@ public class FakeSpider extends FakeMonster implements SpiderNPC {
 		this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.30000001192092896D);
 	}
 
-	public boolean isClimbing() {
-		return MetadataObject.getBitmaskValue(this.climbing, (byte) 0);
+	@Override
+	public byte getSpiderInfo() {
+		return this.climbing.get();
 	}
 
-	public void setClimbing(boolean climbing) {
-		MetadataObject.setBitmaskValue(this.climbing, (byte) 0, climbing);
+	@Override
+	public void setSpiderInfo(byte value) {
+		this.climbing.set(value);
 	}
 }

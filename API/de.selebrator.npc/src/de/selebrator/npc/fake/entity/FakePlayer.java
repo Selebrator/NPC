@@ -28,12 +28,12 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 	private Equipment equip;
 	private LivingEntity target;
 
-	private MetadataObject<Float> absorption;
-	private MetadataObject<Integer> score;
-	private MetadataObject<Byte> skinFlags;
-	private MetadataObject<Byte> mainHand;
-	private MetadataObject<?> leftShoulder;
-	private MetadataObject<?> rightShoulder;
+	MetadataObject<Float> absorption;
+	MetadataObject<Integer> score;
+	MetadataObject<Byte> skinFlags;
+	MetadataObject<Byte> mainHand;
+	MetadataObject<?> leftShoulder;
+	MetadataObject<?> rightShoulder;
 
 	public FakePlayer(GameProfile gameProfile) {
 		super();
@@ -195,10 +195,10 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 
 	@Override
 	public void setSneaking(boolean state) {
-		this.setStatus(Status.SNEAK, state);
+		this.setStatus(MetadataObject.StatusFlag.SNEAKING, state);
 		if(state) {
 			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.MOVEMENT_SPEED_SNEAKING);
-			this.setStatus(Status.SPRINT, false);
+			this.setStatus(MetadataObject.StatusFlag.SPRINTING, false);
 		} else
 			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.MOVEMENT_SPEED_SNEAKING);
 		updateMetadata();
@@ -206,10 +206,10 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 
 	@Override
 	public void setSprinting(boolean state) {
-		this.setStatus(Status.SPRINT, state);
+		this.setStatus(MetadataObject.StatusFlag.SPRINTING, state);
 		if(state) {
 			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(FakeAttributeInstance.MOVEMENT_SPEED_SPRINTING);
-			this.setStatus(Status.SNEAK, false);
+			this.setStatus(MetadataObject.StatusFlag.SNEAKING, false);
 		} else
 			this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(FakeAttributeInstance.MOVEMENT_SPEED_SPRINTING);
 		updateMetadata();
@@ -392,16 +392,14 @@ public class FakePlayer extends FakeLiving implements PlayerNPC {
 		this.score.set(score);
 	}
 
-	public boolean getSkinFlag(SkinFlag target) {
-		return MetadataObject.getBitmaskValue(this.skinFlags, target.getId());
+	@Override
+	public byte getSkinFlag() {
+		return this.skinFlags.get();
 	}
 
-	public void setSkinFlag(SkinFlag target, boolean state) {
-		MetadataObject.setBitmaskValue(this.skinFlags, target.getId(), state);
-	}
-
-	public void setSkinFlags(boolean cape, boolean jacket, boolean leftArm, boolean rightArm, boolean leftLeg, boolean rightLeg, boolean hat) {
-		this.skinFlags.set((byte) ((cape ? 1 : 0) << SkinFlag.CAPE.getId() | (jacket ? 1 : 0) << SkinFlag.JACKET.getId() | (leftArm ? 1 : 0) << SkinFlag.LEFT_SLEEVE.getId() | (rightArm ? 1 : 0) << SkinFlag.RIGHT_SLEEVE.getId() | (leftLeg ? 1 : 0) << SkinFlag.LEFT_PANTS.getId() | (rightLeg ? 1 : 0) << SkinFlag.RIGHT_PANTS.getId() | (hat ? 1 : 0) << SkinFlag.HAT.getId()));
+	@Override
+	public void setSkinFlag(byte value) {
+		this.skinFlags.set(value);
 	}
 
 	public MainHand getMainHand() {
